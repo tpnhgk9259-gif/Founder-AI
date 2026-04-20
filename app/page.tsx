@@ -37,15 +37,15 @@ const agents = [
   },
   {
     name: "Léo",
-    role: "Directeur Technique",
+    role: "Directeur Produit",
     emoji: "⚙️",
     color: "from-sky-400 to-blue-500",
     bg: "bg-sky-50",
     border: "border-sky-200",
     accent: "text-sky-500",
     description:
-      "Architecture, dette technique et recrutement ingénieur. Léo traduit vos ambitions produit en décisions tech solides.",
-    skills: ["Architecture", "Build vs buy", "Recrutement tech", "Sécurité"],
+      "Conception produit, architecture et dette technique. Léo traduit vos ambitions en décisions produit et tech solides.",
+    skills: ["MVP design", "Architecture", "Build vs buy", "Recrutement tech"],
   },
 ];
 
@@ -91,13 +91,24 @@ export default function Home() {
             <a href="#pricing" className="hover:text-gray-900 transition-colors">
               Tarifs
             </a>
+            <a href="/partenaires/inscription" className="hover:text-gray-900 transition-colors">
+              Devenir partenaire
+            </a>
           </div>
-          <a
-            href="#cta"
-            className="bg-violet-600 hover:bg-violet-700 text-white text-sm font-semibold px-5 py-2.5 rounded-full transition-colors"
-          >
-            Démarrer gratuitement
-          </a>
+          <div className="flex items-center gap-3">
+            <a
+              href="/connexion"
+              className="text-sm font-semibold text-gray-600 hover:text-gray-900 transition-colors"
+            >
+              Se connecter
+            </a>
+            <a
+              href="/inscription"
+              className="bg-violet-600 hover:bg-violet-700 text-white text-sm font-semibold px-5 py-2.5 rounded-full transition-colors"
+            >
+              Démarrer gratuitement
+            </a>
+          </div>
         </div>
       </nav>
 
@@ -281,8 +292,9 @@ export default function Home() {
 
       {/* Pricing */}
       <section id="pricing" className="py-24 px-6">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           <div className="text-center mb-16">
+            <p className="text-sm font-bold uppercase tracking-widest text-violet-500 mb-3">Modèle SaaS par abonnement</p>
             <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-4">
               Tarifs simples
             </h2>
@@ -291,66 +303,92 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="border-2 border-gray-200 rounded-3xl p-8">
+          <div className="grid md:grid-cols-3 gap-6">
+            {/* Starter */}
+            <div className="border-2 border-gray-200 rounded-3xl p-8 flex flex-col">
               <p className="font-bold text-gray-500 text-sm mb-2">STARTER</p>
               <p className="text-5xl font-black text-gray-900 mb-1">
-                0€
-                <span className="text-lg font-normal text-gray-400">
-                  /mois
-                </span>
+                49€
+                <span className="text-lg font-normal text-gray-400">/mois</span>
               </p>
-              <p className="text-gray-500 mb-8">Pour tester et démarrer</p>
-              <ul className="space-y-3 text-sm text-gray-600">
+              <div className="mt-6 space-y-3 text-sm text-gray-600 flex-1">
                 {[
-                  "Accès à Alex & Maya",
-                  "50 messages / mois",
-                  "Historique 7 jours",
+                  "3 agents au choix",
+                  "50 sessions / mois",
+                  "5 livrables / mois",
+                  "Mémoire contextuelle 3 mois",
+                  "Support Community",
                 ].map((item) => (
-                  <li key={item} className="flex items-center gap-2">
-                    <span className="text-green-500">✓</span> {item}
-                  </li>
+                  <div key={item} className="flex items-start gap-2">
+                    <span className="text-green-500 shrink-0">✓</span> {item}
+                  </div>
                 ))}
-              </ul>
+              </div>
               <a
                 href="#cta"
                 className="mt-8 block text-center border-2 border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white font-bold py-3 rounded-2xl transition-all"
               >
-                Commencer gratuitement
+                Commencer →
               </a>
             </div>
 
-            <div className="bg-violet-600 text-white rounded-3xl p-8 relative overflow-hidden">
-              <div
-                aria-hidden="true"
-                className="absolute -top-8 -right-8 w-40 h-40 rounded-full bg-white/10"
-              />
-              <p className="font-bold text-violet-200 text-sm mb-2">PRO</p>
+            {/* Growth */}
+            <div className="bg-violet-600 text-white rounded-3xl p-8 relative overflow-hidden flex flex-col">
+              <div aria-hidden="true" className="absolute -top-8 -right-8 w-40 h-40 rounded-full bg-white/10" />
+              <div className="flex items-center gap-2 mb-2">
+                <p className="font-bold text-violet-200 text-sm">GROWTH</p>
+                <span className="text-xs font-bold bg-white/20 text-white px-2 py-0.5 rounded-full">Populaire</span>
+              </div>
               <p className="text-5xl font-black mb-1">
-                49€
-                <span className="text-lg font-normal text-violet-300">
-                  /mois
-                </span>
+                149€
+                <span className="text-lg font-normal text-violet-300">/mois</span>
               </p>
-              <p className="text-violet-200 mb-8">Pour les fondateurs sérieux</p>
-              <ul className="space-y-3 text-sm text-violet-100">
+              <div className="mt-6 space-y-3 text-sm text-violet-100 flex-1">
                 {[
-                  "Les 4 agents complets",
-                  "Messages illimités",
-                  "Mémoire permanente",
-                  "Collaboration inter-agents",
-                  "Export des décisions",
+                  "4 agents + CODIR",
+                  "Sessions illimitées",
+                  "20 livrables / mois",
+                  "Mémoire contextuelle 12 mois",
+                  "Support email prioritaire",
                 ].map((item) => (
-                  <li key={item} className="flex items-center gap-2">
-                    <span className="text-white/80">✓</span> {item}
-                  </li>
+                  <div key={item} className="flex items-start gap-2">
+                    <span className="text-white/80 shrink-0">✓</span> {item}
+                  </div>
                 ))}
-              </ul>
+              </div>
               <a
                 href="#cta"
                 className="mt-8 block text-center bg-white text-violet-700 hover:bg-violet-50 font-bold py-3 rounded-2xl transition-all"
               >
                 Essayer 14 jours gratuits →
+              </a>
+            </div>
+
+            {/* Scale */}
+            <div className="border-2 border-gray-900 rounded-3xl p-8 flex flex-col">
+              <p className="font-bold text-gray-900 text-sm mb-2">SCALE</p>
+              <p className="text-5xl font-black text-gray-900 mb-1">
+                349€
+                <span className="text-lg font-normal text-gray-400">/mois</span>
+              </p>
+              <div className="mt-6 space-y-3 text-sm text-gray-600 flex-1">
+                {[
+                  "5 agents + CODIR",
+                  "Sessions illimitées",
+                  "Livrables illimités",
+                  "Mémoire contextuelle illimitée",
+                  "1h / mois de support premium inclus",
+                ].map((item) => (
+                  <div key={item} className="flex items-start gap-2">
+                    <span className="text-green-500 shrink-0">✓</span> {item}
+                  </div>
+                ))}
+              </div>
+              <a
+                href="#cta"
+                className="mt-8 block text-center bg-gray-900 text-white hover:bg-gray-800 font-bold py-3 rounded-2xl transition-all"
+              >
+                Nous contacter →
               </a>
             </div>
           </div>
@@ -390,11 +428,42 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="py-8 px-6 border-t border-gray-100 text-center text-sm text-gray-400">
-        <span className="font-bold text-gray-700">
-          Founder<span className="text-violet-600">AI</span>
-        </span>{" "}
-        · Votre comité de direction IA · 2026
+      <footer className="py-8 px-6 border-t border-gray-100 text-center text-sm text-gray-400 space-y-2">
+        <p>
+          <span className="font-bold text-gray-700">
+            Founder<span className="text-violet-600">AI</span>
+          </span>{" "}
+          · Votre comité de direction IA · 2026
+        </p>
+        <p className="flex items-center justify-center gap-4 flex-wrap">
+          <a
+            href="/partenaires/inscription"
+            className="font-medium text-gray-500 hover:text-violet-600 transition-colors"
+          >
+            Devenir partenaire
+          </a>
+          <span className="text-gray-300">·</span>
+          <a
+            href="/cgu"
+            className="font-medium text-gray-500 hover:text-violet-600 transition-colors"
+          >
+            CGU
+          </a>
+          <span className="text-gray-300">·</span>
+          <a
+            href="/politique-confidentialite"
+            className="font-medium text-gray-500 hover:text-violet-600 transition-colors"
+          >
+            Politique de confidentialité
+          </a>
+          <span className="text-gray-300">·</span>
+          <a
+            href="/mentions-legales"
+            className="font-medium text-gray-500 hover:text-violet-600 transition-colors"
+          >
+            Mentions légales
+          </a>
+        </p>
       </footer>
     </main>
   );
