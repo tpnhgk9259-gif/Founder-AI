@@ -41,27 +41,38 @@ function ConnexionForm() {
           ? rawRedirect
           : null;
 
-      const res = await fetch("/api/auth/me");
-      if (res.ok) {
-        const { startupId, isPartnerAdmin } = await res.json();
-        if (safeRedirect) {
-          window.location.href = safeRedirect;
-          return;
+      // Récupérer le profil — ne pas bloquer le login si ça échoue
+      let startupId: string | null = null;
+      let isPartnerAdmin = false;
+      try {
+        const res = await fetch("/api/auth/me");
+        if (res.ok) {
+          const data = await res.json();
+          startupId = data.startupId ?? null;
+          isPartnerAdmin = Boolean(data.isPartnerAdmin);
         }
-        if (startupId) {
-          localStorage.setItem("founderai_startup_id", startupId);
-          window.location.href = "/dashboard";
-          return;
-        }
-        if (isPartnerAdmin) {
-          window.location.href = "/partner";
-          return;
-        }
+      } catch (meErr) {
+        console.warn("[connexion] /api/auth/me indisponible :", meErr);
       }
 
-      window.location.href = safeRedirect ?? "/dashboard";
-    } catch {
-      setError("Une erreur inattendue s'est produite.");
+      if (safeRedirect) {
+        window.location.href = safeRedirect;
+        return;
+      }
+      if (startupId) {
+        localStorage.setItem("founderai_startup_id", startupId);
+        window.location.href = "/dashboard";
+        return;
+      }
+      if (isPartnerAdmin) {
+        window.location.href = "/partner";
+        return;
+      }
+
+      window.location.href = "/dashboard";
+    } catch (err) {
+      console.error("[connexion] Erreur :", err);
+      setError(`Une erreur inattendue s'est produite. ${err instanceof Error ? err.message : ""}`);
     } finally {
       setLoading(false);
     }
