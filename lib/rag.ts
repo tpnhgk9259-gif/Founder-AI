@@ -9,7 +9,6 @@
  * Fallback : si VOYAGE_API_KEY absent, on retourne null et le système tombe sur l'injection complète.
  */
 
-import { VoyageAIClient } from "voyageai";
 import { createServerClient } from "./supabase";
 
 const VOYAGE_MODEL = "voyage-3";
@@ -19,9 +18,12 @@ const CHUNK_OVERLAP = 150; // chevauchement pour ne pas couper le sens
 const TOP_K = 5; // nombre de chunks retournés par requête
 const MIN_SIMILARITY = 0.3; // seuil minimum de pertinence (cosine similarity)
 
-function getVoyageClient(): VoyageAIClient | null {
+// Import dynamique pour éviter les erreurs ESM de voyageai au build Next.js
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function getVoyageClient(): Promise<any | null> {
   const key = process.env.VOYAGE_API_KEY;
   if (!key) return null;
+  const { VoyageAIClient } = await import("voyageai");
   return new VoyageAIClient({ apiKey: key });
 }
 
@@ -68,7 +70,7 @@ export function chunkText(text: string): string[] {
  * Retourne null si la clé API est absente.
  */
 export async function embedText(text: string): Promise<number[] | null> {
-  const voyage = getVoyageClient();
+  const voyage = await getVoyageClient();
   if (!voyage) return null;
 
   const result = await voyage.embed({
@@ -84,7 +86,7 @@ export async function embedText(text: string): Promise<number[] | null> {
  * Génère des embeddings en batch (max 128 inputs par appel Voyage AI).
  */
 async function embedBatch(texts: string[]): Promise<(number[] | null)[]> {
-  const voyage = getVoyageClient();
+  const voyage = await getVoyageClient();
   if (!voyage) return texts.map(() => null);
 
   const BATCH = 128;
@@ -124,7 +126,7 @@ export async function indexAgentKnowledge(
 
   if (!content.trim()) return { chunksIndexed: 0 };
 
-  const voyage = getVoyageClient();
+  const voyage = await getVoyageClient();
   if (!voyage) {
     // Pas de clé Voyage AI — stocker les chunks sans embedding pour future indexation
     const chunks = chunkText(content);

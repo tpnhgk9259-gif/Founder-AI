@@ -37,8 +37,7 @@ export async function POST(req: NextRequest) {
     .eq("startup_id", startupId)
     .order("updated_at", { ascending: false })
     .limit(3)
-    .then((r) => r)
-    .catch(() => ({ data: [] as { agent_key: string; messages: unknown }[] }));
+    .then((r) => r, () => ({ data: [] as { agent_key: string; messages: unknown }[] }));
 
   const contextParts: string[] = [];
 

@@ -48,6 +48,10 @@ export interface StartupIssue {
   title: string;       // ex: "Churn élevé sur le segment SMB"
   priority: "high" | "medium" | "low";
   context?: string;    // détails supplémentaires
+  owner?: string;      // ex: "CEO", "CTO"
+  dueDate?: string;    // ex: "2026-05-01"
+  description?: string;
+  status?: "todo" | "in_progress" | "done";
 }
 
 export interface StartupProfile {
