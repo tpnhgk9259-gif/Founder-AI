@@ -20,6 +20,11 @@ function ConnexionForm() {
     const password = data.get("password") as string;
 
     try {
+      if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+        setError("Configuration Supabase manquante. Contactez l'administrateur.");
+        return;
+      }
+
       const supabase = createBrowserClient();
 
       const { error: signInError } = await supabase.auth.signInWithPassword({
@@ -28,7 +33,7 @@ function ConnexionForm() {
       });
 
       if (signInError) {
-        setError("Email ou mot de passe incorrect.");
+        setError(`Email ou mot de passe incorrect. (${signInError.message})`);
         return;
       }
 
