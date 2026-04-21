@@ -75,7 +75,7 @@ const features = [
   {
     icon: "🤝",
     title: "Collaboration inter-agents",
-    desc: "Les 4 agents se consultent pour des recommandations cohérentes.",
+    desc: "Les 5 agents se consultent pour des recommandations cohérentes.",
   },
   {
     icon: "🔒",
@@ -138,7 +138,7 @@ export default function Home() {
         <div className="relative max-w-4xl mx-auto">
           <span className="inline-flex items-center gap-2 bg-violet-100 text-violet-700 text-xs font-semibold px-4 py-1.5 rounded-full mb-6">
             <span className="w-1.5 h-1.5 rounded-full bg-violet-500 animate-pulse" />
-            4 agents IA · toujours disponibles
+            5 agents IA · toujours disponibles
           </span>
 
           <h1 className="text-5xl md:text-7xl font-black tracking-tight text-gray-900 leading-none mb-6">
@@ -357,7 +357,7 @@ export default function Home() {
               </p>
               <div className="mt-6 space-y-3 text-sm text-violet-100 flex-1">
                 {[
-                  "4 agents + CODIR",
+                  "5 agents + CODIR",
                   "Sessions illimitées",
                   "20 livrables / mois",
                   "Mémoire contextuelle 12 mois",
