@@ -142,7 +142,7 @@ export default function Home() {
           </span>
 
           <h1 className="text-5xl md:text-7xl font-black tracking-tight text-gray-900 leading-none mb-6">
-            Votre comité de{" "}
+            Votre équipe de{" "}
             <span className="bg-gradient-to-r from-violet-600 to-pink-500 bg-clip-text text-transparent">
               direction IA
             </span>
