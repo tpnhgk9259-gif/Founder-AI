@@ -19,8 +19,26 @@ export async function DELETE(req: NextRequest) {
 
   if (!userId) return Response.json({ error: "userId requis" }, { status: 400 });
 
-  // Supprimer la startup liée
-  await supabase.from("startups").delete().eq("user_id", userId);
+  // Récupérer les startups liées pour cascade manuelle
+  const { data: startups } = await supabase.from("startups").select("id").eq("user_id", userId);
+  const startupIds = startups?.map((s) => s.id) ?? [];
+
+  if (startupIds.length > 0) {
+    // Supprimer les données liées aux startups (conversations → messages → summaries, codir, usage)
+    const { data: convos } = await supabase.from("conversations").select("id").in("startup_id", startupIds);
+    const convoIds = convos?.map((c) => c.id) ?? [];
+    if (convoIds.length > 0) {
+      await supabase.from("conversation_summaries").delete().in("conversation_id", convoIds);
+      await supabase.from("messages").delete().in("conversation_id", convoIds);
+      await supabase.from("conversations").delete().in("id", convoIds);
+    }
+    await supabase.from("codir_sessions").delete().in("startup_id", startupIds);
+    await supabase.from("api_usage_log").delete().in("startup_id", startupIds);
+    await supabase.from("startups").delete().in("id", startupIds);
+  }
+
+  // Supprimer les éventuelles entrées partner_members
+  await supabase.from("partner_members").delete().eq("user_id", userId);
 
   // Supprimer le profil utilisateur
   await supabase.from("users").delete().eq("id", userId);
