@@ -149,7 +149,7 @@ export default function Home() {
           </h1>
 
           <p className="text-xl text-gray-500 max-w-2xl mx-auto mb-10 leading-relaxed">
-            FounderAI réunit quatre experts IA autour de votre startup —
+            FounderAI réunit cinq experts IA autour de votre startup —
             stratégie, commerce, finance et technique — pour vous aider à
             prendre les meilleures décisions, chaque jour.
           </p>
