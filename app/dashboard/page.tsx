@@ -230,6 +230,14 @@ function MicButton({ onTranscript, disabled = false }: { onTranscript: (text: st
 
 // ─── Sidebar ──────────────────────────────────────────────────────────────────
 
+const AGENT_AVATARS: Record<string, string> = {
+  strategie: "/avatar/maya_strategie.png",
+  vente: "/avatar/alex_vente.png",
+  finance: "/avatar/sam_finance.png",
+  technique: "/avatar/leo_produit.png",
+  operations: "/avatar/marc_operations.png",
+};
+
 function Sidebar({
   activeView,
   onSelect,
@@ -238,81 +246,57 @@ function Sidebar({
   onSelect: (v: ActiveView) => void;
 }) {
   return (
-    <aside className="w-64 flex-shrink-0 bg-white border-r border-gray-100 flex flex-col overflow-y-auto">
-      {/* Agents */}
-      <div className="px-3 pt-5 pb-2">
-        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest px-2 mb-2">
-          Agents
-        </p>
-        <div className="space-y-0.5">
-          {AGENTS.map((a) => {
-            const isActive = activeView === a.key;
-            return (
-              <button
-                key={a.key}
-                onClick={() => onSelect(a.key)}
-                className={`w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all ${
-                  isActive
-                    ? `${a.bg} ${a.border} border`
-                    : "hover:bg-gray-50"
-                }`}
-              >
-                <div
-                  className={`w-9 h-9 rounded-xl bg-gradient-to-br ${a.gradient} flex items-center justify-center text-lg flex-shrink-0 shadow-sm ${isActive ? `ring-2 ${a.ring}` : ""}`}
-                >
-                  {a.emoji}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className={`text-sm font-bold truncate ${isActive ? "text-gray-900" : "text-gray-700"}`}>
-                    {a.agent}
-                  </p>
-                  <p className={`text-xs truncate ${isActive ? a.color : "text-gray-400"}`}>
-                    {a.role}
-                  </p>
-                </div>
-                {isActive && (
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0" />
-                )}
-              </button>
-            );
-          })}
+    <aside className="w-[248px] flex-shrink-0 flex flex-col overflow-y-auto" style={{ background: "var(--uf-paper-2)", borderRight: "1px solid var(--uf-line)" }}>
+      <div className="p-3.5 flex flex-col gap-1.5 flex-1">
+        <div className="flex justify-between items-center px-1.5 pb-2">
+          <span className="text-[11px] font-medium tracking-[0.16em] uppercase" style={{ fontFamily: "var(--uf-mono)", color: "var(--uf-muted)" }}>Votre équipe</span>
+          <span className="text-[10px]" style={{ fontFamily: "var(--uf-mono)", color: "var(--uf-muted)" }}>5/5</span>
         </div>
+        {AGENTS.map((a) => {
+          const isActive = activeView === a.key;
+          return (
+            <button
+              key={a.key}
+              onClick={() => onSelect(a.key)}
+              className="w-full text-left flex items-center gap-3 px-2.5 py-2.5 transition-all"
+              style={{
+                background: isActive ? "var(--uf-card)" : "transparent",
+                border: isActive ? "1px solid var(--uf-line)" : "1px solid transparent",
+                borderRadius: 10,
+              }}
+            >
+              <img src={AGENT_AVATARS[a.key]} alt={a.agent} className="w-11 h-11 rounded-full object-cover flex-shrink-0" />
+              <div className="min-w-0 flex-1">
+                <p className="uppercase tracking-normal truncate" style={{ fontFamily: "var(--uf-display)", fontSize: 20, color: "var(--uf-ink)" }}>
+                  {a.agent}
+                </p>
+                <p className="text-[10.5px] tracking-[0.1em] uppercase truncate mt-0.5" style={{ fontFamily: "var(--uf-mono)", color: "var(--uf-muted)" }}>
+                  {a.role}
+                </p>
+              </div>
+              {isActive && (
+                <span className="w-[7px] h-[7px] rounded-full flex-shrink-0" style={{ background: "var(--uf-orange)" }} />
+              )}
+            </button>
+          );
+        })}
       </div>
 
-      {/* Divider */}
-      <div className="mx-5 my-3 border-t border-gray-100" />
-
       {/* CODIR */}
-      <div className="px-3 pb-4">
-        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest px-2 mb-2">
-          Séance plénière
-        </p>
+      <div className="p-3.5 pt-0">
         <button
           onClick={() => onSelect("codir")}
-          className={`w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all ${
-            activeView === "codir"
-              ? "bg-violet-50 border border-violet-200"
-              : "hover:bg-gray-50"
-          }`}
+          className="w-full flex items-center gap-3 px-4 py-3 transition-all"
+          style={{
+            background: activeView === "codir" ? "var(--uf-ink)" : "var(--uf-ink)",
+            borderRadius: 10,
+            color: "var(--uf-paper)",
+          }}
         >
-          <div className={`w-9 h-9 rounded-xl bg-gradient-to-br from-violet-600 to-fuchsia-600 flex items-center justify-center flex-shrink-0 shadow-sm relative ${activeView === "codir" ? "ring-2 ring-violet-300" : ""}`}>
-            <div className="flex -space-x-1">
-              {["🧭", "🚀"].map((e, i) => (
-                <span key={i} className="text-[10px]">{e}</span>
-              ))}
-            </div>
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className={`text-sm font-bold ${activeView === "codir" ? "text-gray-900" : "text-gray-700"}`}>
-              Mode CODIR
-            </p>
-            <p className={`text-xs truncate ${activeView === "codir" ? "text-violet-600" : "text-gray-400"}`}>
-              Les agents délibèrent entre eux
-            </p>
-          </div>
-          {activeView === "codir" && (
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0" />
-          )}
+          <span className="text-lg">⚡</span>
+          <span className="uppercase tracking-[0.02em]" style={{ fontFamily: "var(--uf-display)", fontSize: 15, color: "var(--uf-lime)" }}>
+            Mode CODIR
+          </span>
         </button>
       </div>
     </aside>
@@ -502,21 +486,19 @@ function ConversationView({
   }
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden bg-gray-50">
+    <div className="flex-1 flex flex-col overflow-hidden" style={{ background: "var(--uf-paper)" }}>
       {/* Header conversation */}
-      <div className="bg-white border-b border-gray-100 px-6 py-3.5 flex items-center gap-3 flex-shrink-0">
-        <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${agent.gradient} flex items-center justify-center text-xl shadow-sm`}>
-          {agent.emoji}
-        </div>
+      <div className="px-8 py-5 flex items-center gap-4 flex-shrink-0" style={{ background: "var(--uf-card)", borderBottom: "1px solid var(--uf-line)" }}>
+        <img src={AGENT_AVATARS[agent.key]} alt={agent.agent} className="w-14 h-14 rounded-full object-cover" />
         <div>
-          <h2 className="font-black text-gray-900 text-base leading-tight">{agent.agent}</h2>
-          <p className={`text-xs font-semibold ${agent.color}`}>{agent.role}</p>
+          <h2 className="uppercase tracking-normal" style={{ fontFamily: "var(--uf-display)", fontSize: 32, lineHeight: 0.82, color: "var(--uf-ink)" }}>{agent.agent}</h2>
+          <p className="mt-1 italic" style={{ fontFamily: "var(--uf-serif)", fontSize: 20, color: "var(--uf-muted)" }}>{agent.role}</p>
         </div>
         <div className="ml-auto flex items-center gap-3">
           {startupId && (
             <button
               onClick={openHistory}
-              className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-violet-600 bg-gray-50 hover:bg-violet-50 border border-gray-200 hover:border-violet-200 px-3 py-1.5 rounded-lg transition-all"
+              className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full transition-all" style={{ border: "1px solid var(--uf-line)", color: "var(--uf-muted)" }}
             >
               🕐 Historique
             </button>
@@ -660,24 +642,19 @@ function ConversationView({
         )}
 
         {messages.map((msg, i) => (
-          <div key={i} className={`flex items-end gap-2.5 ${msg.from === "user" ? "justify-end" : "justify-start"}`}>
+          <div key={i} className={`flex items-start gap-2.5 ${msg.from === "user" ? "justify-end" : "justify-start"}`}>
             {msg.from === "agent" && (
-              <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${agent.gradient} flex items-center justify-center text-sm flex-shrink-0 shadow-sm`}>
-                {agent.emoji}
-              </div>
+              <img src={AGENT_AVATARS[agent.key]} alt={agent.agent} className="w-8 h-8 rounded-full object-cover flex-shrink-0 mt-1" />
             )}
             <div className={`max-w-[72%] ${msg.from === "user" ? "items-end" : "items-start"} flex flex-col gap-1`}>
-              {msg.from === "agent" && (
-                <span className={`text-xs font-bold ${agent.color} ml-1`}>{agent.agent}</span>
-              )}
-              <div className={`px-4 py-3 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ${
+              <div className="px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap" style={
                 msg.from === "user"
-                  ? `bg-gradient-to-br ${agent.gradient} text-white rounded-br-sm`
-                  : "bg-white border border-gray-100 text-gray-800 rounded-bl-sm shadow-sm"
-              }`}>
+                  ? { background: "var(--uf-ink)", color: "var(--uf-paper)", borderRadius: "14px 14px 4px 14px" }
+                  : { background: "var(--uf-card)", border: "1px solid var(--uf-line)", color: "var(--uf-ink)", borderRadius: "4px 14px 14px 14px" }
+              }>
                 {msg.text}
                 {streaming && i === messages.length - 1 && msg.from === "agent" && (
-                  <span className="inline-block w-0.5 h-3.5 bg-gray-400 animate-pulse ml-0.5 align-middle" />
+                  <span className="inline-block w-0.5 h-3.5 animate-pulse ml-0.5 align-middle" style={{ background: "var(--uf-muted)" }} />
                 )}
               </div>
             </div>
@@ -700,7 +677,7 @@ function ConversationView({
       </div>
 
       {/* Input */}
-      <div className="bg-white border-t border-gray-100 px-6 py-4 flex-shrink-0">
+      <div className="px-8 py-4 flex-shrink-0" style={{ background: "var(--uf-card)", borderTop: "1px solid var(--uf-line)" }}>
         <form
           onSubmit={(e) => { e.preventDefault(); sendMessage(input); }}
           className="flex gap-2"
@@ -710,7 +687,8 @@ function ConversationView({
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder={agent.placeholder}
-            className="flex-1 text-sm border-2 border-gray-200 focus:border-violet-400 focus:outline-none rounded-2xl px-4 py-3 placeholder-gray-400 text-gray-900 transition-colors"
+            className="flex-1 text-sm px-4 py-3 focus:outline-none transition-colors"
+            style={{ border: "1px solid var(--uf-line)", borderRadius: "var(--uf-r-pill)", color: "var(--uf-ink)", background: "var(--uf-paper)" }}
           />
           <MicButton
             onTranscript={(text) => setInput((prev) => prev ? `${prev} ${text}` : text)}
@@ -719,7 +697,8 @@ function ConversationView({
           <button
             type="submit"
             disabled={!input.trim() || loading || streaming}
-            className={`bg-gradient-to-br ${agent.gradient} text-white px-5 py-3 rounded-2xl font-bold text-sm disabled:opacity-40 transition-opacity flex-shrink-0 shadow-sm`}
+            className="px-5 py-3 rounded-full font-medium text-sm disabled:opacity-40 transition-opacity flex-shrink-0 hover:-translate-y-px"
+            style={{ background: "var(--uf-ink)", color: "var(--uf-paper)" }}
           >
             →
           </button>
