@@ -182,7 +182,7 @@ export default function Home() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-4">
-              Rencontrez votre équipe
+              Rencontrez votre CODIR
             </h2>
             <p className="text-lg text-gray-500 max-w-xl mx-auto">
               Cinq personnalités distinctes, une vision commune : faire
