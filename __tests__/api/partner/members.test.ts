@@ -95,7 +95,7 @@ describe("POST /api/partner/members", () => {
             select: vi.fn().mockReturnValue({
               eq: vi.fn().mockReturnValue({
                 maybeSingle: vi.fn().mockResolvedValue({
-                  data: { license_config: { portfolio_plan_allowances: { custom: 1 } } },
+                  data: { license_config: { portfolio_plan_allowances: { starter: 1, growth: 0, scale: 0 } } },
                 }),
               }),
             }),

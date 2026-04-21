@@ -22,7 +22,7 @@ describe("normalizeLicenseConfig", () => {
       conversational_memory_window: 5,
       max_chat_messages_per_day: 100,
       max_codir_sessions_per_month: 10,
-      portfolio_plan_allowances: { custom: 20 },
+      portfolio_plan_allowances: { starter: 20, growth: 10, scale: 5 },
     };
     const result = normalizeLicenseConfig(input);
     expect(result.available_agents).toEqual(["strategie", "vente"]);
@@ -30,7 +30,9 @@ describe("normalizeLicenseConfig", () => {
     expect(result.conversational_memory_window).toBe(5);
     expect(result.max_chat_messages_per_day).toBe(100);
     expect(result.max_codir_sessions_per_month).toBe(10);
-    expect(result.portfolio_plan_allowances.custom).toBe(20);
+    expect(result.portfolio_plan_allowances.starter).toBe(20);
+    expect(result.portfolio_plan_allowances.growth).toBe(10);
+    expect(result.portfolio_plan_allowances.scale).toBe(5);
   });
 
   it("filtre les agents invalides", () => {
@@ -72,9 +74,11 @@ describe("normalizeLicenseConfig", () => {
     expect(normalizeLicenseConfig({ max_codir_sessions_per_month: 200000 }).max_codir_sessions_per_month).toBe(100000);
   });
 
-  it("clamp portfolio_plan_allowances.custom entre 0 et 100 000", () => {
-    expect(normalizeLicenseConfig({ portfolio_plan_allowances: { custom: -1 } }).portfolio_plan_allowances.custom).toBe(0);
-    expect(normalizeLicenseConfig({ portfolio_plan_allowances: { custom: 999999 } }).portfolio_plan_allowances.custom).toBe(100000);
+  it("clamp portfolio_plan_allowances entre 0 et 100 000", () => {
+    expect(normalizeLicenseConfig({ portfolio_plan_allowances: { starter: -1 } }).portfolio_plan_allowances.starter).toBe(0);
+    expect(normalizeLicenseConfig({ portfolio_plan_allowances: { starter: 999999 } }).portfolio_plan_allowances.starter).toBe(100000);
+    expect(normalizeLicenseConfig({ portfolio_plan_allowances: { growth: -5 } }).portfolio_plan_allowances.growth).toBe(0);
+    expect(normalizeLicenseConfig({ portfolio_plan_allowances: { scale: 50 } }).portfolio_plan_allowances.scale).toBe(50);
   });
 
   it("gère les valeurs non-numériques pour les champs numériques", () => {
