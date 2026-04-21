@@ -445,7 +445,7 @@ export default function Home() {
           <span className="font-bold text-gray-700">
             Founder<span className="text-violet-600">AI</span>
           </span>{" "}
-          · Votre comité de direction IA · 2026
+          · Votre équipe de direction IA · 2026
         </p>
         <p className="flex items-center justify-center gap-4 flex-wrap">
           <a

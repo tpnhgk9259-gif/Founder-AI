@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "FounderAI — Votre comité de direction IA",
+  title: "FounderAI — Votre équipe de direction IA",
   description: "5 agents IA spécialisés pour piloter votre startup early-stage : stratégie, commercial, finance, technique et opérations.",
 };
 
