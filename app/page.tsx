@@ -47,6 +47,18 @@ const agents = [
       "Conception produit, architecture et dette technique. Léo traduit vos ambitions en décisions produit et tech solides.",
     skills: ["MVP design", "Architecture", "Build vs buy", "Recrutement tech"],
   },
+  {
+    name: "Marc",
+    role: "Directeur des Opérations",
+    emoji: "📋",
+    color: "from-amber-400 to-orange-500",
+    bg: "bg-amber-50",
+    border: "border-amber-200",
+    accent: "text-amber-500",
+    description:
+      "Organisation, process et structuration d'équipe. Marc transforme le chaos startup en machine bien huilée.",
+    skills: ["OKR", "Recrutement", "Process", "Scaling ops"],
+  },
 ];
 
 const features = [

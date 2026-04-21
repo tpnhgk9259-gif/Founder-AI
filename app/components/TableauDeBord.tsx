@@ -16,7 +16,7 @@ interface Decision {
   date: string;
   description: string;
   owner: string;
-  agentKey: "strategie" | "vente" | "finance" | "technique" | "codir" | "";
+  agentKey: "strategie" | "vente" | "finance" | "technique" | "operations" | "codir" | "";
 }
 
 interface Action {
@@ -47,8 +47,9 @@ const AGENT_LABELS: Record<string, { label: string; color: string }> = {
   strategie: { label: "Maya · Stratégie", color: "text-violet-600 bg-violet-50" },
   vente:     { label: "Alex · Commercial", color: "text-orange-600 bg-orange-50" },
   finance:   { label: "Sam · Finance",     color: "text-emerald-600 bg-emerald-50" },
-  technique: { label: "Léo · Produit",     color: "text-sky-600 bg-sky-50" },
-  codir:     { label: "CODIR",             color: "text-gray-600 bg-gray-100" },
+  technique:  { label: "Léo · Produit",      color: "text-sky-600 bg-sky-50" },
+  operations: { label: "Marc · Opérations", color: "text-amber-600 bg-amber-50" },
+  codir:      { label: "CODIR",             color: "text-gray-600 bg-gray-100" },
   "":        { label: "Interne",           color: "text-gray-500 bg-gray-50" },
 };
 
@@ -517,6 +518,7 @@ function DecisionsSection({
               <option value="vente">Alex · Commercial</option>
               <option value="finance">Sam · Finance</option>
               <option value="technique">Léo · Produit</option>
+              <option value="operations">Marc · Opérations</option>
               <option value="codir">CODIR</option>
             </select>
           </div>

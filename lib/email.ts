@@ -20,7 +20,7 @@ function buildWelcomeHtml(firstName: string, dashboardUrl: string): string {
           <td style="padding:40px 40px 32px;">
             <h1 style="margin:0 0 16px;font-size:28px;font-weight:900;color:#111827;">Bienvenue, ${firstName} ! 🎉</h1>
             <p style="margin:0 0 16px;font-size:16px;color:#6b7280;line-height:1.6;">
-              Votre compte FounderAI est prêt. Vos agents IA — stratégie, commercial, finance et technique — n'attendent plus que vous.
+              Votre compte FounderAI est prêt. Vos agents IA — stratégie, commercial, finance, technique et opérations — n'attendent plus que vous.
             </p>
             <p style="margin:0 0 32px;font-size:16px;color:#6b7280;line-height:1.6;">
               Commencez par décrire votre startup pour que vos agents apprennent à vous connaître.

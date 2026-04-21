@@ -4,7 +4,7 @@ import { getRouteUser, isSuperAdminEmail } from "@/lib/admin-auth";
 import { indexAgentKnowledge } from "@/lib/rag";
 import { logAudit } from "@/lib/audit";
 
-const VALID_AGENTS = ["strategie", "vente", "finance", "technique"] as const;
+const VALID_AGENTS = ["strategie", "vente", "finance", "technique", "operations"] as const;
 type AgentKey = (typeof VALID_AGENTS)[number];
 
 export async function GET(req: NextRequest) {

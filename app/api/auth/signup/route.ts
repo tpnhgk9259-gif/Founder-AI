@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
   const preset = PLAN_PRESETS[planKey];
 
   // Appliquer les agents choisis si fournis, sinon utiliser le preset
-  const validAgents = ["strategie", "vente", "finance", "technique", "codir"];
+  const validAgents = ["strategie", "vente", "finance", "technique", "operations", "codir"];
   const chosenAgents = Array.isArray(agents) && agents.length > 0
     ? agents.filter((a) => validAgents.includes(a))
     : preset.available_agents;

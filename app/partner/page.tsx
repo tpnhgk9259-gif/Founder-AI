@@ -10,6 +10,7 @@ interface AgentNames {
   vente: string;
   finance: string;
   technique: string;
+  operations: string;
 }
 
 interface ManagerPersona {
@@ -48,7 +49,8 @@ const AGENT_META = {
   strategie: { label: "Stratégie", role: "Directrice Stratégie", emoji: "🧭", gradient: "from-violet-500 to-indigo-500" },
   vente:     { label: "Commercial", role: "Directeur Commercial", emoji: "🚀", gradient: "from-orange-400 to-pink-500" },
   finance:   { label: "Finance", role: "Directeur Financier", emoji: "📊", gradient: "from-emerald-400 to-teal-500" },
-  technique: { label: "Produit & Tech", role: "Chief Product Officer", emoji: "⚙️", gradient: "from-sky-400 to-blue-500" },
+  technique:  { label: "Produit & Tech", role: "Chief Product Officer",     emoji: "⚙️", gradient: "from-sky-400 to-blue-500" },
+  operations: { label: "Opérations",    role: "Directeur des Opérations", emoji: "📋", gradient: "from-amber-400 to-orange-500" },
 } as const;
 
 type AgentKey = keyof typeof AGENT_META;
@@ -61,7 +63,7 @@ const PARTNER_TYPES = [
   { value: "other",     label: "Autre" },
 ];
 
-const DEFAULT_AGENT_NAMES: AgentNames = { strategie: "Maya", vente: "Alex", finance: "Sam", technique: "Léo" };
+const DEFAULT_AGENT_NAMES: AgentNames = { strategie: "Maya", vente: "Alex", finance: "Sam", technique: "Léo", operations: "Marc" };
 const DEFAULT_MANAGER: ManagerPersona = {
   name: "Victor",
   title: "Startup Manager",

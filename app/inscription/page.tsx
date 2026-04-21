@@ -4,7 +4,7 @@ import { useState } from "react";
 import { createBrowserClient } from "@/lib/supabase";
 
 type PlanKey = "starter" | "growth" | "scale";
-type AgentKey = "strategie" | "vente" | "finance" | "technique" | "codir";
+type AgentKey = "strategie" | "vente" | "finance" | "technique" | "operations" | "codir";
 
 const PLANS: { key: PlanKey; name: string; price: string; popular?: boolean; agentCount: number; sessions: string; memory: string; codir: boolean }[] = [
   { key: "starter",  name: "Starter", price: "49€/mois",  agentCount: 3, sessions: "50 sessions/mois",    memory: "Mémoire 3 mois",     codir: false },
@@ -13,13 +13,14 @@ const PLANS: { key: PlanKey; name: string; price: string; popular?: boolean; age
 ];
 
 const SELECTABLE_AGENTS: { key: AgentKey; name: string; role: string; emoji: string }[] = [
-  { key: "strategie", name: "Maya",  role: "Directrice Stratégie",   emoji: "🧭" },
-  { key: "vente",     name: "Alex",  role: "Directeur Commercial",   emoji: "🚀" },
-  { key: "finance",   name: "Sam",   role: "Directeur Financier",    emoji: "📊" },
-  { key: "technique", name: "Léo",   role: "Directeur Produit",  emoji: "⚙️" },
+  { key: "strategie",  name: "Maya", role: "Directrice Stratégie",      emoji: "🧭" },
+  { key: "vente",      name: "Alex", role: "Directeur Commercial",      emoji: "🚀" },
+  { key: "finance",    name: "Sam",  role: "Directeur Financier",       emoji: "📊" },
+  { key: "technique",  name: "Léo",  role: "Directeur Produit",         emoji: "⚙️" },
+  { key: "operations", name: "Marc", role: "Directeur des Opérations",  emoji: "📋" },
 ];
 
-const MAX_AGENTS: Record<PlanKey, number> = { starter: 3, growth: 4, scale: 4 };
+const MAX_AGENTS: Record<PlanKey, number> = { starter: 3, growth: 5, scale: 5 };
 // Growth et Scale incluent les 4 agents spécialisés — seul Starter exige un choix parmi 3
 
 export default function Inscription() {
@@ -38,7 +39,7 @@ export default function Inscription() {
     setSelectedPlan(plan);
     // Growth et Scale : tous les 4 spécialisés auto-sélectionnés
     if (plan !== "starter") {
-      setSelectedAgents(new Set(["strategie", "vente", "finance", "technique"]));
+      setSelectedAgents(new Set(["strategie", "vente", "finance", "technique", "operations"]));
     } else {
       // Starter : garder la sélection courante si ≤ 3, sinon réduire à 3
       setSelectedAgents((prev) => {

@@ -15,7 +15,7 @@ const STAGES = [
   { value: "scale",           label: "Scale" },
 ];
 
-type ChallengeKey = "strategie" | "vente" | "finance" | "technique";
+type ChallengeKey = "strategie" | "vente" | "finance" | "technique" | "operations";
 
 const CHALLENGES: {
   key: ChallengeKey;
@@ -56,18 +56,29 @@ const CHALLENGES: {
     messageBuilder: ({ name, sector, stageLabel }) =>
       `Bonjour Léo ! Je travaille sur ${name || "ma startup"}${sector ? `, dans le secteur ${sector}` : ""}${stageLabel ? ` — nous sommes au stade ${stageLabel}` : ""}. Mon défi principal est de prioriser et scoper mon produit. Par où commencer ?`,
   },
+  {
+    key: "operations",
+    label: "Structurer mon équipe et mes opérations",
+    emoji: "📋",
+    agentName: "Marc",
+    messageBuilder: ({ name, sector, stageLabel }) =>
+      `Bonjour Marc ! Je travaille sur ${name || "ma startup"}${sector ? `, dans le secteur ${sector}` : ""}${stageLabel ? ` — nous sommes au stade ${stageLabel}` : ""}. Mon défi principal est de structurer mon équipe et mes opérations. Par où commencer ?`,
+  },
 ];
 
 // Agents pour l'étape 3 (fallback si pas de défi sélectionné)
+const FALLBACK_META: Record<ChallengeKey, { role: string; description: string; gradient: string; border: string; bg: string }> = {
+  strategie:  { role: "Directrice Stratégie",       description: "Positionnement, pivot, analyse concurrentielle", gradient: "from-violet-500 to-indigo-500", border: "border-violet-200", bg: "bg-violet-50" },
+  vente:      { role: "Directeur Commercial",        description: "Go-to-market, pipeline, pricing, acquisition",  gradient: "from-orange-400 to-pink-500",  border: "border-orange-200", bg: "bg-orange-50" },
+  finance:    { role: "Directeur Financier",         description: "Runway, métriques SaaS, levée de fonds",        gradient: "from-emerald-400 to-teal-500", border: "border-emerald-200", bg: "bg-emerald-50" },
+  technique:  { role: "Directeur Produit",           description: "Roadmap, discovery, priorisation, build vs buy", gradient: "from-sky-400 to-blue-500",     border: "border-sky-200", bg: "bg-sky-50" },
+  operations: { role: "Directeur des Opérations",    description: "OKR, recrutement, process, organisation",       gradient: "from-amber-400 to-orange-500", border: "border-amber-200", bg: "bg-amber-50" },
+};
 const AGENTS_FALLBACK = CHALLENGES.map((c) => ({
   key: c.key,
   agent: c.agentName,
   emoji: c.emoji,
-  role: c.key === "strategie" ? "Directrice Stratégie" : c.key === "vente" ? "Directeur Commercial" : c.key === "finance" ? "Directeur Financier" : "Directeur Produit",
-  description: c.key === "strategie" ? "Positionnement, OKR, pivot, analyse concurrentielle" : c.key === "vente" ? "Go-to-market, pipeline, pricing, acquisition" : c.key === "finance" ? "Runway, métriques SaaS, levée de fonds, burn rate" : "Roadmap, discovery, priorisation, build vs buy",
-  gradient: c.key === "strategie" ? "from-violet-500 to-indigo-500" : c.key === "vente" ? "from-orange-400 to-pink-500" : c.key === "finance" ? "from-emerald-400 to-teal-500" : "from-sky-400 to-blue-500",
-  border: c.key === "strategie" ? "border-violet-200" : c.key === "vente" ? "border-orange-200" : c.key === "finance" ? "border-emerald-200" : "border-sky-200",
-  bg: c.key === "strategie" ? "bg-violet-50" : c.key === "vente" ? "bg-orange-50" : c.key === "finance" ? "bg-emerald-50" : "bg-sky-50",
+  ...FALLBACK_META[c.key],
   messageBuilder: c.messageBuilder,
 }));
 

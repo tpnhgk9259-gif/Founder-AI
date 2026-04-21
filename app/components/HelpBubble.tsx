@@ -42,12 +42,12 @@ const glossary = [
 
 const helpItems = [
   {
-    q: "À quoi servent les 4 agents ?",
-    a: "Chaque agent couvre un domaine : Maya (Stratégie), Léo (Produit/Tech), Alex (Vente), Sam (Finance). Posez-leur des questions dans leur panneau respectif.",
+    q: "À quoi servent les 5 agents ?",
+    a: "Chaque agent couvre un domaine : Maya (Stratégie), Alex (Vente), Sam (Finance), Léo (Produit/Tech), Marc (Opérations). Posez-leur des questions dans leur panneau respectif.",
   },
   {
     q: "C'est quoi le mode CODIR ?",
-    a: "En mode CODIR, les 4 agents dialoguent ensemble autour d'une question complexe. Idéal pour les décisions qui impactent plusieurs domaines à la fois.",
+    a: "En mode CODIR, les 5 agents dialoguent ensemble autour d'une question complexe. Idéal pour les décisions qui impactent plusieurs domaines à la fois.",
   },
   {
     q: "Pourquoi renseigner mon projet ?",

@@ -119,14 +119,15 @@ function formatDate(iso: string) {
 // ─── Panneau connaissances agents ─────────────────────────────────────────────
 
 const AGENT_TABS = [
-  { key: "strategie", label: "Maya", role: "Directrice Stratégie", emoji: "🧭" },
-  { key: "vente",     label: "Alex", role: "Directeur Commercial",  emoji: "🚀" },
-  { key: "finance",   label: "Sam",  role: "Directeur Financier",   emoji: "📊" },
-  { key: "technique", label: "Léo",  role: "Directeur Produit",     emoji: "⚙️" },
+  { key: "strategie",  label: "Maya", role: "Directrice Stratégie",      emoji: "🧭" },
+  { key: "vente",      label: "Alex", role: "Directeur Commercial",      emoji: "🚀" },
+  { key: "finance",    label: "Sam",  role: "Directeur Financier",       emoji: "📊" },
+  { key: "technique",  label: "Léo",  role: "Directeur Produit",         emoji: "⚙️" },
+  { key: "operations", label: "Marc", role: "Directeur des Opérations",  emoji: "📋" },
 ] as const;
 
 function AgentKnowledgePanel() {
-  const [activeAgent, setActiveAgent] = useState<"strategie" | "vente" | "finance" | "technique">("strategie");
+  const [activeAgent, setActiveAgent] = useState<"strategie" | "vente" | "finance" | "technique" | "operations">("strategie");
   const [contents, setContents] = useState<Record<string, string>>({ strategie: "", vente: "", finance: "", technique: "" });
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);

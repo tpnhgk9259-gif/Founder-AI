@@ -19,7 +19,7 @@ import { logUsage } from "@/lib/usage";
 
 const chatSchema = z.object({
   startupId: z.string().uuid().optional(),
-  agentKey: z.enum(["strategie", "vente", "finance", "technique"]),
+  agentKey: z.enum(["strategie", "vente", "finance", "technique", "operations"]),
   message: z.string().min(1).max(10000),
 });
 

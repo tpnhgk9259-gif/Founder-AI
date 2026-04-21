@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { getRouteUser, isSuperAdminEmail } from "@/lib/admin-auth";
 
-const VALID_AGENTS = ["strategie", "vente", "finance", "technique"] as const;
+const VALID_AGENTS = ["strategie", "vente", "finance", "technique", "operations"] as const;
 type AgentKey = (typeof VALID_AGENTS)[number];
 
 async function extractText(file: File): Promise<string> {

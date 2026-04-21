@@ -6,7 +6,7 @@ import TableauDeBord from "../components/TableauDeBord";
 import { createBrowserClient } from "@/lib/supabase";
 
 type Tab = "agents" | "tableau" | "documents";
-type ActiveView = "strategie" | "vente" | "finance" | "technique" | "codir";
+type ActiveView = "strategie" | "vente" | "finance" | "technique" | "operations" | "codir";
 type Message = { from: "user" | "agent"; text: string; createdAt?: string };
 type StoredDocument = { id: string; name: string; text: string; uploadedAt: string; storage_path?: string; signedUrl?: string };
 
@@ -104,6 +104,24 @@ const AGENTS = [
       "Revoir notre stratégie de discovery",
       "Prioriser les fonctionnalités Q2",
       "Build vs buy : quelle décision ?",
+    ],
+  },
+  {
+    key: "operations" as const,
+    agent: "Marc",
+    role: "Directeur des Opérations",
+    skills: ["OKR", "Recrutement", "Process", "Organisation"],
+    emoji: "📋",
+    gradient: "from-amber-400 to-orange-500",
+    color: "text-amber-600",
+    bg: "bg-amber-50",
+    border: "border-amber-200",
+    ring: "ring-amber-300",
+    placeholder: "Ex: Comment structurer mon équipe pour passer à 15 personnes ?",
+    suggestions: [
+      "Définir nos OKR du trimestre",
+      "Structurer le recrutement de notre prochain hire",
+      "Mettre en place les rituels d'équipe",
     ],
   },
 ];
@@ -319,6 +337,10 @@ const AGENT_NUDGES: Record<string, { check: (p: Record<string, unknown>) => bool
   technique: {
     check: (p) => !p.description,
     message: "Une description de votre produit dans le profil me permettrait de mieux cadrer mes recommandations techniques et produit.",
+  },
+  operations: {
+    check: (p) => !p.team_size || !p.stage,
+    message: "Renseignez la taille de votre équipe et le stade de votre startup pour que je puisse adapter mes recommandations organisationnelles.",
   },
 };
 
@@ -713,9 +735,10 @@ const AGENT_META: Record<string, { agent: string; emoji: string; color: string; 
   strategie: { agent: "Maya",  emoji: "🧭", color: "text-violet-400", gradient: "from-violet-500 to-indigo-500", label: "Stratégie" },
   vente:     { agent: "Alex",  emoji: "🚀", color: "text-orange-400", gradient: "from-orange-400 to-pink-500",  label: "Commercial" },
   finance:   { agent: "Sam",   emoji: "📊", color: "text-emerald-400", gradient: "from-emerald-400 to-teal-500", label: "Finance" },
-  technique: { agent: "Léo",  emoji: "⚙️", color: "text-sky-400",    gradient: "from-sky-400 to-blue-500",     label: "Produit" },
+  technique:  { agent: "Léo",  emoji: "⚙️", color: "text-sky-400",    gradient: "from-sky-400 to-blue-500",     label: "Produit" },
+  operations: { agent: "Marc", emoji: "📋", color: "text-amber-400",  gradient: "from-amber-400 to-orange-500", label: "Opérations" },
 };
-const AGENT_KEYS = ["strategie", "vente", "finance", "technique"] as const;
+const AGENT_KEYS = ["strategie", "vente", "finance", "technique", "operations"] as const;
 
 type CodirPhase = "idle" | "dispatching" | "synthesizing" | "manager" | "done" | "error";
 interface AgentResult { agentKey: string; content: string }
@@ -877,7 +900,7 @@ function CodirView({ startupId }: { startupId: string | null }) {
 
         {/* Dispatch */}
         {(phase === "dispatching" || phase === "synthesizing" || phase === "done") && (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
             {AGENT_KEYS.map((key) => {
               const m = AGENT_META[key];
               const done = agentsDone.has(key);

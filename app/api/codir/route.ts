@@ -27,6 +27,7 @@ const CODIR_AGENTS: { key: AgentKey; label: string }[] = [
   { key: "vente", label: "Alex" },
   { key: "finance", label: "Sam" },
   { key: "technique", label: "Léo" },
+  { key: "operations", label: "Marc" },
 ];
 
 /** Timeout d'un appel agent (configurable via env, défaut 30s). */

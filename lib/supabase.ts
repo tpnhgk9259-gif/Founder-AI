@@ -29,7 +29,7 @@ export function createBrowserClient() {
   return createSSRBrowserClient(url, key);
 }
 
-export type AgentKey = "strategie" | "vente" | "finance" | "technique";
+export type AgentKey = "strategie" | "vente" | "finance" | "technique" | "operations";
 
 export interface StartupKpi {
   name: string;        // ex: "MRR", "CAC", "Churn"

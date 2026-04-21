@@ -1,4 +1,4 @@
-export type AgentKey = "strategie" | "vente" | "finance" | "technique" | "codir";
+export type AgentKey = "strategie" | "vente" | "finance" | "technique" | "operations" | "codir";
 export type PlanKey = "starter" | "growth" | "scale";
 
 export type LicenseConfig = {
@@ -15,7 +15,7 @@ export type LicenseConfig = {
 };
 
 export const DEFAULT_LICENSE_CONFIG: LicenseConfig = {
-  available_agents: ["strategie", "vente", "finance", "technique", "codir"],
+  available_agents: ["strategie", "vente", "finance", "technique", "operations", "codir"],
   conversational_memory_enabled: true,
   conversational_memory_window: 10,
   max_chat_messages_per_day: 200,
@@ -29,7 +29,7 @@ export const DEFAULT_LICENSE_CONFIG: LicenseConfig = {
 
 export const PLAN_PRESETS: Record<PlanKey, LicenseConfig> = {
   starter: {
-    available_agents: ["strategie", "vente", "finance", "technique"],
+    available_agents: ["strategie", "vente", "finance", "technique", "operations"],
     conversational_memory_enabled: true,
     conversational_memory_window: 5,
     max_chat_messages_per_day: 20,
@@ -37,7 +37,7 @@ export const PLAN_PRESETS: Record<PlanKey, LicenseConfig> = {
     portfolio_plan_allowances: { starter: 10, growth: 5, scale: 2 },
   },
   growth: {
-    available_agents: ["strategie", "vente", "finance", "technique", "codir"],
+    available_agents: ["strategie", "vente", "finance", "technique", "operations", "codir"],
     conversational_memory_enabled: true,
     conversational_memory_window: 20,
     max_chat_messages_per_day: 9999,
@@ -45,7 +45,7 @@ export const PLAN_PRESETS: Record<PlanKey, LicenseConfig> = {
     portfolio_plan_allowances: { starter: 10, growth: 5, scale: 2 },
   },
   scale: {
-    available_agents: ["strategie", "vente", "finance", "technique", "codir"],
+    available_agents: ["strategie", "vente", "finance", "technique", "operations", "codir"],
     conversational_memory_enabled: true,
     conversational_memory_window: 50,
     max_chat_messages_per_day: 9999,
@@ -62,7 +62,7 @@ function clampInt(value: unknown, fallback: number, min: number, max: number): n
 
 function sanitizeAgents(value: unknown): AgentKey[] {
   if (!Array.isArray(value)) return DEFAULT_LICENSE_CONFIG.available_agents;
-  const allowed: AgentKey[] = ["strategie", "vente", "finance", "technique", "codir"];
+  const allowed: AgentKey[] = ["strategie", "vente", "finance", "technique", "operations", "codir"];
   const uniq = new Set<AgentKey>();
   for (const item of value) {
     if (typeof item === "string" && allowed.includes(item as AgentKey)) {

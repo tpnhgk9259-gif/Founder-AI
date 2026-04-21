@@ -3,13 +3,14 @@ import { claude, MODELS } from "@/lib/claude";
 import type Anthropic from "@anthropic-ai/sdk";
 import { getAuthenticatedUserId } from "@/lib/auth";
 
-type AgentKey = "strategie" | "vente" | "finance" | "technique";
+type AgentKey = "strategie" | "vente" | "finance" | "technique" | "operations";
 type Suggestion = AgentKey | "codir" | "same";
 
-const AGENT_DESCRIPTIONS = `- strategie : vision, positionnement concurrentiel, pivot, OKR, expansion marché
+const AGENT_DESCRIPTIONS = `- strategie : vision, positionnement concurrentiel, pivot, expansion marché
 - vente : acquisition client, pricing, go-to-market, pipeline, partenariats
 - finance : trésorerie, runway, métriques SaaS, levée de fonds, burn rate
-- technique : produit, roadmap, priorisation, discovery, build vs buy, UX`;
+- technique : produit, roadmap, priorisation, discovery, build vs buy, UX
+- operations : OKR, recrutement, organisation d'équipe, process, outils, scaling ops`;
 
 export async function POST(req: NextRequest) {
   const userId = await getAuthenticatedUserId();
@@ -39,7 +40,7 @@ export async function POST(req: NextRequest) {
             `Question : "${message}"\n` +
             `Agent actuel : ${agentKey}\n\n` +
             `Réponds UNIQUEMENT avec ce JSON (sans markdown) :\n` +
-            `{"suggestion":"strategie|vente|finance|technique|codir|same","reason":"max 10 mots"}\n\n` +
+            `{"suggestion":"strategie|vente|finance|technique|operations|codir|same","reason":"max 10 mots"}\n\n` +
             `"same" = la question est bien adressée à l'agent actuel.`,
         },
       ],
