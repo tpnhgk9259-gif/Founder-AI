@@ -89,6 +89,15 @@ const PERSONAS: Persona[] = [
         cta: "Créer mon Pitch Deck",
         tip: "Vous pouvez ajouter des photos et personnaliser chaque slide avant d'exporter en PDF.",
       },
+      {
+        title: "Prêt à lever ? Passez au forfait Growth",
+        description: "Débloquez Sam (Directeur Financier) pour construire un business plan robuste, modéliser vos projections et préparer votre levée de fonds. Le mode CODIR réunit vos 4 agents pour des décisions stratégiques.",
+        agent: "Sam",
+        agentEmoji: "📊",
+        href: "/inscription?plan=growth",
+        cta: "Découvrir le forfait Growth",
+        tip: "Le forfait Growth inclut Sam, le mode CODIR, des sessions illimitées et 12 mois de mémoire conversationnelle.",
+      },
     ],
   },
   {
