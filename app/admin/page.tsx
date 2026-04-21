@@ -796,10 +796,10 @@ export default function AdminPage() {
             />
             <div className="mt-4 grid gap-2">
               {partnersF.filter((p) => !p.active).map((p) => (
-                <div key={p.id} className="flex items-center justify-between px-4 py-3 rounded-xl" style={{ background: "var(--uf-card)", border: "1px solid var(--uf-line)" }}>
+                <div key={p.id} className="flex items-center justify-between px-4 py-3 rounded-xl" style={{ background: "var(--uf-ink)", border: "1px solid var(--uf-ink)" }}>
                   <div>
-                    <span className="font-bold text-sm">{p.name}</span>
-                    <span className="text-xs ml-2" style={{ color: "var(--uf-muted)" }}>— en attente d&apos;activation</span>
+                    <span className="font-bold text-sm" style={{ color: "var(--uf-paper)" }}>{p.name}</span>
+                    <span className="text-xs ml-2" style={{ color: "var(--uf-lime)" }}>— en attente d&apos;activation</span>
                   </div>
                   <button
                     onClick={async () => {
@@ -810,7 +810,7 @@ export default function AdminPage() {
                       });
                       if (res.ok) window.location.reload();
                     }}
-                    className="px-4 py-2 text-xs font-medium rounded-full" style={{ background: "var(--uf-ink)", color: "var(--uf-paper)" }}
+                    className="px-4 py-2 text-xs font-medium rounded-full" style={{ background: "var(--uf-lime)", color: "var(--uf-ink)" }}
                   >
                     Activer ce partenaire
                   </button>
