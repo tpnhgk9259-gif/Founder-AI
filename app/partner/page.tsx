@@ -26,7 +26,7 @@ interface Partner {
   name: string;
   type: string;
   license_config?: {
-    portfolio_plan_allowances?: { starter: number; pro: number };
+    portfolio_plan_allowances?: { starter: number; growth: number; scale: number };
   };
   agent_names: AgentNames;
   manager_persona: ManagerPersona;
@@ -39,7 +39,7 @@ interface PartnerMember {
   role: string;
   user_id: string | null;
   invited_at: string;
-  granted_plan: "starter" | "pro";
+  granted_plan: "starter" | "growth" | "scale";
   startup: { id: string; name: string | null } | null;
 }
 
@@ -92,7 +92,7 @@ export default function PartnerPage() {
 
   // Portefeuille
   const [inviteEmail, setInviteEmail] = useState("");
-  const [invitePlan, setInvitePlan] = useState<"starter" | "pro">("starter");
+  const [invitePlan, setInvitePlan] = useState<"starter" | "growth" | "scale">("starter");
   const [inviteLoading, setInviteLoading] = useState(false);
   const [inviteError, setInviteError] = useState("");
 
@@ -182,7 +182,7 @@ export default function PartnerPage() {
     setInviteLoading(false);
   }
 
-  async function updateMemberPlan(memberId: string, plan: "starter" | "pro") {
+  async function updateMemberPlan(memberId: string, plan: "starter" | "growth" | "scale") {
     if (!partner || !userId) return;
     const res = await fetch("/api/partner/members", {
       method: "PATCH",
@@ -280,9 +280,11 @@ export default function PartnerPage() {
   const portfolioCount = members.filter((m) => m.role === "portfolio").length;
   const registeredCount = members.filter((m) => m.role === "portfolio" && m.user_id).length;
   const starterUsed = members.filter((m) => m.role === "portfolio" && m.granted_plan === "starter").length;
-  const proUsed = members.filter((m) => m.role === "portfolio" && m.granted_plan === "pro").length;
+  const growthUsed = members.filter((m) => m.role === "portfolio" && m.granted_plan === "growth").length;
+  const scaleUsed = members.filter((m) => m.role === "portfolio" && m.granted_plan === "scale").length;
   const starterAllowance = partner.license_config?.portfolio_plan_allowances?.starter ?? 0;
-  const proAllowance = partner.license_config?.portfolio_plan_allowances?.pro ?? 0;
+  const growthAllowance = partner.license_config?.portfolio_plan_allowances?.growth ?? 0;
+  const scaleAllowance = partner.license_config?.portfolio_plan_allowances?.scale ?? 0;
 
   const NAV = [
     { id: "apercu" as PartnerView, label: "Aperçu", icon: "🏠" },
@@ -437,11 +439,12 @@ export default function PartnerPage() {
                 />
                 <select
                   value={invitePlan}
-                  onChange={(e) => setInvitePlan(e.target.value as "starter" | "pro")}
+                  onChange={(e) => setInvitePlan(e.target.value as "starter" | "growth" | "scale")}
                   className="border-2 border-slate-200 focus:border-indigo-400 focus:outline-none rounded-xl px-3 py-2.5 text-sm text-slate-700 bg-white"
                 >
                   <option value="starter">Plan Starter</option>
-                  <option value="pro">Plan Pro</option>
+                  <option value="growth">Plan Growth</option>
+                  <option value="scale">Plan Scale</option>
                 </select>
                 <button
                   onClick={inviteMember}
@@ -455,8 +458,11 @@ export default function PartnerPage() {
               <span className="px-2 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100 font-semibold">
                 Starter {starterUsed}/{starterAllowance}
               </span>
+              <span className="px-2 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 font-semibold">
+                Growth {growthUsed}/{growthAllowance}
+              </span>
               <span className="px-2 py-1 rounded-full bg-violet-50 text-violet-700 border border-violet-100 font-semibold">
-                Pro {proUsed}/{proAllowance}
+                Scale {scaleUsed}/{scaleAllowance}
               </span>
             </div>
               {inviteError && (
@@ -493,11 +499,12 @@ export default function PartnerPage() {
                       </p>
                       <select
                         value={m.granted_plan}
-                        onChange={(e) => updateMemberPlan(m.id, e.target.value as "starter" | "pro")}
+                        onChange={(e) => updateMemberPlan(m.id, e.target.value as "starter" | "growth" | "scale")}
                         className="text-xs font-semibold border border-slate-200 rounded-lg px-2 py-1 bg-white text-slate-700"
                       >
                         <option value="starter">Starter</option>
-                        <option value="pro">Pro</option>
+                        <option value="growth">Growth</option>
+                        <option value="scale">Scale</option>
                       </select>
                       <span
                         className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full ${
