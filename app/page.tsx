@@ -185,7 +185,7 @@ export default function Home() {
               Rencontrez votre équipe
             </h2>
             <p className="text-lg text-gray-500 max-w-xl mx-auto">
-              Quatre personnalités distinctes, une vision commune : faire
+              Cinq personnalités distinctes, une vision commune : faire
               réussir votre startup.
             </p>
           </div>
