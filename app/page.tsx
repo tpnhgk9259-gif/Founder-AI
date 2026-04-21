@@ -47,6 +47,7 @@ export default function LandingV2() {
           <a href="#features">Fonctionnalités</a>
           <a href="#tarifs">Tarifs</a>
           <a href="/guide">Guide</a>
+          <a href="/partenaires/inscription">Devenir partenaire</a>
         </div>
         <div className="flex gap-2.5 items-center">
           <span className="hidden lg:inline-flex items-center gap-2 px-3 py-1.5 text-[11.5px] font-medium rounded-full border" style={{ fontFamily: "var(--uf-mono)", borderColor: "var(--uf-line)", letterSpacing: "0.1em", textTransform: "uppercase" }}>
