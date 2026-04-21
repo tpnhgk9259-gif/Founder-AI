@@ -12,15 +12,15 @@ test.describe("Inscription", () => {
   test("le plan Starter affiche 3 agents inclus", async ({ page }) => {
     await page.goto("/inscription");
     await page.locator("button:has-text('Starter')").click();
-    // Les agents inclus ont un cercle check violet
-    const checks = page.locator('.grid-cols-2 [class*="bg-violet-600"]');
+    // Les agents inclus ont un check ✓
+    const checks = page.locator('.grid-cols-2 >> text=✓');
     await expect(checks).toHaveCount(3);
   });
 
   test("le plan Scale affiche 5 agents inclus", async ({ page }) => {
     await page.goto("/inscription");
     await page.locator("button:has-text('Scale')").click();
-    const checks = page.locator('.grid-cols-2 [class*="bg-violet-600"]');
+    const checks = page.locator('.grid-cols-2 >> text=✓');
     await expect(checks).toHaveCount(5);
   });
 
