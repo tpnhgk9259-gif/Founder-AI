@@ -1192,7 +1192,13 @@ export default function Dashboard() {
 
           <div className="flex items-center gap-3">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-sm font-medium hidden sm:block" style={{ color: "var(--uf-muted)" }}>5 agents actifs</span>
+            <span className="text-sm font-medium hidden sm:block" style={{ color: "var(--uf-muted)" }}>
+              {(() => {
+                const agents = (startupProfile?.license_config as { available_agents?: string[] } | undefined)?.available_agents;
+                const count = agents ? agents.filter((a: string) => a !== "codir").length : AGENTS.length;
+                return `${count} agent${count > 1 ? "s" : ""} actif${count > 1 ? "s" : ""}`;
+              })()}
+            </span>
             <button onClick={handleLogout} className="text-xs text-gray-400 hover:text-gray-600 transition-colors">
               Déconnexion
             </button>
