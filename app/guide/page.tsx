@@ -143,11 +143,11 @@ const PERSONAS: Persona[] = [
         cta: "Parler à Marc",
       },
       {
-        title: "Réunissez votre CODIR IA",
-        description: "Posez une question stratégique transversale — les 5 agents analysent en parallèle, puis Victor synthétise et recommande.",
-        href: "/dashboard?agent=codir&msg=Comment optimiser notre organisation pour passer de 10 à 30 personnes tout en maintenant notre vélocité produit ?",
+        title: "Prenez les bonnes décisions avant d'accélérer",
+        description: "Avant de scaler, il faut une vision claire des priorités à exécuter dans les 18 prochains mois pour ne pas se disperser. Le CODIR réunit vos 5 agents pour croiser les perspectives et trancher.",
+        href: "/dashboard?agent=codir&msg=Quelles sont les 3 priorités stratégiques sur lesquelles nous devons concentrer nos efforts dans les 18 prochains mois pour maximiser notre croissance ?",
         cta: "Lancer un CODIR",
-        tip: "Le CODIR est idéal pour les décisions qui touchent plusieurs domaines : pivot, levée, réorganisation, nouveau marché.",
+        tip: "Une mauvaise décision stratégique à ce stade coûte 6 mois. Le CODIR vous aide à trancher avec l'éclairage de chaque domaine.",
       },
       {
         title: "Structurez vos OKR avec Marc",
