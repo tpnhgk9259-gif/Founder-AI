@@ -57,6 +57,12 @@ const helpItems = [
     q: "Mes données sont-elles confidentielles ?",
     a: "Oui. Vos informations sont isolées dans votre espace et ne sont jamais utilisées pour entraîner des modèles ou partagées avec d'autres utilisateurs.",
   },
+  {
+    q: "Par où commencer ?",
+    a: "Consultez le guide de démarrage pour un parcours pas-à-pas adapté à votre profil.",
+    link: "/guide",
+    linkLabel: "Ouvrir le guide",
+  },
 ];
 
 export default function HelpBubble() {
@@ -156,6 +162,11 @@ export default function HelpBubble() {
                       {expanded === item.q && (
                         <div className="px-4 pb-4 text-sm text-gray-500 leading-relaxed border-t border-gray-100 pt-3">
                           {item.a}
+                          {"link" in item && item.link && (
+                            <a href={item.link as string} className="block mt-2 text-violet-600 font-semibold hover:underline text-xs">
+                              {(item as { linkLabel?: string }).linkLabel ?? "En savoir plus"} →
+                            </a>
+                          )}
                         </div>
                       )}
                     </div>

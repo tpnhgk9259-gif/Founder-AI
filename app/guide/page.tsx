@@ -1,0 +1,344 @@
+"use client";
+
+import { useState } from "react";
+
+// ─── Types ───────────────────────────────────────────────────────────────────
+
+type PersonaKey = "solo" | "growth" | "partner";
+
+interface Step {
+  title: string;
+  description: string;
+  agent?: string;
+  agentEmoji?: string;
+  href: string;
+  cta: string;
+  tip?: string;
+}
+
+interface Persona {
+  key: PersonaKey;
+  emoji: string;
+  title: string;
+  subtitle: string;
+  gradient: string;
+  border: string;
+  bg: string;
+  accent: string;
+  steps: Step[];
+}
+
+// ─── Données ─────────────────────────────────────────────────────────────────
+
+const PERSONAS: Persona[] = [
+  {
+    key: "solo",
+    emoji: "🚀",
+    title: "Fondateur solo / early-stage",
+    subtitle: "Vous lancez votre projet et cherchez à structurer vos fondations.",
+    gradient: "from-violet-500 to-indigo-500",
+    border: "border-violet-200",
+    bg: "bg-violet-50",
+    accent: "text-violet-600",
+    steps: [
+      {
+        title: "Complétez votre profil startup",
+        description: "Nom, secteur, stade, description — ces informations permettent à vos agents de contextualiser chaque conseil.",
+        href: "/dashboard?tab=tableau",
+        cta: "Remplir mon profil",
+        tip: "Plus votre profil est complet, plus les réponses des agents sont pertinentes.",
+      },
+      {
+        title: "Clarifiez votre positionnement avec Maya",
+        description: "Analysez votre marché, identifiez votre avantage concurrentiel et définissez votre proposition de valeur unique.",
+        agent: "Maya",
+        agentEmoji: "🧭",
+        href: "/dashboard?agent=strategie&msg=Bonjour Maya ! J'aimerais clarifier le positionnement de ma startup. Peux-tu m'aider à identifier mon avantage concurrentiel ?",
+        cta: "Parler à Maya",
+        tip: "Maya utilise des frameworks comme Blue Ocean Strategy et Porter pour structurer votre réflexion.",
+      },
+      {
+        title: "Générez votre Lean Canvas",
+        description: "Un canevas d'une page qui résume votre modèle économique : problème, solution, métriques clés, avantage injuste.",
+        href: "/dashboard/modeles/lean-canvas",
+        cta: "Créer mon Lean Canvas",
+        tip: "L'IA pré-remplit le canvas à partir de votre profil et de vos conversations.",
+      },
+      {
+        title: "Définissez votre MVP avec Léo",
+        description: "Identifiez les fonctionnalités indispensables, celles à exclure, et estimez l'effort de développement.",
+        agent: "Léo",
+        agentEmoji: "⚙️",
+        href: "/dashboard?agent=technique&msg=Bonjour Léo ! J'aimerais définir le scope de mon MVP. Quelles fonctionnalités sont vraiment indispensables pour valider mon hypothèse ?",
+        cta: "Parler à Léo",
+      },
+      {
+        title: "Générez votre Pitch Deck",
+        description: "12 slides prêtes pour convaincre : problème, solution, marché, business model, roadmap, équipe, ask.",
+        href: "/dashboard/modeles/pitch-deck-seed",
+        cta: "Créer mon Pitch Deck",
+        tip: "Vous pouvez ajouter des photos et personnaliser chaque slide avant d'exporter en PDF.",
+      },
+      {
+        title: "Préparez votre premier rendez-vous investisseur avec Sam",
+        description: "Modélisez votre plan financier, calculez votre runway et préparez les réponses aux questions financières classiques.",
+        agent: "Sam",
+        agentEmoji: "📊",
+        href: "/dashboard?agent=finance&msg=Bonjour Sam ! Je prépare mon premier rendez-vous investisseur. Peux-tu m'aider à structurer mes projections financières ?",
+        cta: "Parler à Sam",
+      },
+    ],
+  },
+  {
+    key: "growth",
+    emoji: "📈",
+    title: "Fondateur en croissance",
+    subtitle: "Vous avez vos premiers clients et cherchez à scaler.",
+    gradient: "from-emerald-400 to-teal-500",
+    border: "border-emerald-200",
+    bg: "bg-emerald-50",
+    accent: "text-emerald-600",
+    steps: [
+      {
+        title: "Mettez à jour vos KPIs",
+        description: "MRR, CAC, churn, LTV — vos agents utilisent ces données pour calibrer leurs recommandations.",
+        href: "/dashboard?tab=tableau",
+        cta: "Mettre à jour mes KPIs",
+        tip: "Ajoutez au moins 3-4 KPIs pour que Sam et Maya puissent analyser votre situation.",
+      },
+      {
+        title: "Structurez vos OKR avec Marc",
+        description: "Définissez vos objectifs trimestriels et les résultats clés mesurables pour aligner votre équipe.",
+        agent: "Marc",
+        agentEmoji: "📋",
+        href: "/dashboard?agent=operations&msg=Bonjour Marc ! Nous sommes en phase de croissance et j'aimerais mettre en place des OKR trimestriels. Comment structurer ça pour une équipe de notre taille ?",
+        cta: "Parler à Marc",
+        tip: "Marc adapte la complexité organisationnelle au stade de votre startup — pas de bureaucratie prématurée.",
+      },
+      {
+        title: "Optimisez votre go-to-market avec Alex",
+        description: "Analysez vos canaux d'acquisition, optimisez votre pricing et identifiez vos meilleurs segments clients.",
+        agent: "Alex",
+        agentEmoji: "🚀",
+        href: "/dashboard?agent=vente&msg=Bonjour Alex ! Nous avons nos premiers clients et je veux accélérer l'acquisition. Quels canaux prioriser ?",
+        cta: "Parler à Alex",
+      },
+      {
+        title: "Modélisez votre plan financier avec Sam",
+        description: "Projetez votre croissance sur 18 mois, optimisez votre burn rate et préparez votre prochaine levée.",
+        agent: "Sam",
+        agentEmoji: "📊",
+        href: "/dashboard?agent=finance&msg=Bonjour Sam ! J'aimerais modéliser un plan financier 18 mois pour préparer notre Series A. Par où commencer ?",
+        cta: "Parler à Sam",
+      },
+      {
+        title: "Réunissez votre CODIR IA",
+        description: "Posez une question stratégique transversale — les 5 agents analysent en parallèle, puis Victor synthétise et recommande.",
+        href: "/dashboard?agent=codir&msg=Comment optimiser notre organisation pour passer de 10 à 30 personnes tout en maintenant notre vélocité produit ?",
+        cta: "Lancer un CODIR",
+        tip: "Le CODIR est idéal pour les décisions qui touchent plusieurs domaines : pivot, levée, réorganisation, nouveau marché.",
+      },
+      {
+        title: "Recrutez votre prochain hire clé",
+        description: "Marc vous aide à définir le poste, la scorecard et le plan d'onboarding 30-60-90 jours.",
+        agent: "Marc",
+        agentEmoji: "📋",
+        href: "/dashboard?agent=operations&msg=Bonjour Marc ! Je dois recruter un premier commercial. Peux-tu m'aider à définir la scorecard du poste et le plan d'onboarding ?",
+        cta: "Parler à Marc",
+      },
+    ],
+  },
+  {
+    key: "partner",
+    emoji: "🏛️",
+    title: "Incubateur / Accélérateur / Fonds",
+    subtitle: "Vous accompagnez un portefeuille de startups.",
+    gradient: "from-amber-400 to-orange-500",
+    border: "border-amber-200",
+    bg: "bg-amber-50",
+    accent: "text-amber-600",
+    steps: [
+      {
+        title: "Configurez votre espace partenaire",
+        description: "Renseignez le nom de votre structure, son type (incubateur, fonds, studio) et vos informations.",
+        href: "/partner",
+        cta: "Accéder à mon espace",
+      },
+      {
+        title: "Invitez vos startups",
+        description: "Ajoutez les fondateurs par email — ils recevront un accès avec le plan que vous leur attribuez (Starter, Growth ou Scale).",
+        href: "/partner?tab=portfolio",
+        cta: "Gérer mon portefeuille",
+        tip: "Chaque startup a son propre espace, ses propres conversations et ses propres documents.",
+      },
+      {
+        title: "Personnalisez les agents",
+        description: "Renommez les agents et adaptez le persona du manager (Victor) pour coller à l'identité de votre programme.",
+        href: "/partner?tab=personnalisation",
+        cta: "Personnaliser",
+        tip: "Vous pouvez par exemple renommer Maya en votre mentor stratégie et adapter son style de communication.",
+      },
+      {
+        title: "Enrichissez les bases de connaissances",
+        description: "Ajoutez vos propres frameworks, méthodologies et ressources dans la base de chaque agent via le panel admin.",
+        href: "/admin?tab=agents",
+        cta: "Gérer les connaissances",
+        tip: "Les agents utilisent vos contenus en priorité (RAG sémantique) pour des réponses alignées avec votre programme.",
+      },
+      {
+        title: "Suivez l'activité de vos startups",
+        description: "Consultez les conversations, les documents générés et l'usage de chaque startup de votre portefeuille.",
+        href: "/admin?tab=conversations",
+        cta: "Voir les conversations",
+      },
+    ],
+  },
+];
+
+// ─── Composants ──────────────────────────────────────────────────────────────
+
+function StepCard({ step, index, accent }: { step: Step; index: number; accent: string }) {
+  return (
+    <div className="flex gap-4">
+      {/* Numéro + ligne */}
+      <div className="flex flex-col items-center">
+        <div className={`w-8 h-8 rounded-full ${accent.replace("text-", "bg-").replace("600", "100")} flex items-center justify-center text-sm font-black ${accent}`}>
+          {index + 1}
+        </div>
+        <div className="w-px flex-1 bg-gray-200 mt-2" />
+      </div>
+
+      {/* Contenu */}
+      <div className="flex-1 pb-8">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 hover:shadow-md transition-shadow">
+          <div className="flex items-start gap-3 mb-2">
+            {step.agentEmoji && (
+              <span className="text-xl">{step.agentEmoji}</span>
+            )}
+            <div className="flex-1">
+              <h3 className="font-bold text-gray-900 text-sm">{step.title}</h3>
+              {step.agent && (
+                <span className={`text-xs font-semibold ${accent}`}>avec {step.agent}</span>
+              )}
+            </div>
+          </div>
+          <p className="text-sm text-gray-500 leading-relaxed mb-3">{step.description}</p>
+          {step.tip && (
+            <div className="bg-gray-50 rounded-xl px-3 py-2 mb-3">
+              <p className="text-xs text-gray-500"><span className="font-semibold text-gray-600">Astuce :</span> {step.tip}</p>
+            </div>
+          )}
+          <a
+            href={step.href}
+            className={`inline-flex items-center gap-1.5 text-sm font-bold ${accent} hover:underline`}
+          >
+            {step.cta}
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Page ────────────────────────────────────────────────────────────────────
+
+export default function GuidePage() {
+  const [selected, setSelected] = useState<PersonaKey | null>(null);
+  const persona = PERSONAS.find((p) => p.key === selected);
+
+  return (
+    <main className="min-h-screen bg-gradient-to-br from-gray-50 to-violet-50/30">
+      {/* Header */}
+      <div className="bg-white border-b border-gray-100">
+        <div className="max-w-3xl mx-auto px-6 py-6 flex items-center justify-between">
+          <div>
+            <a href="/dashboard" className="text-xl font-black text-gray-900">
+              Founder<span className="text-violet-600">AI</span>
+            </a>
+            <h1 className="text-2xl font-black text-gray-900 mt-2">Guide de démarrage</h1>
+            <p className="text-sm text-gray-500 mt-1">Choisissez votre profil pour un parcours adapté.</p>
+          </div>
+          <a href="/dashboard" className="text-sm text-gray-400 hover:text-gray-600 transition-colors">
+            Retour au dashboard
+          </a>
+        </div>
+      </div>
+
+      <div className="max-w-3xl mx-auto px-6 py-8">
+        {/* Sélection persona */}
+        <div className="grid sm:grid-cols-3 gap-4 mb-10">
+          {PERSONAS.map((p) => (
+            <button
+              key={p.key}
+              onClick={() => setSelected(selected === p.key ? null : p.key)}
+              className={`text-left p-5 rounded-2xl border-2 transition-all hover:shadow-md hover:scale-[1.02] ${
+                selected === p.key
+                  ? `${p.border} ${p.bg} shadow-md`
+                  : "border-gray-200 bg-white"
+              }`}
+            >
+              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${p.gradient} flex items-center justify-center text-2xl shadow-sm mb-3`}>
+                {p.emoji}
+              </div>
+              <p className="font-black text-gray-900 text-sm mb-1">{p.title}</p>
+              <p className="text-xs text-gray-500 leading-relaxed">{p.subtitle}</p>
+              {selected === p.key && (
+                <div className={`mt-3 text-xs font-bold ${p.accent} flex items-center gap-1`}>
+                  <span>Parcours actif</span>
+                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+              )}
+            </button>
+          ))}
+        </div>
+
+        {/* Parcours étapes */}
+        {persona && (
+          <div>
+            <div className="flex items-center gap-3 mb-6">
+              <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${persona.gradient} flex items-center justify-center text-xl shadow-sm`}>
+                {persona.emoji}
+              </div>
+              <div>
+                <h2 className="font-black text-gray-900">{persona.title}</h2>
+                <p className="text-xs text-gray-500">{persona.steps.length} étapes pour bien démarrer</p>
+              </div>
+            </div>
+
+            <div>
+              {persona.steps.map((step, i) => (
+                <StepCard key={i} step={step} index={i} accent={persona.accent} />
+              ))}
+            </div>
+
+            {/* CTA final */}
+            <div className="text-center mt-4 mb-8">
+              <a
+                href="/dashboard"
+                className={`inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r ${persona.gradient} text-white font-bold text-sm shadow-lg hover:scale-[1.02] transition-all`}
+              >
+                Accéder au dashboard
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </a>
+            </div>
+          </div>
+        )}
+
+        {/* Aide */}
+        {!persona && (
+          <div className="text-center py-12">
+            <p className="text-4xl mb-4">👆</p>
+            <p className="text-gray-400 text-sm">Sélectionnez un profil ci-dessus pour voir votre parcours personnalisé.</p>
+          </div>
+        )}
+      </div>
+    </main>
+  );
+}
