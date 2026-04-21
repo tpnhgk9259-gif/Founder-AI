@@ -1192,7 +1192,7 @@ export default function Dashboard() {
 
           <div className="flex items-center gap-3">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-sm text-gray-500 font-medium hidden sm:block">4 agents actifs</span>
+            <span className="text-sm font-medium hidden sm:block" style={{ color: "var(--uf-muted)" }}>5 agents actifs</span>
             <button onClick={handleLogout} className="text-xs text-gray-400 hover:text-gray-600 transition-colors">
               Déconnexion
             </button>
