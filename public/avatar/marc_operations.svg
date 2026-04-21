@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <linearGradient id="marcBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFD23F"/>
+      <stop offset="100%" stop-color="#F4A712"/>
+    </linearGradient>
+    <linearGradient id="marcShirt" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#2B2D42"/>
+      <stop offset="100%" stop-color="#1F2133"/>
+    </linearGradient>
+    <clipPath id="marcCircle">
+      <circle cx="200" cy="200" r="160"/>
+    </clipPath>
+  </defs>
+
+  <circle cx="200" cy="200" r="160" fill="url(#marcBg)"/>
+
+  <g clip-path="url(#marcCircle)">
+    <!-- Buste -->
+    <path d="M 60 400 Q 60 300 140 280 L 260 280 Q 340 300 340 400 Z" fill="url(#marcShirt)"/>
+    <!-- Col chemise avec cravate -->
+    <path d="M 170 280 L 200 310 L 230 280 L 230 295 L 200 325 L 170 295 Z" fill="#FFFFFF" opacity="0.95"/>
+    <path d="M 195 315 L 205 315 L 210 340 L 200 360 L 190 340 Z" fill="#F4A712"/>
+
+    <!-- Cou -->
+    <path d="M 182 255 Q 182 285 200 290 Q 218 285 218 255 Z" fill="#D4A574"/>
+
+    <!-- Visage -->
+    <ellipse cx="200" cy="200" rx="52" ry="62" fill="#E8BF92"/>
+
+    <!-- Cheveux grisonnants sur les tempes, classique -->
+    <path d="M 150 185 Q 148 150 190 138 Q 230 138 252 165 Q 255 185 252 195 Q 245 170 220 168 Q 200 170 180 170 Q 160 172 150 185 Z" fill="#3D3330"/>
+    <!-- Tempes grisonnantes -->
+    <path d="M 150 185 Q 148 170 152 165 Q 156 180 154 195 Z" fill="#6B6560"/>
+    <path d="M 250 185 Q 252 170 248 165 Q 244 180 246 195 Z" fill="#6B6560"/>
+
+    <!-- Sourcils -->
+    <path d="M 170 188 Q 180 184 192 188" stroke="#3D3330" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+    <path d="M 208 188 Q 220 184 230 188" stroke="#3D3330" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+
+    <!-- Yeux -->
+    <circle cx="182" cy="200" r="3.5" fill="#2B1810"/>
+    <circle cx="218" cy="200" r="3.5" fill="#2B1810"/>
+
+    <!-- Nez -->
+    <path d="M 200 210 Q 197 225 200 231" stroke="#BC8E5D" stroke-width="2" stroke-linecap="round" fill="none"/>
+
+    <!-- Moustache discrète -->
+    <path d="M 186 238 Q 200 236 214 238" stroke="#3D3330" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.7"/>
+
+    <!-- Sourire confiant -->
+    <path d="M 188 246 Q 200 252 212 246" stroke="#6B4226" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+  </g>
+
+  <!-- Badge icône opérations (engrenage simplifié) -->
+  <g transform="translate(300, 300)">
+    <circle cx="0" cy="0" r="34" fill="#FFFFFF"/>
+    <g fill="#F4A712">
+      <!-- 8 dents disposées radialement -->
+      <rect x="-3" y="-24" width="6" height="10" rx="1"/>
+      <rect x="-3" y="14" width="6" height="10" rx="1"/>
+      <rect x="-24" y="-3" width="10" height="6" rx="1"/>
+      <rect x="14" y="-3" width="10" height="6" rx="1"/>
+      <rect x="-3" y="-24" width="6" height="10" rx="1" transform="rotate(45)"/>
+      <rect x="-3" y="-24" width="6" height="10" rx="1" transform="rotate(-45)"/>
+      <rect x="-3" y="-24" width="6" height="10" rx="1" transform="rotate(135)"/>
+      <rect x="-3" y="-24" width="6" height="10" rx="1" transform="rotate(-135)"/>
+    </g>
+    <!-- Corps rond -->
+    <circle cx="0" cy="0" r="15" fill="#F4A712"/>
+    <!-- Trou central -->
+    <circle cx="0" cy="0" r="6" fill="#FFFFFF"/>
+  </g>
+
+  <g transform="translate(200, 382)">
+    <text text-anchor="middle" font-family="Georgia, serif" font-size="20" font-weight="700" fill="#2B2D42" letter-spacing="2">MARC</text>
+  </g>
+</svg>

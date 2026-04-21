@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <linearGradient id="alexBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E94B9E"/>
+      <stop offset="100%" stop-color="#C2185B"/>
+    </linearGradient>
+    <linearGradient id="alexShirt" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#2B2D42"/>
+      <stop offset="100%" stop-color="#1F2133"/>
+    </linearGradient>
+    <clipPath id="alexCircle">
+      <circle cx="200" cy="200" r="160"/>
+    </clipPath>
+  </defs>
+
+  <circle cx="200" cy="200" r="160" fill="url(#alexBg)"/>
+
+  <g clip-path="url(#alexCircle)">
+    <!-- Buste -->
+    <path d="M 60 400 Q 60 300 140 280 L 260 280 Q 340 300 340 400 Z" fill="url(#alexShirt)"/>
+    <!-- Col avec cravate -->
+    <path d="M 170 280 L 200 310 L 230 280 L 230 295 L 200 325 L 170 295 Z" fill="#FFFFFF" opacity="0.95"/>
+    <path d="M 195 315 L 205 315 L 210 340 L 200 360 L 190 340 Z" fill="#E94B9E"/>
+    <path d="M 195 315 L 205 315 L 208 325 L 192 325 Z" fill="#C2185B"/>
+
+    <!-- Cou -->
+    <path d="M 182 255 Q 182 285 200 290 Q 218 285 218 255 Z" fill="#D4967A"/>
+
+    <!-- Visage -->
+    <ellipse cx="200" cy="200" rx="52" ry="62" fill="#E8AD8C"/>
+
+    <!-- Cheveux courts sur le côté -->
+    <path d="M 148 195 Q 145 150 185 138 Q 225 135 250 160 Q 255 180 252 195 Q 245 175 225 170 Q 210 175 195 175 Q 175 172 160 180 Q 152 185 148 195 Z" fill="#3D2817"/>
+    <!-- Mèche -->
+    <path d="M 200 140 Q 215 142 220 155 Q 210 150 200 152 Q 195 148 200 140 Z" fill="#3D2817"/>
+
+    <!-- Sourcils -->
+    <path d="M 172 188 Q 182 184 192 188" stroke="#3D2817" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+    <path d="M 208 188 Q 218 184 228 188" stroke="#3D2817" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+
+    <!-- Yeux -->
+    <circle cx="182" cy="200" r="3.5" fill="#2B1810"/>
+    <circle cx="218" cy="200" r="3.5" fill="#2B1810"/>
+
+    <!-- Nez -->
+    <path d="M 200 210 Q 196 224 200 230" stroke="#C68562" stroke-width="2" stroke-linecap="round" fill="none"/>
+
+    <!-- Sourire commercial -->
+    <path d="M 185 240 Q 200 250 215 240" stroke="#8B3A3A" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+    <path d="M 188 241 Q 200 246 212 241" fill="#FFFFFF" opacity="0.6"/>
+  </g>
+
+  <!-- Badge icône vente (graphique croissant) -->
+  <g transform="translate(300, 300)">
+    <circle cx="0" cy="0" r="34" fill="#FFFFFF"/>
+    <!-- Barres -->
+    <rect x="-20" y="0" width="8" height="18" rx="1" fill="#E94B9E"/>
+    <rect x="-8" y="-6" width="8" height="24" rx="1" fill="#E94B9E"/>
+    <rect x="4" y="-14" width="8" height="32" rx="1" fill="#C2185B"/>
+    <!-- Flèche tendance -->
+    <polyline points="-22,8 -10,-4 2,-10 18,-20" stroke="#2B2D42" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <polygon points="18,-20 10,-20 16,-12" fill="#2B2D42"/>
+  </g>
+
+  <g transform="translate(200, 382)">
+    <text text-anchor="middle" font-family="Georgia, serif" font-size="20" font-weight="700" fill="#2B2D42" letter-spacing="2">ALEX</text>
+  </g>
+</svg>

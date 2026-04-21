@@ -1,0 +1,20 @@
+/* FounderAI V2 — Design tokens */
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Instrument+Serif:ital@1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap');
+
+:root {
+  --uf-paper: #FBF8F0;
+  --uf-paper-2: #F2EEE2;
+  --uf-card: #FFFFFF;
+  --uf-ink: #0F0E0B;
+  --uf-ink-2: #242220;
+  --uf-muted: #6C6760;
+  --uf-muted-2: #A09A8E;
+  --uf-line: #E0D9C7;
+  --uf-line-2: #CEC5AE;
+  --uf-orange: #FF6A1F;
+  --uf-magenta: #E8358E;
+  --uf-teal: #0DB4A0;
+  --uf-violet: #6E4BE8;
+  --uf-yellow: #FFD12A;
+  --uf-lime: #C8E64D;
+}

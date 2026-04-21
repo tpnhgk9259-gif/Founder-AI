@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <linearGradient id="leoBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#9B5DE5"/>
+      <stop offset="100%" stop-color="#6A3DB5"/>
+    </linearGradient>
+    <linearGradient id="leoShirt" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#2B2D42"/>
+      <stop offset="100%" stop-color="#1F2133"/>
+    </linearGradient>
+    <clipPath id="leoCircle">
+      <circle cx="200" cy="200" r="160"/>
+    </clipPath>
+  </defs>
+
+  <circle cx="200" cy="200" r="160" fill="url(#leoBg)"/>
+
+  <g clip-path="url(#leoCircle)">
+    <!-- Buste (pull col rond, plus décontracté produit) -->
+    <path d="M 60 400 Q 60 300 140 280 L 260 280 Q 340 300 340 400 Z" fill="url(#leoShirt)"/>
+    <!-- Col rond -->
+    <path d="M 170 285 Q 200 305 230 285 Q 225 300 200 305 Q 175 300 170 285 Z" fill="#1A1C2E"/>
+
+    <!-- Cou -->
+    <path d="M 182 255 Q 182 285 200 290 Q 218 285 218 255 Z" fill="#D4A574"/>
+
+    <!-- Visage -->
+    <ellipse cx="200" cy="200" rx="52" ry="62" fill="#E8BF92"/>
+
+    <!-- Cheveux bouclés/volumineux style créatif -->
+    <path d="M 148 180 Q 140 145 170 130 Q 200 122 230 130 Q 260 145 252 185 Q 248 165 240 158 Q 230 168 218 160 Q 205 168 195 160 Q 180 168 170 158 Q 158 165 148 180 Z" fill="#2D1B1A"/>
+    <!-- Boucles sur le front -->
+    <circle cx="175" cy="160" r="8" fill="#2D1B1A"/>
+    <circle cx="200" cy="152" r="9" fill="#2D1B1A"/>
+    <circle cx="225" cy="160" r="8" fill="#2D1B1A"/>
+
+    <!-- Sourcils -->
+    <path d="M 172 188 Q 182 185 192 188" stroke="#2D1B1A" stroke-width="3" stroke-linecap="round" fill="none"/>
+    <path d="M 208 188 Q 218 185 228 188" stroke="#2D1B1A" stroke-width="3" stroke-linecap="round" fill="none"/>
+
+    <!-- Yeux -->
+    <circle cx="182" cy="200" r="3.5" fill="#2B1810"/>
+    <circle cx="218" cy="200" r="3.5" fill="#2B1810"/>
+
+    <!-- Petit reflet créatif dans les yeux -->
+    <circle cx="183" cy="199" r="1" fill="#FFFFFF"/>
+    <circle cx="219" cy="199" r="1" fill="#FFFFFF"/>
+
+    <!-- Nez -->
+    <path d="M 200 210 Q 197 224 200 230" stroke="#BC8E5D" stroke-width="2" stroke-linecap="round" fill="none"/>
+
+    <!-- Sourire curieux -->
+    <path d="M 186 240 Q 200 248 214 240" stroke="#8B3A3A" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+
+    <!-- Barbe légère / bouc -->
+    <path d="M 192 250 Q 200 258 208 250 Q 205 256 200 256 Q 195 256 192 250 Z" fill="#2D1B1A" opacity="0.4"/>
+  </g>
+
+  <!-- Badge icône produit (ampoule/idée) -->
+  <g transform="translate(300, 300)">
+    <circle cx="0" cy="0" r="34" fill="#FFFFFF"/>
+    <!-- Ampoule -->
+    <path d="M 0 -18 Q -12 -18 -12 -6 Q -12 2 -6 8 L -6 14 L 6 14 L 6 8 Q 12 2 12 -6 Q 12 -18 0 -18 Z" fill="#9B5DE5"/>
+    <!-- Culot -->
+    <rect x="-5" y="14" width="10" height="3" fill="#2B2D42"/>
+    <rect x="-4" y="18" width="8" height="2" fill="#2B2D42"/>
+    <!-- Filament -->
+    <path d="M -4 0 Q 0 -6 4 0" stroke="#FFFFFF" stroke-width="1.5" fill="none"/>
+    <!-- Rayons d'idée -->
+    <line x1="-20" y1="-14" x2="-16" y2="-10" stroke="#9B5DE5" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="20" y1="-14" x2="16" y2="-10" stroke="#9B5DE5" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="0" y1="-26" x2="0" y2="-22" stroke="#9B5DE5" stroke-width="2.5" stroke-linecap="round"/>
+  </g>
+
+  <g transform="translate(200, 382)">
+    <text text-anchor="middle" font-family="Georgia, serif" font-size="20" font-weight="700" fill="#2B2D42" letter-spacing="3">LÉO</text>
+  </g>
+</svg>

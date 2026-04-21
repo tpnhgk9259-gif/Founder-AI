@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <linearGradient id="mayaBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF8A3D"/>
+      <stop offset="100%" stop-color="#F26419"/>
+    </linearGradient>
+    <linearGradient id="mayaShirt" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#2B2D42"/>
+      <stop offset="100%" stop-color="#1F2133"/>
+    </linearGradient>
+    <clipPath id="mayaCircle">
+      <circle cx="200" cy="200" r="160"/>
+    </clipPath>
+  </defs>
+
+  <!-- Cercle de fond -->
+  <circle cx="200" cy="200" r="160" fill="url(#mayaBg)"/>
+
+  <!-- Contenu clippé au cercle -->
+  <g clip-path="url(#mayaCircle)">
+    <!-- Épaules / buste -->
+    <path d="M 60 400 Q 60 300 140 280 L 260 280 Q 340 300 340 400 Z" fill="url(#mayaShirt)"/>
+    <!-- Col chemise -->
+    <path d="M 170 280 L 200 310 L 230 280 L 230 295 L 200 325 L 170 295 Z" fill="#FFFFFF" opacity="0.95"/>
+
+    <!-- Cou -->
+    <path d="M 180 255 Q 180 285 200 290 Q 220 285 220 255 Z" fill="#E8A87C"/>
+
+    <!-- Cheveux arrière (carré plongeant) -->
+    <path d="M 135 170 Q 130 250 155 285 L 155 250 Q 145 210 150 180 Z" fill="#2B1810"/>
+    <path d="M 265 170 Q 270 250 245 285 L 245 250 Q 255 210 250 180 Z" fill="#2B1810"/>
+
+    <!-- Visage -->
+    <ellipse cx="200" cy="200" rx="55" ry="65" fill="#F5C9A5"/>
+
+    <!-- Cheveux avant (frange latérale) -->
+    <path d="M 145 175 Q 155 140 200 135 Q 245 140 255 175 Q 250 155 220 150 Q 210 165 195 165 Q 175 162 160 170 Z" fill="#2B1810"/>
+    <path d="M 145 175 Q 150 195 148 220 Q 142 200 145 175 Z" fill="#2B1810"/>
+
+    <!-- Sourcils -->
+    <path d="M 172 188 Q 180 184 190 188" stroke="#2B1810" stroke-width="3" stroke-linecap="round" fill="none"/>
+    <path d="M 210 188 Q 220 184 228 188" stroke="#2B1810" stroke-width="3" stroke-linecap="round" fill="none"/>
+
+    <!-- Yeux -->
+    <circle cx="181" cy="200" r="3.5" fill="#2B1810"/>
+    <circle cx="219" cy="200" r="3.5" fill="#2B1810"/>
+
+    <!-- Nez -->
+    <path d="M 200 208 Q 198 222 200 228" stroke="#D9A87C" stroke-width="2" stroke-linecap="round" fill="none"/>
+
+    <!-- Bouche -->
+    <path d="M 190 238 Q 200 244 210 238" stroke="#C85450" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+
+    <!-- Boucles d'oreilles -->
+    <circle cx="148" cy="215" r="3" fill="#F4D35E"/>
+    <circle cx="252" cy="215" r="3" fill="#F4D35E"/>
+  </g>
+
+  <!-- Badge icône stratégie (cible) -->
+  <g transform="translate(300, 300)">
+    <circle cx="0" cy="0" r="34" fill="#FFFFFF"/>
+    <circle cx="0" cy="0" r="24" fill="none" stroke="#F26419" stroke-width="2.5"/>
+    <circle cx="0" cy="0" r="16" fill="none" stroke="#F26419" stroke-width="2.5"/>
+    <circle cx="0" cy="0" r="8" fill="none" stroke="#F26419" stroke-width="2.5"/>
+    <circle cx="0" cy="0" r="3" fill="#F26419"/>
+  </g>
+
+  <!-- Nom -->
+  <g transform="translate(200, 382)">
+    <text text-anchor="middle" font-family="Georgia, serif" font-size="20" font-weight="700" fill="#2B2D42" letter-spacing="2">MAYA</text>
+  </g>
+</svg>
