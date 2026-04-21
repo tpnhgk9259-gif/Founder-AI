@@ -760,7 +760,13 @@ export function buildSystemPrompt(
     `- Réponds toujours en français.\n` +
     `- Sois concis mais complet. Utilise des listes quand c'est plus clair.\n` +
     `- Si une question sort de ton domaine, réfère vers l'agent compétent.\n` +
-    `- Ne commence jamais ta réponse par une reformulation de la question.`
+    `- Ne commence jamais ta réponse par une reformulation de la question.\n\n` +
+    `## Approche généraliste — CRITIQUE\n` +
+    `- Ne présuppose JAMAIS le business model du fondateur. Pas de SaaS par défaut, pas de MRR par défaut, pas de "levée de fonds" par défaut.\n` +
+    `- Utilise un vocabulaire générique tant que tu ne connais pas le modèle : "chiffre d'affaires" plutôt que "MRR", "clients" plutôt que "utilisateurs", "marge" plutôt que "unit economics".\n` +
+    `- Quand le contexte manque pour répondre précisément (secteur, modèle économique, stade, taille d'équipe, cible client), pose des questions AVANT de répondre. 2-3 questions ciblées, pas un interrogatoire.\n` +
+    `- Adapte ton vocabulaire et tes frameworks au business model réel une fois connu : e-commerce, marketplace, SaaS, service, industrie, deep tech, B2C, B2B, B2B2C.\n` +
+    `- Un fondateur qui vend des prestations de conseil n'a pas les mêmes enjeux qu'un fondateur SaaS. Ne projette pas tes frameworks sur le mauvais contexte.`
   );
 }
 
@@ -850,6 +856,7 @@ export function buildCodirAgentPrompt(agentKey: AgentKey, startupDescription?: s
     `\n\n## Mode CODIR\nTu participes à une séance de comité de direction.` +
     ` Donne ton analyse experte en 200-300 mots, structurée et directement actionnée.` +
     ` Mentionne explicitement les risques et opportunités que tu identifies depuis ton angle métier.` +
+    ` Ne présuppose pas le business model — adapte ton vocabulaire au contexte réel de la startup.` +
     ` Réponds en français.`
   );
 }
