@@ -84,27 +84,27 @@ function ConnexionForm() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-violet-50 to-indigo-50 flex items-center justify-center px-6 py-12">
+    <main className="min-h-screen flex items-center justify-center px-6 py-12" style={{ background: "var(--uf-paper)" }}>
       <div className="w-full max-w-md">
-        {/* Logo */}
         <div className="text-center mb-10">
-          <a href="/" className="text-2xl font-black text-gray-900">
-            Founder<span className="text-violet-600">AI</span>
+          <a href="/" className="inline-flex items-center gap-2.5 text-lg font-semibold">
+            <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-normal" style={{ background: "var(--uf-orange)", fontFamily: "var(--uf-display)" }}>f</div>
+            <span>FOUNDER<span style={{ color: "var(--uf-muted)" }}>AI</span></span>
           </a>
-          <h1 className="text-3xl font-black text-gray-900 mt-6 mb-2">
-            Bon retour !
+          <h1 className="mt-6 mb-2 uppercase tracking-[-0.015em]" style={{ fontFamily: "var(--uf-display)", fontSize: 40, lineHeight: 0.82 }}>
+            Bon retour
           </h1>
-          <p className="text-gray-500">
+          <p style={{ color: "var(--uf-muted)" }}>
             Vos agents vous attendent.
           </p>
         </div>
 
         <form
           onSubmit={handleSubmit}
-          className="bg-white rounded-3xl shadow-xl p-8 space-y-5"
+          className="p-8 space-y-5" style={{ background: "var(--uf-card)", border: "1px solid var(--uf-line)", borderRadius: "var(--uf-r-xl)" }}
         >
           <div className="space-y-1.5">
-            <label htmlFor="email" className="text-sm font-semibold text-gray-700">
+            <label htmlFor="email" className="text-sm font-medium" style={{ color: "var(--uf-ink)" }}>
               Adresse email
             </label>
             <input
@@ -114,12 +114,12 @@ function ConnexionForm() {
               required
               autoComplete="email"
               placeholder="marie@startup.io"
-              className="w-full border-2 border-gray-200 focus:border-violet-500 focus:outline-none rounded-xl px-4 py-3 text-sm text-gray-900 placeholder-gray-400 transition-colors"
+              className="w-full px-4 py-3 text-sm transition-colors focus:outline-none" style={{ border: "1px solid var(--uf-line)", borderRadius: "var(--uf-r-md)", color: "var(--uf-ink)", background: "var(--uf-paper)" }}
             />
           </div>
 
           <div className="space-y-1.5">
-            <label htmlFor="password" className="text-sm font-semibold text-gray-700">
+            <label htmlFor="password" className="text-sm font-medium" style={{ color: "var(--uf-ink)" }}>
               Mot de passe
             </label>
             <input
@@ -129,12 +129,12 @@ function ConnexionForm() {
               required
               autoComplete="current-password"
               placeholder="••••••••"
-              className="w-full border-2 border-gray-200 focus:border-violet-500 focus:outline-none rounded-xl px-4 py-3 text-sm text-gray-900 placeholder-gray-400 transition-colors"
+              className="w-full px-4 py-3 text-sm transition-colors focus:outline-none" style={{ border: "1px solid var(--uf-line)", borderRadius: "var(--uf-r-md)", color: "var(--uf-ink)", background: "var(--uf-paper)" }}
             />
           </div>
 
           {error && (
-            <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+            <p className="text-sm text-red-600 px-4 py-3" style={{ background: "#fef2f2", border: "1px solid #fecaca", borderRadius: "var(--uf-r-md)" }}>
               {error}
             </p>
           )}
@@ -142,21 +142,22 @@ function ConnexionForm() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-violet-600 hover:bg-violet-700 disabled:opacity-60 text-white font-bold py-4 rounded-2xl text-base transition-all hover:scale-[1.02] shadow-lg shadow-violet-200"
+            className="w-full py-4 text-[15px] font-medium rounded-full disabled:opacity-60 hover:-translate-y-px transition-transform"
+            style={{ background: "var(--uf-ink)", color: "var(--uf-paper)" }}
           >
             {loading ? "Connexion…" : "Se connecter →"}
           </button>
         </form>
 
-        <p className="text-center text-sm text-gray-500 mt-6">
+        <p className="text-center text-sm mt-6" style={{ color: "var(--uf-muted)" }}>
           Pas encore de compte ?{" "}
-          <a href="/inscription" className="font-semibold text-violet-600 hover:underline">
+          <a href="/inscription" className="font-semibold hover:underline" style={{ color: "var(--uf-orange)" }}>
             Créer un compte
           </a>
         </p>
-        <p className="text-center text-sm text-gray-500 mt-2">
+        <p className="text-center text-sm mt-2" style={{ color: "var(--uf-muted)" }}>
           Partenaire (incubateur, fonds…) ?{" "}
-          <a href="/partenaires/inscription" className="font-semibold text-violet-600 hover:underline">
+          <a href="/partenaires/inscription" className="font-semibold hover:underline" style={{ color: "var(--uf-orange)" }}>
             Inscription partenaire
           </a>
         </p>

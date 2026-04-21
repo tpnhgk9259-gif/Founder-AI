@@ -214,7 +214,7 @@ function StepCard({ step, index, accent }: { step: Step; index: number; accent: 
     <div className="flex gap-4">
       {/* Numéro + ligne */}
       <div className="flex flex-col items-center">
-        <div className={`w-8 h-8 rounded-full ${accent.replace("text-", "bg-").replace("600", "100")} flex items-center justify-center text-sm font-black ${accent}`}>
+        <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold" style={{ background: "var(--uf-paper-2)", color: "var(--uf-ink)" }}>
           {index + 1}
         </div>
         <div className="w-px flex-1 bg-gray-200 mt-2" />
@@ -222,7 +222,7 @@ function StepCard({ step, index, accent }: { step: Step; index: number; accent: 
 
       {/* Contenu */}
       <div className="flex-1 pb-8">
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 hover:shadow-md transition-shadow">
+        <div className="p-5 hover:shadow-md transition-shadow" style={{ background: "var(--uf-card)", border: "1px solid var(--uf-line)", borderRadius: "var(--uf-r-lg)" }}>
           <div className="flex items-start gap-3 mb-2">
             {step.agentEmoji && (
               <span className="text-xl">{step.agentEmoji}</span>
@@ -230,19 +230,20 @@ function StepCard({ step, index, accent }: { step: Step; index: number; accent: 
             <div className="flex-1">
               <h3 className="font-bold text-gray-900 text-sm">{step.title}</h3>
               {step.agent && (
-                <span className={`text-xs font-semibold ${accent}`}>avec {step.agent}</span>
+                <span className="text-xs font-semibold" style={{ color: "var(--uf-orange)" }}>avec {step.agent}</span>
               )}
             </div>
           </div>
-          <p className="text-sm text-gray-500 leading-relaxed mb-3">{step.description}</p>
+          <p className="text-sm leading-relaxed mb-3" style={{ color: "var(--uf-muted)" }}>{step.description}</p>
           {step.tip && (
-            <div className="bg-gray-50 rounded-xl px-3 py-2 mb-3">
-              <p className="text-xs text-gray-500"><span className="font-semibold text-gray-600">Astuce :</span> {step.tip}</p>
+            <div className="px-3 py-2 mb-3" style={{ background: "var(--uf-paper-2)", borderRadius: "var(--uf-r-sm)" }}>
+              <p className="text-xs" style={{ color: "var(--uf-muted)" }}><span className="font-semibold" style={{ color: "var(--uf-ink)" }}>Astuce :</span> {step.tip}</p>
             </div>
           )}
           <a
             href={step.href}
-            className={`inline-flex items-center gap-1.5 text-sm font-bold ${accent} hover:underline`}
+            className="inline-flex items-center gap-1.5 text-sm font-bold hover:underline"
+            style={{ color: "var(--uf-orange)" }}
           >
             {step.cta}
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -262,18 +263,19 @@ export default function GuidePage() {
   const persona = PERSONAS.find((p) => p.key === selected);
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-gray-50 to-violet-50/30">
+    <main className="min-h-screen" style={{ background: "var(--uf-paper)" }}>
       {/* Header */}
-      <div className="bg-white border-b border-gray-100">
+      <div style={{ background: "var(--uf-card)", borderBottom: "1px solid var(--uf-line)" }}>
         <div className="max-w-3xl mx-auto px-6 py-6 flex items-center justify-between">
           <div>
-            <a href="/dashboard" className="text-xl font-black text-gray-900">
-              Founder<span className="text-violet-600">AI</span>
+            <a href="/dashboard" className="inline-flex items-center gap-2.5 text-lg font-semibold">
+              <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-normal" style={{ background: "var(--uf-orange)", fontFamily: "var(--uf-display)" }}>f</div>
+              <span>FOUNDER<span style={{ color: "var(--uf-muted)" }}>AI</span></span>
             </a>
-            <h1 className="text-2xl font-black text-gray-900 mt-2">Guide de démarrage</h1>
-            <p className="text-sm text-gray-500 mt-1">Choisissez votre profil pour un parcours adapté.</p>
+            <h1 className="mt-2 uppercase tracking-[-0.015em]" style={{ fontFamily: "var(--uf-display)", fontSize: 28, lineHeight: 0.82 }}>Guide de démarrage</h1>
+            <p className="text-sm mt-2" style={{ color: "var(--uf-muted)" }}>Choisissez votre profil pour un parcours adapté.</p>
           </div>
-          <a href="/dashboard" className="text-sm text-gray-400 hover:text-gray-600 transition-colors">
+          <a href="/dashboard" className="text-sm transition-colors" style={{ color: "var(--uf-muted)" }}>
             Retour au dashboard
           </a>
         </div>
@@ -286,19 +288,20 @@ export default function GuidePage() {
             <button
               key={p.key}
               onClick={() => setSelected(selected === p.key ? null : p.key)}
-              className={`text-left p-5 rounded-2xl border-2 transition-all hover:shadow-md hover:scale-[1.02] ${
-                selected === p.key
-                  ? `${p.border} ${p.bg} shadow-md`
-                  : "border-gray-200 bg-white"
-              }`}
+              className="text-left p-5 transition-all hover:shadow-md hover:scale-[1.02]"
+              style={{
+                border: selected === p.key ? "2px solid var(--uf-orange)" : "1px solid var(--uf-line)",
+                background: selected === p.key ? "var(--uf-card)" : "var(--uf-card)",
+                borderRadius: "var(--uf-r-xl)",
+              }}
             >
-              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${p.gradient} flex items-center justify-center text-2xl shadow-sm mb-3`}>
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shadow-sm mb-3" style={{ background: "var(--uf-paper-2)" }}>
                 {p.emoji}
               </div>
-              <p className="font-black text-gray-900 text-sm mb-1">{p.title}</p>
-              <p className="text-xs text-gray-500 leading-relaxed">{p.subtitle}</p>
+              <p className="font-bold text-sm mb-1" style={{ color: "var(--uf-ink)" }}>{p.title}</p>
+              <p className="text-xs leading-relaxed" style={{ color: "var(--uf-muted)" }}>{p.subtitle}</p>
               {selected === p.key && (
-                <div className={`mt-3 text-xs font-bold ${p.accent} flex items-center gap-1`}>
+                <div className="mt-3 text-xs font-bold flex items-center gap-1" style={{ color: "var(--uf-orange)" }}>
                   <span>Parcours actif</span>
                   <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
@@ -332,7 +335,8 @@ export default function GuidePage() {
             <div className="text-center mt-4 mb-8">
               <a
                 href="/dashboard"
-                className={`inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r ${persona.gradient} text-white font-bold text-sm shadow-lg hover:scale-[1.02] transition-all`}
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-full font-medium text-sm hover:-translate-y-px transition-transform"
+                style={{ background: "var(--uf-ink)", color: "var(--uf-paper)" }}
               >
                 Accéder au dashboard
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -347,7 +351,7 @@ export default function GuidePage() {
         {!persona && (
           <div className="text-center py-12">
             <p className="text-4xl mb-4">👆</p>
-            <p className="text-gray-400 text-sm">Sélectionnez un profil ci-dessus pour voir votre parcours personnalisé.</p>
+            <p className="text-sm" style={{ color: "var(--uf-muted)" }}>Sélectionnez un profil ci-dessus pour voir votre parcours personnalisé.</p>
           </div>
         )}
       </div>

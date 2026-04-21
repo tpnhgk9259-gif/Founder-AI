@@ -199,15 +199,16 @@ export default function OnboardingPage() {
   // ── Étape 1 — Bienvenue ─────────────────────────────────────────────────────
   if (step === 1) {
     return (
-      <main className="min-h-screen bg-gradient-to-br from-violet-50 to-indigo-50 flex items-center justify-center px-6 py-12">
+      <main className="min-h-screen flex items-center justify-center px-6 py-12" style={{ background: "var(--uf-paper)" }}>
         <div className="w-full max-w-lg text-center">
           <div className="mb-8">
-            <a href="/" className="text-2xl font-black text-gray-900">
-              Founder<span className="text-violet-600">AI</span>
+            <a href="/" className="inline-flex items-center gap-2.5 text-lg font-semibold">
+              <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-normal" style={{ background: "var(--uf-orange)", fontFamily: "var(--uf-display)" }}>f</div>
+              <span>FOUNDER<span style={{ color: "var(--uf-muted)" }}>AI</span></span>
             </a>
           </div>
 
-          <div className="bg-white rounded-3xl shadow-xl p-10">
+          <div className="p-10" style={{ background: "var(--uf-card)", border: "1px solid var(--uf-line)", borderRadius: "var(--uf-r-xl)" }}>
             <div className="w-20 h-20 bg-violet-100 rounded-full flex items-center justify-center text-4xl mx-auto mb-6">
               🎉
             </div>
@@ -235,7 +236,7 @@ export default function OnboardingPage() {
 
             <button
               onClick={() => setStep(2)}
-              className="w-full bg-violet-600 hover:bg-violet-700 text-white font-bold py-4 rounded-2xl text-base transition-all hover:scale-[1.02] shadow-lg shadow-violet-200"
+              className="w-full py-4 text-[15px] font-medium rounded-full hover:-translate-y-px transition-transform" style={{ background: "var(--uf-ink)", color: "var(--uf-paper)" }}
             >
               Commencer →
             </button>
@@ -251,11 +252,11 @@ export default function OnboardingPage() {
   // ── Étape 2 — Profil + défi ──────────────────────────────────────────────────
   if (step === 2) {
     return (
-      <main className="min-h-screen bg-gradient-to-br from-violet-50 to-indigo-50 flex items-center justify-center px-6 py-12">
+      <main className="min-h-screen flex items-center justify-center px-6 py-12" style={{ background: "var(--uf-paper)" }}>
         <div className="w-full max-w-lg">
           <StepHeader current={2} />
 
-          <div className="bg-white rounded-3xl shadow-xl p-8 space-y-5">
+          <div className="p-8 space-y-5" style={{ background: "var(--uf-card)", border: "1px solid var(--uf-line)", borderRadius: "var(--uf-r-xl)" }}>
             <div>
               <h2 className="text-xl font-black text-gray-900">Décrivez votre startup</h2>
               <p className="text-sm text-gray-500 mt-1">Ces informations permettent à vos agents d'être immédiatement pertinents.</p>
@@ -269,7 +270,7 @@ export default function OnboardingPage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Ma Startup SAS"
-                className="w-full border-2 border-gray-200 focus:border-violet-500 focus:outline-none rounded-xl px-4 py-3 text-sm text-gray-900 placeholder-gray-400 transition-colors"
+                className="w-full px-4 py-3 text-sm transition-colors focus:outline-none" style={{ border: "1px solid var(--uf-line)", borderRadius: "var(--uf-r-md)", color: "var(--uf-ink)", background: "var(--uf-paper)" }}
               />
             </div>
 
@@ -280,7 +281,7 @@ export default function OnboardingPage() {
                 <select
                   value={sector}
                   onChange={(e) => setSector(e.target.value)}
-                  className="w-full border-2 border-gray-200 focus:border-violet-500 focus:outline-none rounded-xl px-4 py-3 text-sm text-gray-900 transition-colors bg-white"
+                  className="w-full px-4 py-3 text-sm transition-colors focus:outline-none" style={{ border: "1px solid var(--uf-line)", borderRadius: "var(--uf-r-md)", color: "var(--uf-ink)", background: "var(--uf-paper)" }}
                 >
                   <option value="">— Choisir —</option>
                   {SECTORS.map((s) => <option key={s} value={s}>{s}</option>)}
@@ -291,7 +292,7 @@ export default function OnboardingPage() {
                 <select
                   value={stage}
                   onChange={(e) => setStage(e.target.value)}
-                  className="w-full border-2 border-gray-200 focus:border-violet-500 focus:outline-none rounded-xl px-4 py-3 text-sm text-gray-900 transition-colors bg-white"
+                  className="w-full px-4 py-3 text-sm transition-colors focus:outline-none" style={{ border: "1px solid var(--uf-line)", borderRadius: "var(--uf-r-md)", color: "var(--uf-ink)", background: "var(--uf-paper)" }}
                 >
                   <option value="">— Choisir —</option>
                   {STAGES.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
@@ -307,7 +308,7 @@ export default function OnboardingPage() {
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="En 2-3 phrases, décrivez ce que fait votre startup, pour qui, et votre modèle économique."
                 rows={3}
-                className="w-full border-2 border-gray-200 focus:border-violet-500 focus:outline-none rounded-xl px-4 py-3 text-sm text-gray-900 placeholder-gray-400 transition-colors resize-none"
+                className="w-full px-4 py-3 text-sm transition-colors focus:outline-none resize-none" style={{ border: "1px solid var(--uf-line)", borderRadius: "var(--uf-r-md)", color: "var(--uf-ink)", background: "var(--uf-paper)" }}
               />
             </div>
 
@@ -323,17 +324,19 @@ export default function OnboardingPage() {
                     key={c.key}
                     type="button"
                     onClick={() => setChallenge(challenge === c.key ? "" : c.key)}
-                    className={`flex items-center gap-3 text-left px-4 py-3 rounded-xl border-2 transition-all text-sm font-medium ${
-                      challenge === c.key
-                        ? "border-violet-500 bg-violet-50 text-violet-800"
-                        : "border-gray-200 text-gray-700 hover:border-gray-300"
-                    }`}
+                    className="flex items-center gap-3 text-left px-4 py-3 transition-all text-sm font-medium"
+                    style={{
+                      border: challenge === c.key ? "2px solid var(--uf-orange)" : "1px solid var(--uf-line)",
+                      background: challenge === c.key ? "var(--uf-card)" : "transparent",
+                      borderRadius: "var(--uf-r-md)",
+                      color: "var(--uf-ink)",
+                    }}
                   >
                     <span className="text-lg flex-shrink-0">{c.emoji}</span>
                     <span>{c.label}</span>
                     {challenge === c.key && (
-                      <span className="ml-auto w-5 h-5 rounded-full bg-violet-600 flex items-center justify-center flex-shrink-0">
-                        <span className="text-white text-[10px] font-black">✓</span>
+                      <span className="ml-auto w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "var(--uf-ink)" }}>
+                        <span className="text-[10px] font-bold" style={{ color: "var(--uf-lime)" }}>✓</span>
                       </span>
                     )}
                   </button>
@@ -381,7 +384,7 @@ export default function OnboardingPage() {
               <button
                 onClick={handleStep2Next}
                 disabled={saving}
-                className="flex-1 bg-violet-600 hover:bg-violet-700 disabled:opacity-40 text-white font-bold py-3.5 rounded-2xl text-sm transition-all hover:scale-[1.02] shadow-lg shadow-violet-200"
+                className="flex-1 py-3.5 text-sm font-medium rounded-full disabled:opacity-40 hover:-translate-y-px transition-transform" style={{ background: "var(--uf-ink)", color: "var(--uf-paper)" }}
               >
                 {saving ? "Enregistrement…" : challenge ? `Parler à ${CHALLENGES.find((c) => c.key === challenge)!.agentName} →` : "Continuer →"}
               </button>
@@ -400,7 +403,7 @@ export default function OnboardingPage() {
 
   // ── Étape 3 — Choix manuel (fallback si pas de défi renseigné) ───────────────
   return (
-    <main className="min-h-screen bg-gradient-to-br from-violet-50 to-indigo-50 flex items-center justify-center px-6 py-12">
+    <main className="min-h-screen flex items-center justify-center px-6 py-12" style={{ background: "var(--uf-paper)" }}>
       <div className="w-full max-w-2xl">
         <StepHeader current={3} />
 

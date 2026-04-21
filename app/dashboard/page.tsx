@@ -1161,36 +1161,43 @@ export default function Dashboard() {
   const docGroups = groupDocumentsByKind(documents);
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden">
+    <div className="h-screen flex flex-col overflow-hidden" style={{ background: "var(--uf-paper)" }}>
       {/* Header */}
-      <header className="bg-white border-b border-gray-100 flex-shrink-0 z-10">
+      <header className="flex-shrink-0 z-10" style={{ background: "var(--uf-card)", borderBottom: "1px solid var(--uf-line)" }}>
         <div className="px-6 h-14 flex items-center justify-between">
-          <a href="/" className="text-lg font-black text-gray-900">
-            Founder<span className="text-violet-600">AI</span>
+          <a href="/" className="flex items-center gap-2 text-lg font-semibold">
+            <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-normal" style={{ background: "var(--uf-orange)", fontFamily: "var(--uf-display)" }}>f</div>
+            <span>FOUNDER<span style={{ color: "var(--uf-muted)" }}>AI</span></span>
           </a>
 
-          <div className="flex items-center gap-1 bg-gray-100 rounded-xl p-1">
+          <div className="flex items-center gap-1 rounded-full p-1" style={{ background: "var(--uf-paper-2)" }}>
             <button
               onClick={() => setTab("agents")}
-              className={`px-4 py-1.5 rounded-lg text-sm font-bold transition-all ${
-                tab === "agents" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
-              }`}
+              className="px-4 py-1.5 rounded-full text-sm font-medium transition-all" style={{
+                background: tab === "agents" ? "var(--uf-card)" : "transparent",
+                color: tab === "agents" ? "var(--uf-ink)" : "var(--uf-muted)",
+                border: tab === "agents" ? "1px solid var(--uf-line)" : "1px solid transparent",
+              }}
             >
               Mon équipe
             </button>
             <button
               onClick={() => setTab("tableau")}
-              className={`px-4 py-1.5 rounded-lg text-sm font-bold transition-all ${
-                tab === "tableau" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
-              }`}
+              className="px-4 py-1.5 rounded-full text-sm font-medium transition-all" style={{
+                background: tab === "tableau" ? "var(--uf-card)" : "transparent",
+                color: tab === "tableau" ? "var(--uf-ink)" : "var(--uf-muted)",
+                border: tab === "tableau" ? "1px solid var(--uf-line)" : "1px solid transparent",
+              }}
             >
               Mon tableau de bord
             </button>
             <button
               onClick={() => setTab("documents")}
-              className={`px-4 py-1.5 rounded-lg text-sm font-bold transition-all ${
-                tab === "documents" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
-              }`}
+              className="px-4 py-1.5 rounded-full text-sm font-medium transition-all" style={{
+                background: tab === "documents" ? "var(--uf-card)" : "transparent",
+                color: tab === "documents" ? "var(--uf-ink)" : "var(--uf-muted)",
+                border: tab === "documents" ? "1px solid var(--uf-line)" : "1px solid transparent",
+              }}
             >
               Mes documents
             </button>
