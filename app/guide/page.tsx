@@ -112,10 +112,10 @@ const PERSONAS: Persona[] = [
     steps: [
       {
         title: "Mettez à jour vos KPIs",
-        description: "MRR, CAC, churn, LTV — vos agents utilisent ces données pour calibrer leurs recommandations.",
+        description: "Chiffre d'affaires, coût d'acquisition, marge, taux de rétention, panier moyen — vos agents utilisent ces données pour calibrer leurs recommandations.",
         href: "/dashboard?tab=tableau",
         cta: "Mettre à jour mes KPIs",
-        tip: "Ajoutez au moins 3-4 KPIs pour que Sam et Maya puissent analyser votre situation.",
+        tip: "Ajoutez au moins 3-4 indicateurs clés pour que Sam et Maya puissent analyser votre situation.",
       },
       {
         title: "Structurez vos OKR avec Marc",
@@ -136,10 +136,10 @@ const PERSONAS: Persona[] = [
       },
       {
         title: "Modélisez votre plan financier avec Sam",
-        description: "Projetez votre croissance sur 18 mois, optimisez votre burn rate et préparez votre prochaine levée.",
+        description: "Projetez votre croissance sur 18 mois, maîtrisez vos coûts et préparez votre prochaine levée ou votre rentabilité.",
         agent: "Sam",
         agentEmoji: "📊",
-        href: "/dashboard?agent=finance&msg=Bonjour Sam ! J'aimerais modéliser un plan financier 18 mois pour préparer notre Series A. Par où commencer ?",
+        href: "/dashboard?agent=finance&msg=Bonjour Sam ! J'aimerais modéliser un plan financier 18 mois pour structurer notre croissance. Par où commencer ?",
         cta: "Parler à Sam",
       },
       {
