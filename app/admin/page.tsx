@@ -34,6 +34,7 @@ type PartnerRow = {
   id: string;
   name: string;
   type: string;
+  active: boolean;
   created_at: string;
   admin_count: number;
   portfolio_count: number;
@@ -778,19 +779,45 @@ export default function AdminPage() {
         )}
 
         {tab === "partners" && (
-          <DataTable
-            columns={["Organisation", "Type", "Admins", "Portefeuille", "Créé le", "ID"]}
-            rows={partnersF.map((p) => [
-              p.name,
-              p.type,
-              String(p.admin_count),
-              String(p.portfolio_count),
-              formatDate(p.created_at),
-              p.id,
-            ])}
-            empty="Aucun partenaire ne correspond au filtre."
-            onRowClick={(i) => openDetail("partner", partnersF[i].id)}
-          />
+          <div>
+            <DataTable
+              columns={["Organisation", "Type", "Admins", "Portefeuille", "Statut", "Créé le", "ID"]}
+              rows={partnersF.map((p) => [
+                p.name,
+                p.type,
+                String(p.admin_count),
+                String(p.portfolio_count),
+                p.active ? "✅ Actif" : "⏳ En attente",
+                formatDate(p.created_at),
+                p.id,
+              ])}
+              empty="Aucun partenaire ne correspond au filtre."
+              onRowClick={(i) => openDetail("partner", partnersF[i].id)}
+            />
+            <div className="mt-4 grid gap-2">
+              {partnersF.filter((p) => !p.active).map((p) => (
+                <div key={p.id} className="flex items-center justify-between px-4 py-3 rounded-xl" style={{ background: "var(--uf-card)", border: "1px solid var(--uf-line)" }}>
+                  <div>
+                    <span className="font-bold text-sm">{p.name}</span>
+                    <span className="text-xs ml-2" style={{ color: "var(--uf-muted)" }}>— en attente d&apos;activation</span>
+                  </div>
+                  <button
+                    onClick={async () => {
+                      const res = await fetch("/api/admin/partner-activate", {
+                        method: "PATCH",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ partnerId: p.id, active: true }),
+                      });
+                      if (res.ok) window.location.reload();
+                    }}
+                    className="px-4 py-2 text-xs font-medium rounded-full" style={{ background: "var(--uf-ink)", color: "var(--uf-paper)" }}
+                  >
+                    Activer ce partenaire
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
         )}
 
         {tab === "members" && (

@@ -25,6 +25,7 @@ interface Partner {
   id: string;
   name: string;
   type: string;
+  active: boolean;
   license_config?: {
     portfolio_plan_allowances?: { starter: number; growth: number; scale: number };
   };
@@ -213,6 +214,32 @@ export default function PartnerPage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="w-8 h-8 rounded-full border-2 border-slate-200 border-t-indigo-600 animate-spin" />
+      </div>
+    );
+  }
+
+  // ── En attente d'activation ──────────────────────────────────────────────
+  if (partner && !partner.active) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: "var(--uf-paper)" }}>
+        <div className="max-w-md w-full text-center p-10" style={{ background: "var(--uf-card)", border: "1px solid var(--uf-line)", borderRadius: "var(--uf-r-xl)" }}>
+          <div className="w-16 h-16 rounded-full flex items-center justify-center text-3xl mx-auto mb-6" style={{ background: "var(--uf-paper-2)" }}>
+            ⏳
+          </div>
+          <h1 className="uppercase tracking-[-0.015em] mb-3" style={{ fontFamily: "var(--uf-display)", fontSize: 28, lineHeight: 0.82 }}>
+            En attente d&apos;activation
+          </h1>
+          <p className="text-sm leading-relaxed mb-6" style={{ color: "var(--uf-muted)" }}>
+            Votre espace partenaire <strong>{partner.name}</strong> a bien été créé.
+            Notre équipe doit valider votre compte avant que vous puissiez accéder à votre portefeuille.
+          </p>
+          <p className="text-xs" style={{ color: "var(--uf-muted-2)" }}>
+            Vous serez notifié par email dès que votre compte sera activé. En général, cela prend moins de 24h.
+          </p>
+          <a href="/" className="inline-block mt-8 px-6 py-3 rounded-full text-sm font-medium" style={{ background: "var(--uf-ink)", color: "var(--uf-paper)" }}>
+            Retour à l&apos;accueil
+          </a>
+        </div>
       </div>
     );
   }

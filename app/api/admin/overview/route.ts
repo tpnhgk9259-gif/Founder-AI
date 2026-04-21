@@ -29,7 +29,7 @@ export async function GET() {
       .order("created_at", { ascending: false }),
     supabase
       .from("partners")
-      .select("id, name, type, created_at")
+      .select("id, name, type, active, created_at")
       .order("created_at", { ascending: false }),
     supabase
       .from("partner_members")
