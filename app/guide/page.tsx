@@ -156,7 +156,7 @@ const PERSONAS: Persona[] = [
         agentEmoji: "📋",
         href: "/dashboard?agent=operations&msg=Bonjour Marc ! L'équipe grandit et j'ai besoin de structurer notre façon de travailler. Comment mettre en place des OKR adaptés à notre stade ?",
         cta: "Parler à Marc",
-        tip: "Les OKR deviennent essentiels quand vous passez la dizaine de collaborateurs. Avant, des rituels simples suffisent.",
+        tip: "C'est entre 10 et 15 personnes qu'une startup doit absolument se structurer pour devenir une scale-up. Sans OKR ni process clairs à ce stade, la croissance se bloque.",
       },
     ],
   },
