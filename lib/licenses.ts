@@ -29,7 +29,7 @@ export const DEFAULT_LICENSE_CONFIG: LicenseConfig = {
 
 export const PLAN_PRESETS: Record<PlanKey, LicenseConfig> = {
   starter: {
-    available_agents: ["strategie", "vente", "finance", "technique", "operations"],
+    available_agents: ["strategie", "technique", "vente"],
     conversational_memory_enabled: true,
     conversational_memory_window: 5,
     max_chat_messages_per_day: 20,
@@ -37,7 +37,7 @@ export const PLAN_PRESETS: Record<PlanKey, LicenseConfig> = {
     portfolio_plan_allowances: { starter: 10, growth: 5, scale: 2 },
   },
   growth: {
-    available_agents: ["strategie", "vente", "finance", "technique", "operations", "codir"],
+    available_agents: ["strategie", "technique", "vente", "finance", "codir"],
     conversational_memory_enabled: true,
     conversational_memory_window: 20,
     max_chat_messages_per_day: 9999,
@@ -45,7 +45,7 @@ export const PLAN_PRESETS: Record<PlanKey, LicenseConfig> = {
     portfolio_plan_allowances: { starter: 10, growth: 5, scale: 2 },
   },
   scale: {
-    available_agents: ["strategie", "vente", "finance", "technique", "operations", "codir"],
+    available_agents: ["strategie", "technique", "vente", "finance", "operations", "codir"],
     conversational_memory_enabled: true,
     conversational_memory_window: 50,
     max_chat_messages_per_day: 9999,

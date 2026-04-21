@@ -20,8 +20,12 @@ const SELECTABLE_AGENTS: { key: AgentKey; name: string; role: string; emoji: str
   { key: "operations", name: "Marc", role: "Directeur des Opérations",  emoji: "📋" },
 ];
 
-const MAX_AGENTS: Record<PlanKey, number> = { starter: 3, growth: 5, scale: 5 };
-// Growth et Scale incluent les 4 agents spécialisés — seul Starter exige un choix parmi 3
+// Agents fixes par plan — pas de choix utilisateur
+const PLAN_AGENTS: Record<PlanKey, AgentKey[]> = {
+  starter: ["strategie", "technique", "vente"],                          // Maya, Léo, Alex
+  growth:  ["strategie", "technique", "vente", "finance"],               // + Sam + CODIR
+  scale:   ["strategie", "technique", "vente", "finance", "operations"], // + Marc + CODIR
+};
 
 export default function Inscription() {
   const [loading, setLoading] = useState(false);
@@ -29,38 +33,12 @@ export default function Inscription() {
   const [cguAccepted, setCguAccepted] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<PlanKey>("growth");
   const [selectedAgents, setSelectedAgents] = useState<Set<AgentKey>>(
-    new Set(["strategie", "vente", "finance", "technique"])
+    new Set(PLAN_AGENTS.growth)
   );
-
-  const maxAgents = MAX_AGENTS[selectedPlan];
-  const isStarterChoice = selectedPlan === "starter";
 
   function handlePlanChange(plan: PlanKey) {
     setSelectedPlan(plan);
-    // Growth et Scale : tous les 4 spécialisés auto-sélectionnés
-    if (plan !== "starter") {
-      setSelectedAgents(new Set(["strategie", "vente", "finance", "technique", "operations"]));
-    } else {
-      // Starter : garder la sélection courante si ≤ 3, sinon réduire à 3
-      setSelectedAgents((prev) => {
-        const arr = Array.from(prev).slice(0, 3);
-        return new Set(arr);
-      });
-    }
-  }
-
-  function toggleAgent(key: AgentKey) {
-    if (!isStarterChoice) return; // Growth/Scale : agents verrouillés
-    setSelectedAgents((prev) => {
-      const next = new Set(prev);
-      if (next.has(key)) {
-        next.delete(key);
-      } else {
-        if (next.size >= maxAgents) return prev; // limite atteinte
-        next.add(key);
-      }
-      return next;
-    });
+    setSelectedAgents(new Set(PLAN_AGENTS[plan]));
   }
 
   const agentsForLicense: AgentKey[] = [
@@ -68,9 +46,7 @@ export default function Inscription() {
     ...(selectedPlan !== "starter" ? ["codir" as AgentKey] : []),
   ];
 
-  const canSubmit = cguAccepted && (
-    !isStarterChoice || selectedAgents.size === maxAgents
-  );
+  const canSubmit = cguAccepted;
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -192,38 +168,27 @@ export default function Inscription() {
             </div>
           </div>
 
-          {/* Choix des agents */}
+          {/* Agents inclus dans le plan */}
           <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-semibold text-gray-700">
-                {isStarterChoice ? "Choisissez vos 3 agents" : "Vos agents inclus"}
-              </label>
-              {isStarterChoice && (
-                <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${selectedAgents.size === maxAgents ? "bg-violet-100 text-violet-600" : "bg-gray-100 text-gray-400"}`}>
-                  {selectedAgents.size}/{maxAgents} sélectionnés
-                </span>
-              )}
-            </div>
+            <label className="text-sm font-semibold text-gray-700">Agents inclus dans votre forfait</label>
             <div className="grid grid-cols-2 gap-2">
               {SELECTABLE_AGENTS.map((agent) => {
-                const isSelected = selectedAgents.has(agent.key);
-                const isDisabled = !isStarterChoice || (!isSelected && selectedAgents.size >= maxAgents);
+                const isIncluded = selectedAgents.has(agent.key);
                 return (
-                  <button key={agent.key} type="button"
-                    onClick={() => toggleAgent(agent.key)}
-                    disabled={isDisabled}
-                    className={`flex items-center gap-3 rounded-xl border-2 px-3 py-2.5 text-left transition-all
-                      ${isSelected ? "border-violet-500 bg-violet-50" : "border-gray-200"}
-                      ${!isStarterChoice ? "cursor-default" : isDisabled ? "opacity-40 cursor-not-allowed" : "hover:border-gray-300"}`}>
+                  <div key={agent.key}
+                    className={`flex items-center gap-3 rounded-xl border-2 px-3 py-2.5
+                      ${isIncluded ? "border-violet-500 bg-violet-50" : "border-gray-200 opacity-40"}`}>
                     <span className="text-xl">{agent.emoji}</span>
                     <div>
                       <p className="text-xs font-black text-gray-900">{agent.name}</p>
                       <p className="text-[10px] text-gray-400 leading-tight">{agent.role}</p>
                     </div>
-                    <span className={`ml-auto w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${isSelected ? "bg-violet-600 border-violet-600" : "border-gray-300"}`}>
-                      {isSelected && <span className="text-white text-[8px] font-black">✓</span>}
-                    </span>
-                  </button>
+                    {isIncluded && (
+                      <span className="ml-auto w-4 h-4 rounded-full bg-violet-600 border-2 border-violet-600 flex items-center justify-center shrink-0">
+                        <span className="text-white text-[8px] font-black">✓</span>
+                      </span>
+                    )}
+                  </div>
                 );
               })}
             </div>
@@ -238,11 +203,6 @@ export default function Inscription() {
                   <span className="text-white text-[8px] font-black">✓</span>
                 </span>
               </div>
-            )}
-            {isStarterChoice && selectedAgents.size < maxAgents && (
-              <p className="text-xs text-amber-600 font-medium">
-                Sélectionnez encore {maxAgents - selectedAgents.size} agent{maxAgents - selectedAgents.size > 1 ? "s" : ""} pour continuer.
-              </p>
             )}
           </div>
 
