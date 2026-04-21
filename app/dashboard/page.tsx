@@ -401,16 +401,16 @@ function ConversationView({
     }
   }
 
-  // Auto-envoi du message d'onboarding (ref pour éviter le double-fire en StrictMode)
+  // Auto-envoi du message d'onboarding — attend que startupId soit chargé
   const autoSendFired = useRef(false);
   useEffect(() => {
-    if (autoSendMessage && !autoSendFired.current) {
+    if (autoSendMessage && startupId && !autoSendFired.current) {
       autoSendFired.current = true;
       onAutoSendDone?.();
       sendMessage(autoSendMessage);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [startupId]);
 
   async function sendMessage(text: string) {
     if (!text.trim() || loading || streaming) return;
