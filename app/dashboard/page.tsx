@@ -745,7 +745,7 @@ function CodirView({ startupId }: { startupId: string | null }) {
   }
 
   async function startCodir() {
-    if (!topic.trim() || phase !== "idle") return;
+    if (!topic.trim() || (phase !== "idle" && phase !== "done")) return;
     reset();
     setPhase("dispatching");
 
