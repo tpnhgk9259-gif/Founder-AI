@@ -174,18 +174,36 @@ const FIELDS: Record<BusinessModel, CellMapping[]> = {
   services: SERVICES_FIELDS,
 };
 
+// ─── Détection du business model depuis le profil ────────────────────────────
+
+function detectBusinessModel(raw: string | null | undefined): BusinessModel | null {
+  if (!raw) return null;
+  const lower = raw.toLowerCase();
+  if (/saas|logiciel|software|abonnement/i.test(lower)) return "saas";
+  if (/marketplace|plateforme|mise en relation/i.test(lower)) return "marketplace";
+  if (/deep\s?tech|hardware|industri|cleantech|biotech|nanotech/i.test(lower)) return "deeptech";
+  if (/med\s?tech|santé|health|médical|dispositif|pharma/i.test(lower)) return "medtech";
+  if (/service|conseil|consulting|prestation|agence|freelance|formation/i.test(lower)) return "services";
+  // E-commerce et autres → services par défaut (le plus généraliste)
+  if (/e-?commerce|retail|commerce/i.test(lower)) return "marketplace";
+  return null;
+}
+
 // ─── Page ────────────────────────────────────────────────────────────────────
 
 export default function BPSeedPage() {
   const [bm, setBm] = useState<BusinessModel | null>(null);
+  const [detectedBm, setDetectedBm] = useState<BusinessModel | null>(null);
+  const [profileBmRaw, setProfileBmRaw] = useState<string | null>(null);
   const [values, setValues] = useState<Record<string, string>>({});
   const [generating, setGenerating] = useState(false);
   const [startupName, setStartupName] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  // Pré-remplir depuis le profil startup
+  // Pré-remplir depuis le profil startup + détecter le BM
   useEffect(() => {
     const id = localStorage.getItem("founderai_startup_id");
-    if (!id) return;
+    if (!id) { setLoading(false); return; }
     fetch(`/api/startup?startupId=${id}`)
       .then((r) => r.json())
       .then((data) => {
@@ -196,8 +214,18 @@ export default function BPSeedPage() {
         if (data.description) prefill.problem = data.description;
         if (data.stage) prefill.stage = data.stage;
         setValues((prev) => ({ ...prefill, ...prev }));
+
+        // Détecter le business model
+        const raw = data.business_model as string | null;
+        setProfileBmRaw(raw);
+        const detected = detectBusinessModel(raw);
+        if (detected) {
+          setDetectedBm(detected);
+          setBm(detected);
+        }
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
   function updateField(key: string, val: string) {
@@ -281,39 +309,36 @@ export default function BPSeedPage() {
       </div>
 
       <div className="max-w-4xl mx-auto px-6 py-8">
-        {/* Étape 1 : choix du business model */}
-        <div className="mb-8">
-          <div className="flex items-baseline justify-between mb-4">
-            <span className="text-[11px] font-medium tracking-[0.16em] uppercase" style={{ fontFamily: "var(--uf-mono)", color: "var(--uf-muted)" }}>
-              01 — Votre business model
-            </span>
+        {/* Loading */}
+        {loading && (
+          <div className="text-center py-12">
+            <div className="w-8 h-8 rounded-full border-2 animate-spin mx-auto" style={{ borderColor: "var(--uf-line)", borderTopColor: "var(--uf-orange)" }} />
           </div>
-          <div className="grid sm:grid-cols-5 gap-3">
-            {(Object.entries(BM_META) as [BusinessModel, typeof BM_META[BusinessModel]][]).map(([key, meta]) => (
-              <button
-                key={key}
-                onClick={() => setBm(key)}
-                className="text-left p-4 transition-all hover:shadow-md"
-                style={{
-                  background: bm === key ? "var(--uf-card)" : "transparent",
-                  border: bm === key ? `2px solid ${meta.color}` : "1px solid var(--uf-line)",
-                  borderRadius: "var(--uf-r-lg)",
-                }}
-              >
-                <div className="text-2xl mb-2">{meta.emoji}</div>
-                <div className="font-bold text-sm" style={{ color: "var(--uf-ink)" }}>{meta.label}</div>
-                <div className="text-[11px] mt-1" style={{ color: "var(--uf-muted)" }}>{meta.desc}</div>
-              </button>
-            ))}
-          </div>
-        </div>
+        )}
 
-        {/* Étape 2 : formulaire */}
-        {bm && (
+        {/* Business model détecté → affichage direct */}
+        {!loading && bm && (
           <div>
+            {/* Badge business model */}
+            <div className="mb-6 p-5 flex items-center gap-4" style={{ background: "var(--uf-card)", border: "1px solid var(--uf-line)", borderRadius: "var(--uf-r-xl)" }}>
+              <span className="text-3xl">{BM_META[bm].emoji}</span>
+              <div className="flex-1">
+                <div className="font-bold" style={{ color: "var(--uf-ink)" }}>
+                  Business Plan — {BM_META[bm].label}
+                </div>
+                <div className="text-xs mt-0.5" style={{ color: "var(--uf-muted)" }}>
+                  {profileBmRaw ? `Basé sur votre profil : "${profileBmRaw}"` : BM_META[bm].desc}
+                </div>
+              </div>
+              <span className="px-3 py-1 rounded-full text-[11px] font-medium" style={{ background: BM_META[bm].color, color: "#fff" }}>
+                {BM_META[bm].label}
+              </span>
+            </div>
+
+            {/* Formulaire hypothèses */}
             <div className="flex items-baseline justify-between mb-4">
               <span className="text-[11px] font-medium tracking-[0.16em] uppercase" style={{ fontFamily: "var(--uf-mono)", color: "var(--uf-muted)" }}>
-                02 — Hypothèses {BM_META[bm].label}
+                Hypothèses {BM_META[bm].label}
               </span>
               <span className="text-[11px]" style={{ fontFamily: "var(--uf-mono)", color: "var(--uf-muted-2)" }}>
                 {Object.keys(values).filter((k) => values[k]).length} / {fields.length} remplis
@@ -365,11 +390,34 @@ export default function BPSeedPage() {
           </div>
         )}
 
-        {/* Pas de BM sélectionné */}
-        {!bm && (
-          <div className="text-center py-12">
-            <p className="text-4xl mb-4">👆</p>
-            <p className="text-sm" style={{ color: "var(--uf-muted)" }}>Sélectionnez votre business model pour commencer.</p>
+        {/* Pas de BM dans le profil */}
+        {!loading && !bm && (
+          <div className="py-12">
+            <div className="text-center mb-8">
+              <p className="text-4xl mb-4">📋</p>
+              <p className="font-bold text-lg" style={{ color: "var(--uf-ink)" }}>Aucun business model renseigné dans votre profil</p>
+              <p className="text-sm mt-2 max-w-md mx-auto" style={{ color: "var(--uf-muted)" }}>
+                Pour générer votre Business Plan, nous avons besoin de connaître votre business model.
+              </p>
+            </div>
+            <div className="grid sm:grid-cols-2 gap-4 max-w-lg mx-auto">
+              <a href="/dashboard?agent=codir&msg=Quel business model serait le plus pertinent pour mon projet ? Analysez mon profil et recommandez-moi entre SaaS, Marketplace, DeepTech, MedTech ou Services."
+                className="p-5 text-left transition-all hover:shadow-md" style={{ background: "var(--uf-ink)", borderRadius: "var(--uf-r-xl)", color: "var(--uf-paper)" }}>
+                <div className="text-lg mb-2">⚡</div>
+                <div className="font-bold text-sm" style={{ color: "var(--uf-lime)" }}>Tip 1</div>
+                <p className="text-xs mt-1 leading-relaxed" style={{ color: "rgba(255,255,255,0.78)" }}>
+                  N&apos;hésitez pas à demander l&apos;avis du CODIR sur le business model qui semble le plus pertinent pour votre projet.
+                </p>
+              </a>
+              <a href="/dashboard?tab=tableau"
+                className="p-5 text-left transition-all hover:shadow-md" style={{ background: "var(--uf-card)", border: "1px solid var(--uf-line)", borderRadius: "var(--uf-r-xl)" }}>
+                <div className="text-lg mb-2">✏️</div>
+                <div className="font-bold text-sm" style={{ color: "var(--uf-orange)" }}>Tip 2</div>
+                <p className="text-xs mt-1 leading-relaxed" style={{ color: "var(--uf-muted)" }}>
+                  Vous pouvez modifier votre business model dans votre profil (onglet Tableau de bord).
+                </p>
+              </a>
+            </div>
           </div>
         )}
       </div>
