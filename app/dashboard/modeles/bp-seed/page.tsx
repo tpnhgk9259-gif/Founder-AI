@@ -390,34 +390,36 @@ export default function BPSeedPage() {
           </div>
         )}
 
-        {/* Pas de BM dans le profil */}
+        {/* Pas de BM dans le profil — message + tips */}
         {!loading && !bm && (
-          <div className="py-12">
-            <div className="text-center mb-8">
-              <p className="text-4xl mb-4">📋</p>
-              <p className="font-bold text-lg" style={{ color: "var(--uf-ink)" }}>Aucun business model renseigné dans votre profil</p>
-              <p className="text-sm mt-2 max-w-md mx-auto" style={{ color: "var(--uf-muted)" }}>
-                Pour générer votre Business Plan, nous avons besoin de connaître votre business model.
+          <div className="text-center mb-8 py-12">
+            <p className="text-4xl mb-4">📋</p>
+            <p className="font-bold text-lg" style={{ color: "var(--uf-ink)" }}>Aucun business model renseigné dans votre profil</p>
+            <p className="text-sm mt-2 max-w-md mx-auto" style={{ color: "var(--uf-muted)" }}>
+              Pour générer votre Business Plan, nous avons besoin de connaître votre business model.
+            </p>
+          </div>
+        )}
+
+        {/* Tips — toujours visibles */}
+        {!loading && (
+          <div className="grid sm:grid-cols-2 gap-4 max-w-lg mx-auto mt-8 mb-8">
+            <a href="/dashboard?agent=codir&msg=Quel business model serait le plus pertinent pour mon projet ? Analysez mon profil et recommandez-moi entre SaaS, Marketplace, DeepTech, MedTech ou Services."
+              className="p-5 text-left transition-all hover:shadow-md" style={{ background: "var(--uf-ink)", borderRadius: "var(--uf-r-xl)", color: "var(--uf-paper)" }}>
+              <div className="text-lg mb-2">⚡</div>
+              <div className="font-bold text-sm" style={{ color: "var(--uf-lime)" }}>Tip 1</div>
+              <p className="text-xs mt-1 leading-relaxed" style={{ color: "rgba(255,255,255,0.78)" }}>
+                N&apos;hésitez pas à demander l&apos;avis du CODIR sur le business model qui semble le plus pertinent pour votre projet.
               </p>
-            </div>
-            <div className="grid sm:grid-cols-2 gap-4 max-w-lg mx-auto">
-              <a href="/dashboard?agent=codir&msg=Quel business model serait le plus pertinent pour mon projet ? Analysez mon profil et recommandez-moi entre SaaS, Marketplace, DeepTech, MedTech ou Services."
-                className="p-5 text-left transition-all hover:shadow-md" style={{ background: "var(--uf-ink)", borderRadius: "var(--uf-r-xl)", color: "var(--uf-paper)" }}>
-                <div className="text-lg mb-2">⚡</div>
-                <div className="font-bold text-sm" style={{ color: "var(--uf-lime)" }}>Tip 1</div>
-                <p className="text-xs mt-1 leading-relaxed" style={{ color: "rgba(255,255,255,0.78)" }}>
-                  N&apos;hésitez pas à demander l&apos;avis du CODIR sur le business model qui semble le plus pertinent pour votre projet.
-                </p>
-              </a>
-              <a href="/dashboard?tab=tableau"
-                className="p-5 text-left transition-all hover:shadow-md" style={{ background: "var(--uf-card)", border: "1px solid var(--uf-line)", borderRadius: "var(--uf-r-xl)" }}>
-                <div className="text-lg mb-2">✏️</div>
-                <div className="font-bold text-sm" style={{ color: "var(--uf-orange)" }}>Tip 2</div>
-                <p className="text-xs mt-1 leading-relaxed" style={{ color: "var(--uf-muted)" }}>
-                  Vous pouvez modifier votre business model dans votre profil (onglet Tableau de bord).
-                </p>
-              </a>
-            </div>
+            </a>
+            <a href="/dashboard?tab=tableau"
+              className="p-5 text-left transition-all hover:shadow-md" style={{ background: "var(--uf-card)", border: "1px solid var(--uf-line)", borderRadius: "var(--uf-r-xl)" }}>
+              <div className="text-lg mb-2">✏️</div>
+              <div className="font-bold text-sm" style={{ color: "var(--uf-orange)" }}>Tip 2</div>
+              <p className="text-xs mt-1 leading-relaxed" style={{ color: "var(--uf-muted)" }}>
+                Vous pouvez modifier votre business model dans votre profil (onglet Tableau de bord).
+              </p>
+            </a>
           </div>
         )}
       </div>
