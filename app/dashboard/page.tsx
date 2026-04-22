@@ -1432,32 +1432,32 @@ function DocumentSection({
           {docs.map((doc) => (
             <div
               key={doc.id}
-              className="px-5 py-3.5 border-b border-gray-50 last:border-b-0 flex items-center gap-3"
+              className="px-5 py-3.5 border-b border-gray-50 last:border-b-0 flex items-center gap-3 group"
             >
-              <span className="text-lg">📄</span>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-gray-800 truncate">{doc.name}</p>
-                <p className="text-xs text-gray-400">
-                  Ajouté le {new Date(doc.uploadedAt).toLocaleDateString("fr-FR")}
-                </p>
-              </div>
-              {doc.signedUrl && (
-                <a
-                  href={doc.signedUrl}
-                  download={doc.name}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-violet-500 hover:text-violet-700 transition-colors"
-                  title="Télécharger ce document"
-                >
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+              <a
+                href={doc.signedUrl ?? "#"}
+                download={doc.name}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`min-w-0 flex-1 flex items-center gap-3 ${doc.signedUrl ? "cursor-pointer hover:opacity-80" : "cursor-default"}`}
+                onClick={(e) => { if (!doc.signedUrl) e.preventDefault(); }}
+              >
+                <span className="text-lg shrink-0">📄</span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold truncate" style={{ color: "var(--uf-ink)" }}>{doc.name}</p>
+                  <p className="text-xs" style={{ color: "var(--uf-muted)" }}>
+                    Ajouté le {new Date(doc.uploadedAt).toLocaleDateString("fr-FR")}
+                  </p>
+                </div>
+                {doc.signedUrl && (
+                  <svg className="w-4 h-4 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: "var(--uf-orange)" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                   </svg>
-                </a>
-              )}
+                )}
+              </a>
               <button
                 onClick={() => onDelete(doc.id)}
-                className="text-gray-300 hover:text-red-500 transition-colors text-sm font-bold"
+                className="text-gray-300 hover:text-red-500 transition-colors text-sm font-bold shrink-0"
                 title="Supprimer ce document"
               >
                 ✕
