@@ -1504,6 +1504,7 @@ const TEMPLATE_ROUTES: Record<string, string> = {
   "Lean Canvas": "/dashboard/modeles/lean-canvas",
   "MVP": "/dashboard/modeles/mvp",
   "Pitch Deck Seed": "/dashboard/modeles/pitch-deck-seed",
+  "BP Seed": "/dashboard/modeles/bp-seed",
 };
 
 function TemplateSection({
