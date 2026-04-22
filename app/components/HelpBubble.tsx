@@ -4,7 +4,7 @@ import { useState } from "react";
 
 type Tab = "aide" | "dico";
 
-const glossary = [
+export const glossary = [
   { term: "Burn rate", def: "Vitesse à laquelle une startup dépense ses réserves de trésorerie chaque mois. Un burn rate de 30k€/mois signifie que vous dépensez 30 000€ par mois." },
   { term: "Runway", def: "Nombre de mois avant que la trésorerie soit épuisée au rythme actuel. Formule : trésorerie disponible ÷ burn rate mensuel." },
   { term: "MRR", def: "Monthly Recurring Revenue — Chiffre d'affaires récurrent mensuel généré par les abonnements actifs. Indicateur clé pour les SaaS." },
@@ -38,6 +38,27 @@ const glossary = [
   { term: "TAM", def: "Total Addressable Market — Taille totale du marché si 100% des clients potentiels dans le monde adoptaient votre solution. Sert à calibrer l'ambition et à convaincre les investisseurs." },
   { term: "SAM", def: "Serviceable Addressable Market — Portion du TAM que vous pouvez réellement cibler avec votre modèle actuel (zone géographique, segment, canal). Sous-ensemble du TAM." },
   { term: "SOM", def: "Serviceable Obtainable Market — Part du SAM que vous pouvez raisonnablement capturer à court terme compte tenu de vos ressources et de la concurrence. C'est votre objectif réaliste." },
+  { term: "GMV", def: "Gross Merchandise Value — Volume total des transactions sur une marketplace. Ce n'est pas le CA : le CA = GMV × taux de commission (take rate)." },
+  { term: "Take rate", def: "Taux de commission prélevé par une marketplace sur chaque transaction. Varie de 5% (immobilier) à 30% (app stores)." },
+  { term: "TRL", def: "Technology Readiness Level — Échelle de 1 à 9 qui mesure la maturité d'une technologie : 1 = recherche fondamentale, 9 = production industrielle." },
+  { term: "CIR", def: "Crédit d'Impôt Recherche — Aide fiscale française qui rembourse 30% des dépenses de R&D éligibles. Très utilisé par les startups DeepTech." },
+  { term: "ARPU", def: "Average Revenue Per User — Revenu moyen par utilisateur. Se calcule : CA total ÷ nombre de clients actifs sur la période." },
+  { term: "ICP", def: "Ideal Customer Profile — Profil type du client idéal : secteur, taille, rôle décideur, budget, problème. Sert à cibler les efforts commerciaux." },
+  { term: "TJM", def: "Taux Journalier Moyen — Tarif de facturation par jour pour les activités de services et conseil. Base du modèle économique des ESN et cabinets." },
+  { term: "ETP", def: "Équivalent Temps Plein — Unité de mesure de la charge de travail. 1 ETP = 1 personne à temps plein. 0.5 ETP = mi-temps." },
+  { term: "EBITDA", def: "Earnings Before Interest, Taxes, Depreciation and Amortization — Résultat opérationnel avant charges financières et amortissements. Mesure la rentabilité opérationnelle." },
+  { term: "P&L", def: "Profit & Loss — Compte de résultat. Résume les revenus, les charges et le résultat net sur une période." },
+  { term: "OPEX", def: "Operating Expenses — Dépenses opérationnelles courantes (loyer, outils, marketing). Se distingue du CAPEX (investissements)." },
+  { term: "CAPEX", def: "Capital Expenditure — Investissements en immobilisations (matériel, brevets, logiciels). Amortis sur plusieurs années." },
+  { term: "B2B", def: "Business to Business — Entreprise qui vend à d'autres entreprises. Cycles de vente plus longs mais paniers plus élevés." },
+  { term: "B2C", def: "Business to Consumer — Entreprise qui vend directement aux particuliers. Volume élevé, panier moyen plus faible." },
+  { term: "B2B2C", def: "Business to Business to Consumer — Entreprise qui passe par un partenaire B2B pour toucher le consommateur final." },
+  { term: "ROI", def: "Return On Investment — Retour sur investissement. Formule : (gains - coût de l'investissement) ÷ coût × 100." },
+  { term: "RACI", def: "Responsible, Accountable, Consulted, Informed — Matrice de répartition des responsabilités sur un projet ou processus." },
+  { term: "GTM", def: "Go-To-Market — Stratégie de mise sur le marché : cible, canaux, message, pricing. Plan d'action pour lancer ou scaler un produit." },
+  { term: "POC", def: "Proof of Concept — Démonstration de faisabilité technique. Étape clé avant le MVP, surtout en DeepTech." },
+  { term: "LOI", def: "Letter of Intent — Lettre d'intention. Document non engageant qui exprime l'intérêt d'un client ou investisseur potentiel." },
+  { term: "COGS", def: "Cost of Goods Sold — Coût des marchandises vendues. Inclut les coûts directs de production. CA - COGS = marge brute." },
 ];
 
 const helpItems = [

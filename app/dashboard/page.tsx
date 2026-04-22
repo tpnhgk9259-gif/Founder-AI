@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import HelpBubble from "../components/HelpBubble";
+import GlossaryText from "../components/GlossaryText";
 import TableauDeBord from "../components/TableauDeBord";
 import { createBrowserClient } from "@/lib/supabase";
 
@@ -563,7 +564,7 @@ function ConversationView({
                             ? "bg-violet-600 text-white rounded-br-sm"
                             : "bg-gray-100 text-gray-800 rounded-bl-sm"
                         }`}>
-                          {msg.text}
+                          {msg.from === "agent" ? <GlossaryText text={msg.text} /> : msg.text}
                         </div>
                       </div>
                     </div>
@@ -652,7 +653,7 @@ function ConversationView({
                   ? { background: "var(--uf-ink)", color: "var(--uf-paper)", borderRadius: "14px 14px 4px 14px" }
                   : { background: "var(--uf-card)", border: "1px solid var(--uf-line)", color: "var(--uf-ink)", borderRadius: "4px 14px 14px 14px" }
               }>
-                {msg.text}
+                {msg.from === "agent" ? <GlossaryText text={msg.text} /> : msg.text}
                 {streaming && i === messages.length - 1 && msg.from === "agent" && (
                   <span className="inline-block w-0.5 h-3.5 animate-pulse ml-0.5 align-middle" style={{ background: "var(--uf-muted)" }} />
                 )}
