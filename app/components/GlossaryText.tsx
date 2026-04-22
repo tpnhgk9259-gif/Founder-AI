@@ -30,9 +30,10 @@ function Tooltip({ term, definition }: { term: string; definition: string }) {
       </span>
       {show && (
         <span
-          className="absolute z-50 px-3 py-2 text-xs leading-relaxed max-w-xs -translate-x-1/2 left-1/2"
+          className="absolute z-50 px-3 py-2 text-xs leading-relaxed"
           style={{
             bottom: "calc(100% + 6px)",
+            left: 0,
             background: "var(--uf-ink)",
             color: "var(--uf-paper)",
             borderRadius: "var(--uf-r-sm)",
@@ -46,9 +47,10 @@ function Tooltip({ term, definition }: { term: string; definition: string }) {
           <br />
           {definition}
           <span
-            className="absolute left-1/2 -translate-x-1/2"
+            className="absolute"
             style={{
               top: "100%",
+              left: 12,
               width: 0,
               height: 0,
               borderLeft: "5px solid transparent",
