@@ -829,24 +829,22 @@ function CodirView({ startupId }: { startupId: string | null }) {
   const isBusy = phase === "dispatching" || phase === "synthesizing" || phase === "manager";
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden bg-gray-50">
+    <div className="flex-1 flex flex-col overflow-hidden" style={{ background: "var(--uf-paper)" }}>
       {/* Header */}
-      <div className="bg-white border-b border-gray-100 px-6 py-3.5 flex items-center gap-3 flex-shrink-0">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-fuchsia-600 flex items-center justify-center shadow-sm">
-          <span className="text-lg">🏛️</span>
-        </div>
+      <div className="px-8 py-5 flex items-center gap-4 flex-shrink-0" style={{ background: "var(--uf-ink)", color: "var(--uf-paper)" }}>
+        <span className="text-2xl">⚡</span>
         <div>
-          <h2 className="font-black text-gray-900 text-base leading-tight">Mode CODIR</h2>
-          <p className="text-xs font-semibold text-violet-600">Les agents délibèrent entre eux</p>
+          <h2 className="uppercase tracking-normal" style={{ fontFamily: "var(--uf-display)", fontSize: 28, lineHeight: 0.82, color: "var(--uf-lime)" }}>Mode CODIR</h2>
+          <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.6)" }}>Les 5 agents délibèrent ensemble</p>
         </div>
         {isBusy && (
-          <span className="ml-auto flex items-center gap-1.5 text-xs text-emerald-600 font-semibold">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            {phase === "manager" ? "Victor délibère…" : "En séance…"}
+          <span className="ml-auto flex items-center gap-1.5 text-xs font-medium">
+            <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "var(--uf-lime)" }} />
+            <span style={{ color: "var(--uf-lime)" }}>{phase === "manager" ? "Victor délibère…" : "En séance…"}</span>
           </span>
         )}
         {phase === "done" && (
-          <button onClick={reset} className="ml-auto text-xs text-gray-400 hover:text-gray-600 transition-colors font-medium">
+          <button onClick={reset} className="ml-auto text-xs font-medium transition-colors" style={{ color: "rgba(255,255,255,0.6)" }}>
             Nouvelle séance
           </button>
         )}
@@ -862,8 +860,9 @@ function CodirView({ startupId }: { startupId: string | null }) {
             onChange={(e) => setTopic(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && startCodir()}
             disabled={isBusy}
-            placeholder="Ex : Faut-il lever maintenant ou attendre un meilleur MRR ?"
-            className="flex-1 border-2 border-gray-200 focus:border-violet-400 focus:outline-none rounded-2xl px-4 py-3 text-sm text-gray-900 placeholder-gray-400 transition-colors disabled:opacity-50 bg-white"
+            placeholder="Posez une question stratégique à votre CODIR…"
+            className="flex-1 px-4 py-3 text-sm transition-colors disabled:opacity-50 focus:outline-none"
+            style={{ border: "1px solid var(--uf-line)", borderRadius: "var(--uf-r-pill)", background: "var(--uf-card)", color: "var(--uf-ink)" }}
           />
           <MicButton
             onTranscript={(text) => setTopic((prev) => prev ? `${prev} ${text}` : text)}
@@ -872,7 +871,8 @@ function CodirView({ startupId }: { startupId: string | null }) {
           <button
             onClick={startCodir}
             disabled={!topic.trim() || isBusy}
-            className="bg-gradient-to-br from-violet-600 to-fuchsia-600 hover:opacity-90 disabled:opacity-40 text-white font-bold px-5 py-3 rounded-2xl text-sm transition-all whitespace-nowrap shadow-sm"
+            className="disabled:opacity-40 font-medium px-5 py-3 rounded-full text-sm transition-all whitespace-nowrap hover:-translate-y-px"
+            style={{ background: "var(--uf-ink)", color: "var(--uf-lime)" }}
           >
             Lancer →
           </button>
@@ -886,13 +886,16 @@ function CodirView({ startupId }: { startupId: string | null }) {
               const done = agentsDone.has(key);
               const started = agentsStarted.has(key);
               return (
-                <div key={key} className={`bg-white rounded-2xl px-3 py-2.5 flex items-center gap-2 border transition-all ${done ? "border-emerald-200" : "border-gray-100"}`}>
-                  <div className={`w-7 h-7 rounded-full bg-gradient-to-br ${m.gradient} flex items-center justify-center text-xs flex-shrink-0`}>
-                    {m.emoji}
-                  </div>
+                <div key={key} className="px-3 py-2.5 flex items-center gap-2 transition-all" style={{
+                  background: done ? "var(--uf-card)" : "transparent",
+                  border: done ? "1px solid var(--uf-line)" : "1px solid var(--uf-line)",
+                  borderRadius: "var(--uf-r-md)",
+                  opacity: !started && !done ? 0.5 : 1,
+                }}>
+                  <img src={AGENT_AVATARS[key]} alt={m.agent} className="w-7 h-7 rounded-full object-cover flex-shrink-0" />
                   <div className="min-w-0">
-                    <p className="text-xs font-bold text-gray-800 truncate">{m.agent}</p>
-                    <p className={`text-xs ${done ? "text-emerald-500" : started ? "text-amber-500" : "text-gray-400"}`}>
+                    <p className="text-xs font-bold truncate" style={{ color: "var(--uf-ink)" }}>{m.agent}</p>
+                    <p className="text-xs" style={{ color: done ? "var(--uf-teal)" : started ? "var(--uf-orange)" : "var(--uf-muted)" }}>
                       {done ? "✓ prêt" : started ? "analyse…" : "en attente"}
                     </p>
                   </div>
@@ -906,11 +909,11 @@ function CodirView({ startupId }: { startupId: string | null }) {
         {(phase === "synthesizing" || phase === "manager" || phase === "done") && synthStreamed && (
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <div className="h-px flex-1 bg-gray-200" />
-              <span className="text-xs font-black text-violet-600 uppercase tracking-wider">Synthèse CODIR</span>
-              <div className="h-px flex-1 bg-gray-200" />
+              <div className="h-px flex-1" style={{ background: "var(--uf-line)" }} />
+              <span className="text-[11px] font-medium tracking-[0.16em] uppercase" style={{ fontFamily: "var(--uf-mono)", color: "var(--uf-orange)" }}>Synthèse CODIR</span>
+              <div className="h-px flex-1" style={{ background: "var(--uf-line)" }} />
             </div>
-            <div className="bg-white border border-gray-100 rounded-2xl px-5 py-4 shadow-sm">
+            <div className="px-5 py-4" style={{ background: "var(--uf-card)", border: "1px solid var(--uf-line)", borderRadius: "var(--uf-r-lg)" }}>
               <p className="text-gray-800 text-sm leading-relaxed whitespace-pre-line">
                 {synthStreamed}
                 {phase === "synthesizing" && (
@@ -1213,20 +1216,20 @@ export default function Dashboard() {
           <Sidebar activeView={activeView} onSelect={setActiveView} />
           <div className="flex-1 flex flex-col overflow-hidden">
             {/* Description du projet */}
-            <div className="bg-white border-b border-violet-100 px-5 pt-3 pb-2 flex-shrink-0">
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">
+            <div className="px-5 pt-3 pb-2 flex-shrink-0" style={{ background: "var(--uf-card)", borderBottom: "1px solid var(--uf-line)" }}>
+              <p className="text-[11px] font-medium tracking-[0.16em] uppercase mb-2" style={{ fontFamily: "var(--uf-mono)", color: "var(--uf-muted)" }}>
                 Description du projet
               </p>
               <div className="flex items-start gap-3">
                 <div className="flex-1 flex items-center gap-3">
-                  <span className="text-violet-400 text-base flex-shrink-0">✦</span>
+                  <span className="text-base flex-shrink-0" style={{ color: "var(--uf-orange)" }}>✦</span>
                   <textarea
                     rows={1}
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     placeholder="Décrivez votre projet — vos agents s'en serviront comme contexte…"
-                    className="flex-1 text-sm text-gray-700 placeholder-gray-400 resize-none focus:outline-none bg-transparent leading-relaxed"
-                    style={{ minHeight: "1.5rem", maxHeight: "4rem", overflow: "auto" }}
+                    className="flex-1 text-sm resize-none focus:outline-none bg-transparent leading-relaxed"
+                    style={{ color: "var(--uf-ink)", minHeight: "1.5rem", maxHeight: "4rem", overflow: "auto" }}
                     onInput={(e) => {
                       const t = e.currentTarget;
                       t.style.height = "auto";
@@ -1250,7 +1253,8 @@ export default function Dashboard() {
                     onClick={() => fileInputRef.current?.click()}
                     disabled={uploading || !startupId}
                     title="Joindre un document (PDF, TXT, MD, CSV)"
-                    className="text-gray-400 hover:text-violet-600 disabled:opacity-40 transition-colors p-1.5 rounded-lg hover:bg-violet-50"
+                    className="disabled:opacity-40 transition-colors p-1.5 rounded-lg"
+                    style={{ color: "var(--uf-muted)" }}
                   >
                     {uploading ? (
                       <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
@@ -1265,7 +1269,8 @@ export default function Dashboard() {
                   <button
                     onClick={saveDescription}
                     disabled={!description.trim() || descSaving || !startupId}
-                    className="text-xs font-bold text-violet-600 hover:text-violet-700 disabled:opacity-40 transition-colors px-3 py-1.5 bg-violet-50 hover:bg-violet-100 rounded-lg"
+                    className="text-xs font-medium disabled:opacity-40 transition-colors px-3 py-1.5 rounded-full"
+                    style={{ background: "var(--uf-ink)", color: "var(--uf-paper)" }}
                   >
                     {descSaving ? "…" : "Envoyer aux agents"}
                   </button>
@@ -1278,7 +1283,8 @@ export default function Dashboard() {
                   {documents.map((doc) => (
                     <span
                       key={doc.id}
-                      className="inline-flex items-center gap-1.5 text-xs bg-violet-50 text-violet-700 border border-violet-200 rounded-lg px-2.5 py-1 font-medium"
+                      className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1"
+                      style={{ background: "var(--uf-paper-2)", color: "var(--uf-ink)", border: "1px solid var(--uf-line)", borderRadius: "var(--uf-r-sm)" }}
                     >
                       <svg className="w-3 h-3 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -1314,23 +1320,23 @@ export default function Dashboard() {
           </div>
         </div>
       ) : tab === "tableau" ? (
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto" style={{ background: "var(--uf-paper)" }}>
           <div className="max-w-5xl mx-auto px-6 py-8">
             <div className="mb-8">
-              <h1 className="text-3xl font-black text-gray-900">Mon tableau de bord</h1>
-              <p className="text-gray-500 mt-1">Profil de votre startup, KPIs, décisions et problématiques en cours.</p>
+              <h1 className="uppercase tracking-[-0.015em]" style={{ fontFamily: "var(--uf-display)", fontSize: 32, lineHeight: 0.82 }}>Mon tableau de bord</h1>
+              <p className="mt-2 text-sm" style={{ color: "var(--uf-muted)" }}>Profil de votre startup, KPIs, décisions et problématiques en cours.</p>
             </div>
             <TableauDeBord startupId={startupId} />
           </div>
         </div>
       ) : (
-        <div className="flex-1 overflow-y-auto bg-gray-50">
+        <div className="flex-1 overflow-y-auto" style={{ background: "var(--uf-paper)" }}>
           <div className="max-w-5xl mx-auto px-6 py-8">
             <div className="mb-8 flex items-center justify-between gap-4">
               <div>
-                <h1 className="text-3xl font-black text-gray-900">Mes documents</h1>
-                <p className="text-gray-500 mt-1">
-                  Retrouvez ici vos pitch decks, business plans et autres documents utilises par les agents.
+                <h1 className="uppercase tracking-[-0.015em]" style={{ fontFamily: "var(--uf-display)", fontSize: 32, lineHeight: 0.82 }}>Mes documents</h1>
+                <p className="mt-2 text-sm" style={{ color: "var(--uf-muted)" }}>
+                  Retrouvez ici vos pitch decks, business plans et autres documents utilisés par les agents.
                 </p>
               </div>
               <div className="flex items-center gap-2">
@@ -1420,11 +1426,11 @@ function DocumentSection({
   onDelete: (docId: string) => void;
 }) {
   return (
-    <section className="bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm">
-      <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-2">
+    <section className="overflow-hidden" style={{ background: "var(--uf-card)", border: "1px solid var(--uf-line)", borderRadius: "var(--uf-r-xl)" }}>
+      <div className="px-5 py-4 flex items-center gap-2" style={{ borderBottom: "1px solid var(--uf-line)" }}>
         <span>{emoji}</span>
-        <h2 className="text-sm font-black text-gray-800">{title}</h2>
-        <span className="ml-auto text-xs text-gray-400 font-semibold">{docs.length}</span>
+        <h2 className="text-sm font-bold" style={{ color: "var(--uf-ink)" }}>{title}</h2>
+        <span className="ml-auto text-xs font-medium" style={{ color: "var(--uf-muted)" }}>{docs.length}</span>
       </div>
       {docs.length === 0 ? (
         <p className="px-5 py-4 text-sm text-gray-400">Aucun document dans cette categorie.</p>
