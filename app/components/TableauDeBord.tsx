@@ -69,7 +69,7 @@ const TREND_COLORS = { up: "text-emerald-500", down: "text-red-500", stable: "te
 function SectionHeader({ title, action }: { title: string; action?: React.ReactNode }) {
   return (
     <div className="flex items-center justify-between mb-4">
-      <h3 className="font-black text-gray-900 text-lg">{title}</h3>
+      <h3 className="uppercase tracking-normal" style={{ fontFamily: "var(--uf-display)", fontSize: 22, color: "var(--uf-ink)" }}>{title}</h3>
       {action}
     </div>
   );
@@ -128,7 +128,7 @@ function ProfilSection({
   }
 
   return (
-    <div className="bg-white rounded-3xl border-2 border-gray-100 p-7">
+    <div className="p-7" style={{ background: "var(--uf-card)", border: "1px solid var(--uf-line)", borderRadius: "var(--uf-r-xl)" }}>
       <SectionHeader title="Profil startup" />
       <form onSubmit={handleSave} className="space-y-4">
         {/* Logo */}
@@ -295,7 +295,7 @@ function KpisSection({
   }
 
   return (
-    <div className="bg-white rounded-3xl border-2 border-gray-100 p-7">
+    <div className="p-7" style={{ background: "var(--uf-card)", border: "1px solid var(--uf-line)", borderRadius: "var(--uf-r-xl)" }}>
       <SectionHeader
         title="KPIs clés"
         action={
@@ -464,7 +464,7 @@ function DecisionsSection({
   }
 
   return (
-    <div className="bg-white rounded-3xl border-2 border-gray-100 p-7">
+    <div className="p-7" style={{ background: "var(--uf-card)", border: "1px solid var(--uf-line)", borderRadius: "var(--uf-r-xl)" }}>
       <SectionHeader
         title="Historique des décisions"
         action={
@@ -773,7 +773,7 @@ function ActionPlanSection({
   );
 
   return (
-    <div className="bg-white rounded-3xl border-2 border-gray-100 p-7">
+    <div className="p-7" style={{ background: "var(--uf-card)", border: "1px solid var(--uf-line)", borderRadius: "var(--uf-r-xl)" }}>
       <SectionHeader
         title="Plan d'action"
         action={
