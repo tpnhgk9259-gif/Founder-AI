@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createBrowserClient } from "@/lib/supabase";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -758,7 +758,9 @@ function AgentBuilderView({ partnerId, maxAgents }: { partnerId: string; maxAgen
   const [systemPrompt, setSystemPrompt] = useState("");
   const [knowledge, setKnowledge] = useState("");
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
+  const knowledgeFileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetch(`/api/partner/custom-agents?partnerId=${partnerId}`)
@@ -938,11 +940,71 @@ function AgentBuilderView({ partnerId, maxAgents }: { partnerId: string; maxAgen
           <div className="space-y-1.5">
             <label className="text-[11px] font-medium tracking-[0.12em] uppercase" style={{ fontFamily: "var(--uf-mono)", color: "var(--uf-muted)" }}>
               Base de connaissances
-              <span className="normal-case tracking-normal ml-2 font-normal" style={{ color: "var(--uf-muted-2)" }}>— Collez des contenus que l&apos;agent utilisera comme référence (optionnel)</span>
+              <span className="normal-case tracking-normal ml-2 font-normal" style={{ color: "var(--uf-muted-2)" }}>— Collez du texte ou uploadez un fichier (optionnel)</span>
             </label>
             <textarea value={knowledge} onChange={(e) => setKnowledge(e.target.value)} rows={5}
               placeholder="Collez ici des frameworks, méthodes, données de référence, guides..."
               className="w-full px-4 py-3 text-sm focus:outline-none resize-y leading-relaxed" style={{ border: "1px solid var(--uf-line)", borderRadius: "var(--uf-r-md)", color: "var(--uf-ink)", background: "var(--uf-paper)" }} />
+            <div className="flex items-center gap-3 mt-2">
+              <input
+                ref={knowledgeFileRef}
+                type="file"
+                accept=".pdf,.txt,.md,.csv"
+                className="hidden"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  setUploading(true);
+                  try {
+                    let text = "";
+                    if (file.type === "application/pdf" || file.name.endsWith(".pdf")) {
+                      const form = new FormData();
+                      form.append("file", file);
+                      const res = await fetch("/api/partner/extract-text", { method: "POST", body: form });
+                      if (res.ok) {
+                        const data = await res.json();
+                        text = data.text ?? "";
+                      } else {
+                        const err = await res.json().catch(() => ({}));
+                        setError(err.error ?? "Erreur extraction PDF");
+                        return;
+                      }
+                    } else {
+                      text = await file.text();
+                    }
+                    if (text) {
+                      setKnowledge((prev) => prev ? prev + "\n\n---\n\n" + text : text);
+                    }
+                  } catch {
+                    setError("Erreur lors de la lecture du fichier");
+                  } finally {
+                    setUploading(false);
+                    if (knowledgeFileRef.current) knowledgeFileRef.current.value = "";
+                  }
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => knowledgeFileRef.current?.click()}
+                disabled={uploading}
+                className="flex items-center gap-2 text-xs font-medium px-3 py-1.5 rounded-full disabled:opacity-40 transition-colors"
+                style={{ border: "1px solid var(--uf-line)", color: "var(--uf-ink)" }}
+              >
+                {uploading ? (
+                  <>
+                    <span className="w-3 h-3 border-2 border-current/30 border-t-current rounded-full animate-spin" />
+                    Extraction en cours…
+                  </>
+                ) : (
+                  <>📎 Uploader un fichier (PDF, TXT, MD)</>
+                )}
+              </button>
+              {knowledge && (
+                <span className="text-[11px]" style={{ color: "var(--uf-muted)" }}>
+                  {knowledge.length.toLocaleString()} caractères chargés
+                </span>
+              )}
+            </div>
           </div>
 
           {error && (
