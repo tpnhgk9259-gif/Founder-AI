@@ -11,7 +11,7 @@ import { getEffectiveStartupLicense } from "@/lib/licenses-server";
 import type { LicenseConfig } from "@/lib/licenses";
 
 export type LicenseCheckResult =
-  | { ok: true; license: LicenseConfig }
+  | { ok: true; license: LicenseConfig; quotaPercent?: number }
   | { ok: false; error: string; status: 403 | 429 };
 
 /**
@@ -49,9 +49,12 @@ export async function checkChatAccess(
       .gte("created_at", startOfDay.toISOString())
       .in("conversation_id", convoIds);
 
-    if ((count ?? 0) >= license.max_chat_messages_per_day) {
+    const used = count ?? 0;
+    if (used >= license.max_chat_messages_per_day) {
       return { ok: false, error: "Limite quotidienne de messages atteinte pour cette licence.", status: 429 };
     }
+    const quotaPercent = Math.round((used / license.max_chat_messages_per_day) * 100);
+    return { ok: true, license, quotaPercent };
   }
 
   return { ok: true, license };

@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { createServerClient } from "@/lib/supabase";
 import { getAuthenticatedUserId } from "@/lib/auth";
 import { normalizeLicenseConfig } from "@/lib/licenses";
+import { sendPartnerInviteEmail } from "@/lib/email";
 
 type GrantPlan = "starter" | "growth" | "scale";
 
@@ -116,6 +117,12 @@ export async function POST(req: NextRequest) {
         .maybeSingle();
 
       return Response.json({ member: { ...member, startup: startup ?? null } });
+    }
+
+    // Envoyer l'email d'invitation
+    const { data: partnerData } = await supabase.from("partners").select("name").eq("id", partnerId).maybeSingle();
+    if (partnerData?.name) {
+      sendPartnerInviteEmail(email.trim().toLowerCase(), partnerData.name, plan).catch((err) => console.error("[email] invitation:", err));
     }
 
     return Response.json({ member: { ...member, startup: null } });

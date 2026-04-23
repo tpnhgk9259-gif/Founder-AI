@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { createServerClient } from "@/lib/supabase";
 import { getRouteUser, isSuperAdminEmail } from "@/lib/admin-auth";
 import { logAudit } from "@/lib/audit";
+import { sendPartnerActivatedEmail } from "@/lib/email";
 
 export async function PATCH(req: NextRequest) {
   const viewer = await getRouteUser();
@@ -36,6 +37,15 @@ export async function PATCH(req: NextRequest) {
     entityId: partnerId,
     metadata: updates,
   });
+
+  // Envoyer l'email d'activation si le partenaire vient d'être activé
+  if (active === true) {
+    const { data: partnerData } = await supabase.from("partners").select("name").eq("id", partnerId).maybeSingle();
+    const { data: adminMember } = await supabase.from("partner_members").select("email").eq("partner_id", partnerId).eq("role", "admin").limit(1).maybeSingle();
+    if (adminMember?.email && partnerData?.name) {
+      sendPartnerActivatedEmail(adminMember.email, partnerData.name).catch((err) => console.error("[email] activation partenaire:", err));
+    }
+  }
 
   return Response.json({ ok: true });
 }

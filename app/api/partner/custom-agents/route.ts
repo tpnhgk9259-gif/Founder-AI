@@ -3,6 +3,7 @@ import { createServerClient } from "@/lib/supabase";
 import { getAuthenticatedUserId } from "@/lib/auth";
 import { indexAgentKnowledge } from "@/lib/rag";
 import { logAudit } from "@/lib/audit";
+import { sendNewAgentEmail } from "@/lib/email";
 
 async function getPartnerAdmin(userId: string) {
   const supabase = createServerClient();
@@ -90,6 +91,18 @@ export async function POST(req: NextRequest) {
   }
 
   logAudit({ userId, action: "knowledge.update", entityType: "custom_agent", entityId: agent.id, metadata: { name, partnerId } });
+
+  // Notifier les startups du partenaire (fire-and-forget)
+  (async () => {
+    const { data: partnerData } = await supabase.from("partners").select("name").eq("id", partnerId).maybeSingle();
+    const { data: startups } = await supabase.from("startups").select("user_id").eq("partner_id", partnerId);
+    if (!startups?.length || !partnerData?.name) return;
+    const userIds = startups.map((s) => s.user_id).filter(Boolean);
+    const { data: users } = await supabase.from("users").select("email").in("id", userIds);
+    for (const user of users ?? []) {
+      sendNewAgentEmail(user.email, name, role, partnerData.name).catch(() => {});
+    }
+  })().catch((err) => console.error("[email] nouvel agent:", err));
 
   return Response.json({ agent });
 }
