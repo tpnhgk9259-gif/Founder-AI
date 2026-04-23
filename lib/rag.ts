@@ -117,24 +117,31 @@ async function embedBatch(texts: string[]): Promise<(number[] | null)[]> {
 export async function indexAgentKnowledge(
   agentKey: string,
   content: string,
-  source: string = "admin"
+  source: string = "admin",
+  partnerId: string | null = null
 ): Promise<{ chunksIndexed: number }> {
   const supabase = createServerClient();
 
-  // 1. Supprimer les chunks existants pour cet agent
-  await supabase.from("knowledge_chunks").delete().eq("agent_key", agentKey);
+  // 1. Supprimer les chunks existants pour cet agent + ce partenaire
+  let deleteQuery = supabase.from("knowledge_chunks").delete().eq("agent_key", agentKey);
+  if (partnerId) {
+    deleteQuery = deleteQuery.eq("partner_id", partnerId);
+  } else {
+    deleteQuery = deleteQuery.is("partner_id", null);
+  }
+  await deleteQuery;
 
   if (!content.trim()) return { chunksIndexed: 0 };
 
   const voyage = await getVoyageClient();
   if (!voyage) {
-    // Pas de clé Voyage AI — stocker les chunks sans embedding pour future indexation
     const chunks = chunkText(content);
     const rows = chunks.map((chunk) => ({
       agent_key: agentKey,
       content: chunk,
       source,
       embedding: null,
+      partner_id: partnerId,
     }));
     await supabase.from("knowledge_chunks").insert(rows);
     return { chunksIndexed: chunks.length };
@@ -146,12 +153,13 @@ export async function indexAgentKnowledge(
   // 3. Embedder en batch
   const embeddings = await embedBatch(chunks);
 
-  // 4. Insérer (pgvector accepte un tableau JS natif via PostgREST)
+  // 4. Insérer avec partner_id
   const rows = chunks.map((chunk, i) => ({
     agent_key: agentKey,
     content: chunk,
     source,
     embedding: embeddings[i] ?? null,
+    partner_id: partnerId,
   }));
 
   const { error } = await supabase.from("knowledge_chunks").insert(rows);
@@ -171,18 +179,20 @@ export async function indexAgentKnowledge(
 export async function retrieveRelevantChunks(
   agentKey: string,
   query: string,
-  topK: number = TOP_K
+  topK: number = TOP_K,
+  partnerId: string | null = null
 ): Promise<string[] | null> {
   const queryEmbedding = await embedText(query);
   if (!queryEmbedding) return null;
 
   const supabase = createServerClient();
 
-  // Recherche cosine similarity via pgvector
+  // Recherche cosine similarity — chunks globaux + chunks du partenaire
   const { data, error } = await supabase.rpc("match_knowledge_chunks", {
     query_embedding: JSON.stringify(queryEmbedding),
     agent_key_filter: agentKey,
     match_count: topK,
+    partner_id_filter: partnerId,
   });
 
   if (error) {

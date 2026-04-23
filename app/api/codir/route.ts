@@ -115,27 +115,37 @@ export async function POST(req: NextRequest) {
       let sessionId: string | null = null;
 
       try {
-        // startupId optionnel — si absent, on n'injecte pas de contexte startup
         const supabaseAdmin = createServerClient();
+
+        // Récupérer le partner_id pour cloisonner le RAG
+        const partnerId = startupId
+          ? await supabaseAdmin.from("startups").select("partner_id").eq("id", startupId).maybeSingle().then((r) => r.data?.partner_id as string | null ?? null)
+          : null;
+
         const [startupDescription, knowledgeRows, ragResults] = await Promise.all([
           startupId ? getStartupDescription(startupId).catch(() => null) : Promise.resolve(null),
-          // Fallback : contenu complet si RAG non disponible
+          // Fallback : contenu global + contenu partenaire
           supabaseAdmin
             .from("agent_knowledge")
-            .select("agent_key, content")
+            .select("agent_key, content, partner_id")
+            .or(`partner_id.is.null${partnerId ? `,partner_id.eq.${partnerId}` : ""}`)
             .then((r) => r.data ?? []),
-          // RAG : chunks pertinents par agent (parallèle)
+          // RAG : chunks globaux + partenaire par agent
           Promise.all(
             CODIR_AGENTS.map(async (agent) => ({
               agentKey: agent.key,
-              chunks: await retrieveRelevantChunks(agent.key, question).catch(() => null),
+              chunks: await retrieveRelevantChunks(agent.key, question, 5, partnerId).catch(() => null),
             }))
           ),
         ]);
 
-        const knowledgeMapFull: Record<string, string> = Object.fromEntries(
-          (knowledgeRows as { agent_key: string; content: string }[]).map((r) => [r.agent_key, r.content])
-        );
+        // Concaténer les connaissances global + partenaire par agent
+        const knowledgeMapFull: Record<string, string> = {};
+        for (const row of knowledgeRows as { agent_key: string; content: string; partner_id: string | null }[]) {
+          knowledgeMapFull[row.agent_key] = knowledgeMapFull[row.agent_key]
+            ? knowledgeMapFull[row.agent_key] + "\n\n---\n\n" + row.content
+            : row.content;
+        }
         // RAG prioritaire ; fallback sur contenu complet si aucun chunk
         const knowledgeMap: Record<string, string> = Object.fromEntries(
           ragResults.map(({ agentKey, chunks }) => [

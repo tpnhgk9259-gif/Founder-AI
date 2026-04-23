@@ -71,29 +71,37 @@ export async function POST(req: NextRequest) {
       try {
         const memoryEnabled = license?.conversational_memory_enabled ?? true;
         const supabaseAdmin = createServerClient();
-        const [startupDescription, conversationId, ragChunks, knowledgeRow] = await Promise.all([
+
+        // Récupérer le partner_id pour cloisonner le RAG
+        const partnerId = startupId
+          ? await supabaseAdmin.from("startups").select("partner_id").eq("id", startupId).maybeSingle().then((r) => r.data?.partner_id as string | null ?? null)
+          : null;
+
+        const [startupDescription, conversationId, ragChunks, knowledgeRows] = await Promise.all([
           startupId ? getStartupDescription(startupId).catch(() => null) : Promise.resolve(null),
           startupId && memoryEnabled
             ? getOrCreateConversation(startupId, agentKey).catch(() => null)
             : Promise.resolve(null),
-          // Tentative RAG : chunks sémantiquement pertinents pour le message
-          retrieveRelevantChunks(agentKey, message).catch(() => null),
-          // Fallback : contenu complet si pas de chunks RAG disponibles
+          // RAG : chunks globaux + chunks du partenaire
+          retrieveRelevantChunks(agentKey, message, 5, partnerId).catch(() => null),
+          // Fallback : contenu global + contenu partenaire
           supabaseAdmin
             .from("agent_knowledge")
-            .select("content")
+            .select("content, partner_id")
             .eq("agent_key", agentKey)
-            .maybeSingle()
-            .then((r) => r.data),
+            .or(`partner_id.is.null${partnerId ? `,partner_id.eq.${partnerId}` : ""}`)
+            .then((r) => r.data ?? []),
         ]);
 
-        // RAG prioritaire si des chunks sont trouvés, sinon injection complète
+        // RAG prioritaire, sinon injection complète (global + partenaire concaténés)
+        const fallbackContent = (knowledgeRows as { content: string; partner_id: string | null }[])
+          .map((r) => r.content).filter(Boolean).join("\n\n---\n\n");
         const extraKnowledge = ragChunks
           ? ragChunks.join("\n\n---\n\n")
-          : (knowledgeRow?.content ?? null);
+          : (fallbackContent || null);
 
-        if (!ragChunks && knowledgeRow?.content) {
-          console.warn(`[RAG] Fallback injection complète pour agent=${agentKey} (${knowledgeRow.content.length} chars)`);
+        if (!ragChunks && fallbackContent) {
+          console.warn(`[RAG] Fallback injection complète pour agent=${agentKey} (${fallbackContent.length} chars)`);
         }
 
         // 2. Persister le message utilisateur (si conversation disponible)
