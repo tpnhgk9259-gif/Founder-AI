@@ -139,6 +139,12 @@ function ConnexionForm() {
             </p>
           )}
 
+          <div className="flex justify-end">
+            <a href="/mot-de-passe-oublie" className="text-xs hover:underline" style={{ color: "var(--uf-orange)" }}>
+              Mot de passe oublié ?
+            </a>
+          </div>
+
           <button
             type="submit"
             disabled={loading}
