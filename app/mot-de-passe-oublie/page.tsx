@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { createBrowserClient } from "@/lib/supabase";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
@@ -16,14 +15,15 @@ export default function ForgotPassword() {
     setError("");
 
     try {
-      const supabase = createBrowserClient();
-      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-        redirectTo: `${window.location.origin}/reset-password`,
+      const res = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim() }),
       });
-      if (resetError) {
-        setError("Erreur lors de l'envoi. Vérifiez votre adresse email.");
-      } else {
+      if (res.ok) {
         setSent(true);
+      } else {
+        setError("Erreur lors de l'envoi. Réessayez.");
       }
     } catch {
       setError("Une erreur inattendue s'est produite.");

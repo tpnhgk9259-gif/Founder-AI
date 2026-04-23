@@ -75,6 +75,18 @@ export async function sendWelcomeEmail(to: string, firstName: string) {
   await getResend().emails.send({ from: getFrom(), to, subject: `Bienvenue sur FounderAI, ${firstName} !`, html });
 }
 
+/** Réinitialisation de mot de passe */
+export async function sendPasswordResetEmail(to: string, resetLink: string) {
+  const html = wrapTemplate(
+    heading("Réinitialisation de mot de passe") +
+    paragraph("Vous avez demandé à réinitialiser votre mot de passe FounderAI.") +
+    paragraph("Cliquez sur le bouton ci-dessous pour choisir un nouveau mot de passe. Ce lien expire dans 1 heure.") +
+    button("Réinitialiser mon mot de passe →", resetLink) +
+    `<p style="margin:24px 0 0;font-size:13px;color:#A09A8E;line-height:1.6;">Si vous n'avez pas fait cette demande, ignorez cet email. Votre mot de passe restera inchangé.</p>`
+  );
+  await getResend().emails.send({ from: getFrom(), to, subject: "FounderAI — Réinitialisation de mot de passe", html });
+}
+
 /** Partenaire activé par l'admin */
 export async function sendPartnerActivatedEmail(to: string, partnerName: string) {
   const html = wrapTemplate(
