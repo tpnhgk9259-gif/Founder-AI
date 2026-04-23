@@ -8,15 +8,23 @@ export async function PATCH(req: NextRequest) {
   if (!viewer) return Response.json({ error: "Non authentifié" }, { status: 401 });
   if (!isSuperAdminEmail(viewer.email)) return Response.json({ error: "Accès refusé" }, { status: 403 });
 
-  const { partnerId, active } = await req.json();
-  if (!partnerId || typeof active !== "boolean") {
-    return Response.json({ error: "partnerId et active (boolean) requis" }, { status: 400 });
+  const { partnerId, active, max_custom_agents } = await req.json();
+  if (!partnerId) {
+    return Response.json({ error: "partnerId requis" }, { status: 400 });
+  }
+
+  const updates: Record<string, unknown> = {};
+  if (typeof active === "boolean") updates.active = active;
+  if (typeof max_custom_agents === "number") updates.max_custom_agents = Math.max(0, Math.min(20, max_custom_agents));
+
+  if (Object.keys(updates).length === 0) {
+    return Response.json({ error: "Aucune modification" }, { status: 400 });
   }
 
   const supabase = createServerClient();
   const { error } = await supabase
     .from("partners")
-    .update({ active })
+    .update(updates)
     .eq("id", partnerId);
 
   if (error) return Response.json({ error: error.message }, { status: 500 });
@@ -26,7 +34,7 @@ export async function PATCH(req: NextRequest) {
     action: "admin.license_update",
     entityType: "partner",
     entityId: partnerId,
-    metadata: { active },
+    metadata: updates,
   });
 
   return Response.json({ ok: true });
