@@ -820,37 +820,6 @@ export default function AdminPage() {
               ))}
             </div>
 
-            {/* Modifier le quota d'agents custom */}
-            <div className="mt-4 grid gap-2">
-              {partnersF.map((p) => (
-                <div key={`quota-${p.id}`} className="flex items-center justify-between px-4 py-3 rounded-xl" style={{ background: "var(--uf-card)", border: "1px solid var(--uf-line)" }}>
-                  <div className="flex items-center gap-3">
-                    <span className="font-bold text-sm" style={{ color: "var(--uf-ink)" }}>{p.name}</span>
-                    <span className="text-xs" style={{ color: "var(--uf-muted)" }}>— Agents custom</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="number"
-                      min={0}
-                      max={20}
-                      defaultValue={p.max_custom_agents}
-                      className="w-16 px-2 py-1 text-sm text-center focus:outline-none"
-                      style={{ border: "1px solid var(--uf-line)", borderRadius: "var(--uf-r-sm)", color: "var(--uf-ink)", background: "var(--uf-paper)" }}
-                      onBlur={async (e) => {
-                        const val = parseInt(e.target.value) || 0;
-                        if (val === p.max_custom_agents) return;
-                        await fetch("/api/admin/partner-activate", {
-                          method: "PATCH",
-                          headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify({ partnerId: p.id, max_custom_agents: val }),
-                        });
-                        window.location.reload();
-                      }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
           </div>
         )}
 
@@ -1274,6 +1243,26 @@ export default function AdminPage() {
                         className="mt-1 w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white"
                       />
                     </label>
+                    {detail.type === "partner" && (
+                      <label className="block text-xs text-slate-400">
+                        Agents custom autorisés
+                        <input
+                          type="number"
+                          min={0}
+                          max={20}
+                          defaultValue={data.partners.find((p) => p.id === detail.id)?.max_custom_agents ?? 0}
+                          onBlur={async (e) => {
+                            const val = parseInt(e.target.value) || 0;
+                            await fetch("/api/admin/partner-activate", {
+                              method: "PATCH",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({ partnerId: detail.id, max_custom_agents: val }),
+                            });
+                          }}
+                          className="mt-1 w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white"
+                        />
+                      </label>
+                    )}
                     {detail.type === "partner" && (
                       <div className="space-y-2">
                         <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Quotas startups par forfait</p>
