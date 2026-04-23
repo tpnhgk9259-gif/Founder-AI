@@ -90,7 +90,7 @@ type LicensePayload = {
   startups: LicenseStartupRow[];
 };
 
-type TabId = "resume" | "users" | "startups" | "partners" | "members" | "licenses" | "conversations" | "agents";
+type TabId = "resume" | "users" | "startups" | "partners" | "members" | "licenses" | "conversations" | "agents" | "analytics";
 
 type MessageRow = {
   id: string;
@@ -602,6 +602,7 @@ export default function AdminPage() {
     { id: "licenses", label: "Licences", count: 0 },
     { id: "conversations", label: "Conversations", count: 0 },
     { id: "agents", label: "Agents IA", count: 0 },
+    { id: "analytics", label: "Analytics", count: 0 },
   ];
 
   const partnerName = (id: string) => data.partners.find((p) => p.id === id)?.name ?? id.slice(0, 8);
@@ -1130,6 +1131,8 @@ export default function AdminPage() {
         )}
 
         {tab === "agents" && <AgentKnowledgePanel />}
+
+        {tab === "analytics" && <AnalyticsPanel />}
       </div>
     </main>
 
@@ -1488,6 +1491,153 @@ function DataTable({
           ))}
         </tbody>
       </table>
+    </div>
+  );
+}
+
+
+// ─── Analytics Panel ──────────────────────────────────────────────────────────
+
+type AnalyticsData = {
+  overview: {
+    totalUsers: number; totalStartups: number; totalPartners: number;
+    messagesTotal: number; messagesToday: number; messages7d: number; messages30d: number;
+    codirTotal: number; codir30d: number;
+  };
+  costs: {
+    total30d: number;
+    byEndpoint: Record<string, { tokens: number; cost: number; count: number }>;
+    byModel: Record<string, { input: number; output: number; cost: number }>;
+    callCount: number;
+  };
+  agentActivity: Record<string, number>;
+  topStartups: { name: string; count: number }[];
+  recentSignups: { id: string; email: string; created_at: string }[];
+};
+
+const AGENT_NAMES: Record<string, string> = {
+  strategie: "Maya", vente: "Alex", finance: "Sam", technique: "Léo", operations: "Marc",
+};
+
+function AnalyticsStat({ label, value, sub }: { label: string; value: string | number; sub?: string }) {
+  return (
+    <div className="p-4 rounded-xl" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+      <p className="text-[11px] font-medium tracking-[0.12em] uppercase" style={{ fontFamily: "var(--uf-mono)", color: "rgba(255,255,255,0.5)" }}>{label}</p>
+      <p className="text-2xl font-black text-white mt-1" style={{ fontFamily: "var(--uf-display)" }}>{value}</p>
+      {sub && <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.4)" }}>{sub}</p>}
+    </div>
+  );
+}
+
+function BarChart({ items, color = "var(--uf-lime)" }: { items: { label: string; value: number }[]; color?: string }) {
+  const max = Math.max(...items.map((i) => i.value), 1);
+  return (
+    <div className="space-y-2">
+      {items.map((item) => (
+        <div key={item.label} className="flex items-center gap-3">
+          <span className="text-xs w-24 truncate text-right" style={{ color: "rgba(255,255,255,0.6)" }}>{item.label}</span>
+          <div className="flex-1 h-5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
+            <div className="h-full rounded-full transition-all" style={{ width: `${(item.value / max) * 100}%`, background: color }} />
+          </div>
+          <span className="text-xs w-16 font-mono text-right" style={{ color: "rgba(255,255,255,0.8)" }}>{item.value.toLocaleString()}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function AnalyticsPanel() {
+  const [data, setData] = useState<AnalyticsData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/admin/analytics")
+      .then((r) => r.json())
+      .then(setData)
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return <p className="text-slate-400 p-6">Chargement des analytics…</p>;
+  if (!data) return <p className="text-red-400 p-6">Erreur de chargement.</p>;
+
+  const { overview: o, costs, agentActivity, topStartups, recentSignups } = data;
+
+  return (
+    <div className="space-y-8 max-w-5xl">
+      {/* KPIs principaux */}
+      <div>
+        <h2 className="text-sm font-black uppercase tracking-wider text-slate-400 mb-4">Vue d'ensemble</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <AnalyticsStat label="Utilisateurs" value={o.totalUsers} />
+          <AnalyticsStat label="Startups" value={o.totalStartups} />
+          <AnalyticsStat label="Partenaires" value={o.totalPartners} />
+          <AnalyticsStat label="Messages total" value={o.messagesTotal.toLocaleString()} />
+        </div>
+      </div>
+
+      {/* Activité */}
+      <div>
+        <h2 className="text-sm font-black uppercase tracking-wider text-slate-400 mb-4">Activité</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <AnalyticsStat label="Messages aujourd'hui" value={o.messagesToday} />
+          <AnalyticsStat label="Messages 7 jours" value={o.messages7d} />
+          <AnalyticsStat label="Messages 30 jours" value={o.messages30d} />
+          <AnalyticsStat label="Sessions CODIR 30j" value={o.codir30d} sub={`${o.codirTotal} au total`} />
+        </div>
+      </div>
+
+      {/* Coûts */}
+      <div>
+        <h2 className="text-sm font-black uppercase tracking-wider text-slate-400 mb-4">Coûts API (30 jours)</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
+          <AnalyticsStat label="Coût estimé 30j" value={`${costs.total30d.toFixed(2)} $`} sub={`${costs.callCount} appels`} />
+          {Object.entries(costs.byModel).map(([model, d]) => (
+            <AnalyticsStat key={model} label={model} value={`${d.cost.toFixed(2)} $`} sub={`${((d.input + d.output) / 1000).toFixed(0)}k tokens`} />
+          ))}
+        </div>
+        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Par endpoint</h3>
+        <BarChart
+          items={Object.entries(costs.byEndpoint)
+            .sort((a, b) => b[1].cost - a[1].cost)
+            .map(([ep, d]) => ({ label: ep, value: Math.round(d.cost * 100) / 100 }))}
+          color="var(--uf-orange)"
+        />
+      </div>
+
+      {/* Agents les plus utilisés */}
+      <div>
+        <h2 className="text-sm font-black uppercase tracking-wider text-slate-400 mb-4">Agents les plus actifs</h2>
+        <BarChart
+          items={Object.entries(agentActivity)
+            .sort((a, b) => b[1] - a[1])
+            .map(([key, count]) => ({ label: AGENT_NAMES[key] ?? key, value: count }))}
+        />
+      </div>
+
+      {/* Top startups */}
+      {topStartups.length > 0 && (
+        <div>
+          <h2 className="text-sm font-black uppercase tracking-wider text-slate-400 mb-4">Top startups (30 jours)</h2>
+          <BarChart
+            items={topStartups.map((s) => ({ label: s.name, value: s.count }))}
+            color="var(--uf-teal)"
+          />
+        </div>
+      )}
+
+      {/* Inscriptions récentes */}
+      <div>
+        <h2 className="text-sm font-black uppercase tracking-wider text-slate-400 mb-4">Dernières inscriptions</h2>
+        <div className="space-y-1.5">
+          {recentSignups.map((u) => (
+            <div key={u.id} className="flex items-center justify-between px-3 py-2 rounded-lg" style={{ background: "rgba(255,255,255,0.03)" }}>
+              <span className="text-sm text-slate-300">{u.email}</span>
+              <span className="text-xs text-slate-500">{new Date(u.created_at).toLocaleDateString("fr-FR")}</span>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
