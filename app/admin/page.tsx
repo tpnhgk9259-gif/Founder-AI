@@ -650,10 +650,10 @@ export default function AdminPage() {
       <header className="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <p className="text-xs font-bold uppercase tracking-widest text-violet-400 mb-1">
+            <p className="text-[11px] font-medium tracking-[0.16em] uppercase mb-1" style={{ fontFamily: "var(--uf-mono)", color: "var(--uf-lime)" }}>
               Supervision
             </p>
-            <h1 className="text-xl font-black text-white">FounderAI — Console admin</h1>
+            <h1 className="uppercase tracking-normal" style={{ fontFamily: "var(--uf-display)", fontSize: 24, color: "#fff" }}>FounderAI — Console admin</h1>
             <p className="text-xs text-slate-500 mt-1">
               Connecté en tant que <span className="text-slate-300">{data.viewerEmail}</span>
               {" · "}

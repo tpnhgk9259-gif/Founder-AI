@@ -247,13 +247,13 @@ export default function PartnerPage() {
   // ── Setup (pas encore de partner) ─────────────────────────────────────────
   if (!partner) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-indigo-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-3xl shadow-lg border border-slate-100 p-8 max-w-md w-full">
+      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: "var(--uf-paper)" }}>
+        <div className="p-8 max-w-md w-full" style={{ background: "var(--uf-card)", border: "1px solid var(--uf-line)", borderRadius: "var(--uf-r-xl)" }}>
           <div className="text-center mb-8">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 flex items-center justify-center text-2xl mx-auto mb-4 shadow-lg">
-              🏢
+            <div className="w-14 h-14 rounded-full flex items-center justify-center text-2xl mx-auto mb-4" style={{ background: "var(--uf-orange)" }}>
+              <span className="text-white" style={{ fontFamily: "var(--uf-display)", fontSize: 24 }}>f</span>
             </div>
-            <h1 className="text-2xl font-black text-slate-900">Espace Partenaire</h1>
+            <h1 className="uppercase tracking-[-0.015em]" style={{ fontFamily: "var(--uf-display)", fontSize: 28, color: "var(--uf-ink)" }}>Espace Partenaire</h1>
             <p className="text-slate-500 text-sm mt-2 leading-relaxed">
               Configurez votre espace pour gérer votre portefeuille et personnaliser l'expérience de vos startups.
             </p>
@@ -293,7 +293,8 @@ export default function PartnerPage() {
             <button
               onClick={createPartner}
               disabled={!setupName.trim() || setupLoading}
-              className="w-full bg-gradient-to-br from-indigo-600 to-violet-600 hover:opacity-90 disabled:opacity-40 text-white font-bold px-5 py-3 rounded-xl text-sm transition-all shadow-sm"
+              className="w-full disabled:opacity-40 font-medium px-5 py-3 rounded-full text-sm transition-all hover:-translate-y-px"
+              style={{ background: "var(--uf-ink)", color: "var(--uf-paper)" }}
             >
               {setupLoading ? "Création…" : "Créer mon espace partenaire →"}
             </button>
@@ -320,17 +321,17 @@ export default function PartnerPage() {
   ];
 
   return (
-    <div className="min-h-screen flex bg-slate-50">
+    <div className="min-h-screen flex" style={{ background: "var(--uf-paper)" }}>
       {/* ── Sidebar ─────────────────────────────────────────────────────────── */}
-      <aside className="w-58 bg-white border-r border-slate-100 flex flex-col flex-shrink-0" style={{ width: 220 }}>
-        <div className="px-5 py-5 border-b border-slate-100">
+      <aside className="flex flex-col flex-shrink-0" style={{ width: 220, background: "var(--uf-paper-2)", borderRight: "1px solid var(--uf-line)" }}>
+        <div className="px-5 py-5" style={{ borderBottom: "1px solid var(--uf-line)" }}>
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 flex items-center justify-center text-base shadow-sm flex-shrink-0">
-              🏢
+            <div className="w-9 h-9 rounded-full flex items-center justify-center text-sm flex-shrink-0" style={{ background: "var(--uf-orange)", fontFamily: "var(--uf-display)", color: "#fff" }}>
+              f
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-black text-slate-900 leading-tight truncate">{partner.name}</p>
-              <p className="text-xs text-slate-400 font-medium truncate">
+              <p className="text-sm font-bold leading-tight truncate" style={{ color: "var(--uf-ink)" }}>{partner.name}</p>
+              <p className="text-xs font-medium truncate" style={{ color: "var(--uf-muted)" }}>
                 {PARTNER_TYPES.find((t) => t.value === partner.type)?.label ?? partner.type}
               </p>
             </div>
@@ -342,11 +343,13 @@ export default function PartnerPage() {
             <button
               key={item.id}
               onClick={() => setView(item.id)}
-              className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all text-left ${
-                view === item.id
-                  ? "bg-indigo-50 text-indigo-700 border border-indigo-100"
-                  : "text-slate-500 hover:bg-slate-50 hover:text-slate-700 border border-transparent"
-              }`}
+              className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium transition-all text-left"
+              style={{
+                background: view === item.id ? "var(--uf-card)" : "transparent",
+                border: view === item.id ? "1px solid var(--uf-line)" : "1px solid transparent",
+                borderRadius: 10,
+                color: view === item.id ? "var(--uf-ink)" : "var(--uf-muted)",
+              }}
             >
               <span className="text-base">{item.icon}</span>
               {item.label}
