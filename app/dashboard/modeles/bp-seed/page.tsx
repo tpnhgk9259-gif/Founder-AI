@@ -197,13 +197,16 @@ export default function BPSeedPage() {
   const [profileBmRaw, setProfileBmRaw] = useState<string | null>(null);
   const [values, setValues] = useState<Record<string, string>>({});
   const [generating, setGenerating] = useState(false);
+  const [filling, setFilling] = useState(false);
   const [startupName, setStartupName] = useState("");
+  const [startupId, setStartupId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   // Pré-remplir depuis le profil startup + détecter le BM
   useEffect(() => {
     const id = localStorage.getItem("founderai_startup_id");
     if (!id) { setLoading(false); return; }
+    setStartupId(id);
     fetch(`/api/startup?startupId=${id}`)
       .then((r) => r.json())
       .then((data) => {
@@ -227,6 +230,38 @@ export default function BPSeedPage() {
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
+
+  async function autoFill() {
+    if (!bm || !startupId || filling) return;
+    setFilling(true);
+    try {
+      const res = await fetch("/api/ai/fill-bp-seed", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ startupId, businessModel: bm }),
+      });
+      if (!res.ok) throw new Error("Erreur API");
+      const { hypotheses } = await res.json();
+      // Convertir les décimaux en pourcentages pour l'affichage
+      const fields = FIELDS[bm];
+      const newValues: Record<string, string> = {};
+      for (const [, , key, , fieldType] of fields) {
+        if (hypotheses[key] !== undefined) {
+          if (fieldType === "percent") {
+            newValues[key] = String(Math.round((hypotheses[key] as number) * 100 * 10) / 10);
+          } else {
+            newValues[key] = String(hypotheses[key]);
+          }
+        }
+      }
+      setValues((prev) => ({ ...prev, ...newValues }));
+    } catch (err) {
+      console.error("[auto-fill]", err);
+      alert("Erreur lors du pré-remplissage IA. Réessayez.");
+    } finally {
+      setFilling(false);
+    }
+  }
 
   function updateField(key: string, val: string) {
     setValues((prev) => ({ ...prev, [key]: val }));
@@ -333,6 +368,31 @@ export default function BPSeedPage() {
               <span className="px-3 py-1 rounded-full text-[11px] font-medium" style={{ background: BM_META[bm].color, color: "#fff" }}>
                 {BM_META[bm].label}
               </span>
+            </div>
+
+            {/* Bouton auto-fill IA */}
+            <div className="mb-6">
+              <button
+                onClick={autoFill}
+                disabled={filling}
+                className="px-5 py-3 text-sm font-medium rounded-full disabled:opacity-40 hover:-translate-y-px transition-transform flex items-center gap-2"
+                style={{ background: "var(--uf-orange)", color: "#fff" }}
+              >
+                {filling ? (
+                  <>
+                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Sam analyse votre profil…
+                  </>
+                ) : (
+                  <>
+                    <img src="/avatar/sam_finance.png" alt="Sam" className="w-6 h-6 rounded-full" />
+                    Pré-remplir avec Sam (IA)
+                  </>
+                )}
+              </button>
+              <p className="text-xs mt-2" style={{ color: "var(--uf-muted)" }}>
+                Sam génère des hypothèses réalistes basées sur votre profil startup. Vous pouvez les ajuster ensuite.
+              </p>
             </div>
 
             {/* Formulaire hypothèses */}
