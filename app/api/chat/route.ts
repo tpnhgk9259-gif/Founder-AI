@@ -17,9 +17,14 @@ import { retrieveRelevantChunks } from "@/lib/rag";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { logUsage } from "@/lib/usage";
 
+const STANDARD_AGENTS = ["strategie", "vente", "finance", "technique", "operations"] as const;
+
 const chatSchema = z.object({
   startupId: z.string().uuid().optional(),
-  agentKey: z.enum(["strategie", "vente", "finance", "technique", "operations"]),
+  agentKey: z.string().min(1).refine(
+    (v) => STANDARD_AGENTS.includes(v as typeof STANDARD_AGENTS[number]) || v.startsWith("custom_"),
+    { message: "agentKey invalide" }
+  ),
   message: z.string().min(1).max(10000),
 });
 
@@ -110,7 +115,22 @@ export async function POST(req: NextRequest) {
         }
 
         // 3. Assembler le prompt
-        const systemPrompt = buildSystemPrompt(agentKey, startupDescription, extraKnowledge);
+        let systemPrompt: string;
+        if (agentKey.startsWith("custom_")) {
+          // Agent custom : récupérer le system prompt depuis la DB
+          const customId = agentKey.replace("custom_", "");
+          const { data: customAgent } = await supabaseAdmin
+            .from("custom_agents")
+            .select("name, role, system_prompt")
+            .eq("id", customId)
+            .maybeSingle();
+          const basePrompt = customAgent
+            ? `Tu es ${customAgent.name}, ${customAgent.role}.\n\n${customAgent.system_prompt}`
+            : "Tu es un agent spécialisé.";
+          systemPrompt = buildSystemPrompt(agentKey, startupDescription, extraKnowledge, basePrompt);
+        } else {
+          systemPrompt = buildSystemPrompt(agentKey, startupDescription, extraKnowledge);
+        }
         const history = conversationId
           ? await buildConversationMessages(
               conversationId,

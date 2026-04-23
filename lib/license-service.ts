@@ -21,11 +21,12 @@ export type LicenseCheckResult =
  */
 export async function checkChatAccess(
   startupId: string,
-  agentKey: AgentKey
+  agentKey: AgentKey | string
 ): Promise<LicenseCheckResult> {
   const license = await getEffectiveStartupLicense(startupId);
 
-  if (!license.available_agents.includes(agentKey)) {
+  // Les agents custom (custom_*) sont autorisés s'ils existent — le check se fait côté DB
+  if (!agentKey.startsWith("custom_") && !license.available_agents.includes(agentKey as AgentKey)) {
     return { ok: false, error: "Cet agent n'est pas inclus dans votre licence.", status: 403 };
   }
 

@@ -15,7 +15,7 @@ const SUMMARIZE_AT = VERBATIM_WINDOW; // déclenche le résumé quand on atteint
  */
 export async function getOrCreateConversation(
   startupId: string,
-  agentKey: AgentKey
+  agentKey: AgentKey | string
 ): Promise<string> {
   const supabase = createServerClient();
 

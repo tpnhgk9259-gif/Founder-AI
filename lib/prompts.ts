@@ -738,11 +738,12 @@ Tu adaptes la complexité organisationnelle au stade de la startup — pas de bu
 };
 
 export function buildSystemPrompt(
-  agentKey: AgentKey,
+  agentKey: AgentKey | string,
   startupDescription?: string | null,
-  extraKnowledge?: string | null
+  extraKnowledge?: string | null,
+  customBasePrompt?: string
 ): string {
-  const base = BASE_PROMPTS[agentKey];
+  const base = customBasePrompt ?? BASE_PROMPTS[agentKey as AgentKey] ?? "Tu es un agent spécialisé.";
 
   const knowledgeSection = extraKnowledge?.trim()
     ? `\n\n## Connaissances métier complémentaires\n${extraKnowledge.trim()}`
