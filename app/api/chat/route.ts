@@ -16,6 +16,7 @@ import { createServerClient } from "@/lib/supabase";
 import { retrieveRelevantChunks } from "@/lib/rag";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { logUsage } from "@/lib/usage";
+import { sendQuotaWarningEmail, sendQuotaReachedEmail } from "@/lib/email";
 
 const STANDARD_AGENTS = ["strategie", "vente", "finance", "technique", "operations"] as const;
 
@@ -55,7 +56,8 @@ export async function POST(req: NextRequest) {
 
   const { startupId, agentKey, message } = body;
 
-  let license = null;
+  let license: import("@/lib/licenses").LicenseConfig | null = null;
+  let quotaPercent: number | undefined;
   if (startupId) {
     const allowed = await userOwnsStartup(userId, startupId);
     if (!allowed) {
@@ -64,9 +66,30 @@ export async function POST(req: NextRequest) {
 
     const check = await checkChatAccess(startupId, agentKey);
     if (!check.ok) {
+      // Quota 100% — envoyer l'email (fire-and-forget)
+      if (check.status === 429) {
+        const supabaseTemp = createServerClient();
+        supabaseTemp.from("users").select("email, first_name").eq("id", userId).maybeSingle()
+          .then(({ data }) => {
+            if (data?.email) sendQuotaReachedEmail(data.email, data.first_name ?? "").catch(() => {});
+          });
+      }
       return Response.json({ error: check.error }, { status: check.status });
     }
     license = check.license;
+    quotaPercent = check.quotaPercent;
+
+    // Quota 80% — envoyer un warning (une seule fois, au seuil)
+    if (quotaPercent !== undefined && quotaPercent >= 80 && quotaPercent < 85) {
+      const supabaseTemp = createServerClient();
+      supabaseTemp.from("users").select("email, first_name").eq("id", userId).maybeSingle()
+        .then(({ data }) => {
+          if (data?.email && license) {
+            const used = Math.round((quotaPercent! / 100) * license.max_chat_messages_per_day);
+            sendQuotaWarningEmail(data.email, data.first_name ?? "", used, license.max_chat_messages_per_day).catch(() => {});
+          }
+        });
+    }
   }
 
   const readable = new ReadableStream({

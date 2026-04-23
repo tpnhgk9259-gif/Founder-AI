@@ -20,6 +20,7 @@ import { checkCodirAccess } from "@/lib/license-service";
 import { createServerClient } from "@/lib/supabase";
 import { retrieveRelevantChunks } from "@/lib/rag";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { sendCodirDoneEmail } from "@/lib/email";
 import { logUsage } from "@/lib/usage";
 
 const CODIR_AGENTS: { key: AgentKey; label: string }[] = [
@@ -292,6 +293,12 @@ export async function POST(req: NextRequest) {
         }
 
         send({ type: "done", sessionId, analyses });
+
+        // Email CODIR terminé (fire-and-forget)
+        supabaseAdmin.from("users").select("email, first_name").eq("id", userId).maybeSingle()
+          .then(({ data }) => {
+            if (data?.email) sendCodirDoneEmail(data.email, data.first_name ?? "", question).catch(() => {});
+          });
       } catch (err) {
         if (sessionId) {
           await updateCodirSession(sessionId, { status: "error" }).catch(
