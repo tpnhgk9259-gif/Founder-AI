@@ -31,6 +31,7 @@ interface Partner {
   };
   agent_names: AgentNames;
   manager_persona: ManagerPersona;
+  max_custom_agents: number;
   created_at: string;
 }
 
@@ -73,7 +74,7 @@ const DEFAULT_MANAGER: ManagerPersona = {
   prompt_extra: "",
 };
 
-type PartnerView = "apercu" | "portefeuille" | "personnalisation";
+type PartnerView = "apercu" | "portefeuille" | "personnalisation" | "agents";
 type PersoTab = "agents" | "manager";
 
 // ─── Page principale ─────────────────────────────────────────────────────────
@@ -318,6 +319,7 @@ export default function PartnerPage() {
     { id: "apercu" as PartnerView, label: "Aperçu", icon: "🏠" },
     { id: "portefeuille" as PartnerView, label: "Portefeuille", icon: "🚀" },
     { id: "personnalisation" as PartnerView, label: "Personnalisation", icon: "🎨" },
+    { id: "agents" as PartnerView, label: "Mes agents", icon: "🤖" },
   ];
 
   return (
@@ -722,7 +724,241 @@ export default function PartnerPage() {
             )}
           </div>
         )}
+        {/* ── Agents custom ────────────────────────────────────────────── */}
+        {view === "agents" && (
+          <AgentBuilderView partnerId={partner.id} maxAgents={partner.max_custom_agents ?? 0} />
+        )}
       </main>
+    </div>
+  );
+}
+
+// ─── Agent Builder ────────────────────────────────────────────────────────────
+
+type CustomAgent = {
+  id: string;
+  name: string;
+  role: string;
+  emoji: string;
+  system_prompt: string;
+  active: boolean;
+  created_at: string;
+};
+
+function AgentBuilderView({ partnerId, maxAgents }: { partnerId: string; maxAgents: number }) {
+  const [agents, setAgents] = useState<CustomAgent[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState<CustomAgent | null>(null);
+  const [creating, setCreating] = useState(false);
+
+  // Form state
+  const [name, setName] = useState("");
+  const [role, setRole] = useState("");
+  const [emoji, setEmoji] = useState("🤖");
+  const [systemPrompt, setSystemPrompt] = useState("");
+  const [knowledge, setKnowledge] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    fetch(`/api/partner/custom-agents?partnerId=${partnerId}`)
+      .then((r) => r.json())
+      .then((data) => setAgents(data.agents ?? []))
+      .finally(() => setLoading(false));
+  }, [partnerId]);
+
+  function startCreate() {
+    setCreating(true);
+    setEditing(null);
+    setName("");
+    setRole("");
+    setEmoji("🤖");
+    setSystemPrompt("");
+    setKnowledge("");
+    setError("");
+  }
+
+  function startEdit(agent: CustomAgent) {
+    setEditing(agent);
+    setCreating(false);
+    setName(agent.name);
+    setRole(agent.role);
+    setEmoji(agent.emoji);
+    setSystemPrompt(agent.system_prompt);
+    setKnowledge("");
+    setError("");
+  }
+
+  function cancel() {
+    setCreating(false);
+    setEditing(null);
+    setError("");
+  }
+
+  async function save() {
+    if (!name.trim() || !role.trim()) { setError("Nom et rôle requis"); return; }
+    setSaving(true);
+    setError("");
+    try {
+      const body = { name, role, emoji, systemPrompt, knowledge: knowledge || undefined };
+      let res: Response;
+      if (editing) {
+        res = await fetch("/api/partner/custom-agents", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ agentId: editing.id, ...body }),
+        });
+      } else {
+        res = await fetch("/api/partner/custom-agents", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+      }
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        setError(j.error ?? "Erreur lors de la sauvegarde");
+        return;
+      }
+      // Recharger la liste
+      const listRes = await fetch(`/api/partner/custom-agents?partnerId=${partnerId}`);
+      const listData = await listRes.json();
+      setAgents(listData.agents ?? []);
+      cancel();
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function deleteAgent(agentId: string) {
+    if (!confirm("Supprimer cet agent et toutes ses conversations ?")) return;
+    await fetch(`/api/partner/custom-agents?agentId=${agentId}`, { method: "DELETE" });
+    setAgents((prev) => prev.filter((a) => a.id !== agentId));
+  }
+
+  const isFormOpen = creating || editing;
+
+  return (
+    <div className="p-8 max-w-3xl">
+      <div className="flex items-start justify-between mb-6">
+        <div>
+          <h2 className="uppercase tracking-normal" style={{ fontFamily: "var(--uf-display)", fontSize: 24, color: "var(--uf-ink)" }}>
+            Agent Builder
+          </h2>
+          <p className="text-sm mt-1" style={{ color: "var(--uf-muted)" }}>
+            Créez des agents spécialisés pour votre programme. Ils seront disponibles pour vos startups dans le chat et le CODIR.
+          </p>
+        </div>
+        <span className="text-[11px] font-medium px-3 py-1 rounded-full" style={{ fontFamily: "var(--uf-mono)", background: "var(--uf-paper-2)", color: "var(--uf-muted)" }}>
+          {agents.length} / {maxAgents}
+        </span>
+      </div>
+
+      {maxAgents === 0 && (
+        <div className="p-6 text-center" style={{ background: "var(--uf-paper-2)", borderRadius: "var(--uf-r-xl)" }}>
+          <p className="text-2xl mb-3">🔒</p>
+          <p className="font-bold" style={{ color: "var(--uf-ink)" }}>Aucun agent custom autorisé</p>
+          <p className="text-sm mt-1" style={{ color: "var(--uf-muted)" }}>Contactez l&apos;administrateur FounderAI pour activer cette fonctionnalité.</p>
+        </div>
+      )}
+
+      {maxAgents > 0 && !isFormOpen && (
+        <>
+          {/* Liste des agents */}
+          <div className="space-y-3 mb-6">
+            {loading && <p className="text-sm" style={{ color: "var(--uf-muted)" }}>Chargement...</p>}
+            {!loading && agents.length === 0 && (
+              <div className="p-8 text-center" style={{ background: "var(--uf-card)", border: "1px solid var(--uf-line)", borderRadius: "var(--uf-r-xl)" }}>
+                <p className="text-3xl mb-3">🤖</p>
+                <p className="font-bold" style={{ color: "var(--uf-ink)" }}>Aucun agent créé</p>
+                <p className="text-sm mt-1" style={{ color: "var(--uf-muted)" }}>Créez votre premier agent spécialisé pour enrichir l&apos;expérience de vos startups.</p>
+              </div>
+            )}
+            {agents.map((agent) => (
+              <div key={agent.id} className="flex items-center gap-4 p-4" style={{ background: "var(--uf-card)", border: "1px solid var(--uf-line)", borderRadius: "var(--uf-r-lg)" }}>
+                <span className="text-2xl">{agent.emoji}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold truncate" style={{ color: "var(--uf-ink)" }}>{agent.name}</p>
+                  <p className="text-xs truncate" style={{ color: "var(--uf-muted)" }}>{agent.role}</p>
+                </div>
+                <button onClick={() => startEdit(agent)} className="text-xs font-medium px-3 py-1.5 rounded-full" style={{ border: "1px solid var(--uf-line)", color: "var(--uf-ink)" }}>
+                  Modifier
+                </button>
+                <button onClick={() => deleteAgent(agent.id)} className="text-xs px-2 py-1.5 rounded-full transition-colors hover:text-red-600" style={{ color: "var(--uf-muted)" }}>
+                  ✕
+                </button>
+              </div>
+            ))}
+          </div>
+
+          {agents.length < maxAgents && (
+            <button onClick={startCreate} className="px-5 py-3 text-sm font-medium rounded-full hover:-translate-y-px transition-transform flex items-center gap-2" style={{ background: "var(--uf-ink)", color: "var(--uf-paper)" }}>
+              + Créer un agent
+            </button>
+          )}
+        </>
+      )}
+
+      {/* Formulaire création / édition */}
+      {isFormOpen && (
+        <div className="p-6 space-y-5" style={{ background: "var(--uf-card)", border: "1px solid var(--uf-line)", borderRadius: "var(--uf-r-xl)" }}>
+          <h3 className="uppercase tracking-normal" style={{ fontFamily: "var(--uf-display)", fontSize: 20, color: "var(--uf-ink)" }}>
+            {editing ? `Modifier ${editing.name}` : "Nouvel agent"}
+          </h3>
+
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-medium tracking-[0.12em] uppercase" style={{ fontFamily: "var(--uf-mono)", color: "var(--uf-muted)" }}>Nom de l&apos;agent</label>
+              <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Dr. Verte"
+                className="w-full px-4 py-2.5 text-sm focus:outline-none" style={{ border: "1px solid var(--uf-line)", borderRadius: "var(--uf-r-md)", color: "var(--uf-ink)", background: "var(--uf-paper)" }} />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-medium tracking-[0.12em] uppercase" style={{ fontFamily: "var(--uf-mono)", color: "var(--uf-muted)" }}>Rôle / spécialité</label>
+              <input value={role} onChange={(e) => setRole(e.target.value)} placeholder="Expert en chimie verte"
+                className="w-full px-4 py-2.5 text-sm focus:outline-none" style={{ border: "1px solid var(--uf-line)", borderRadius: "var(--uf-r-md)", color: "var(--uf-ink)", background: "var(--uf-paper)" }} />
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-medium tracking-[0.12em] uppercase" style={{ fontFamily: "var(--uf-mono)", color: "var(--uf-muted)" }}>Emoji</label>
+            <input value={emoji} onChange={(e) => setEmoji(e.target.value)} placeholder="🤖" maxLength={4}
+              className="w-20 px-4 py-2.5 text-sm text-center focus:outline-none" style={{ border: "1px solid var(--uf-line)", borderRadius: "var(--uf-r-md)", background: "var(--uf-paper)" }} />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-medium tracking-[0.12em] uppercase" style={{ fontFamily: "var(--uf-mono)", color: "var(--uf-muted)" }}>
+              System prompt
+              <span className="normal-case tracking-normal ml-2 font-normal" style={{ color: "var(--uf-muted-2)" }}>— Décrivez la personnalité, l&apos;expertise et le style de l&apos;agent</span>
+            </label>
+            <textarea value={systemPrompt} onChange={(e) => setSystemPrompt(e.target.value)} rows={8}
+              placeholder={"Tu es un expert en chimie verte spécialisé dans les procédés durables.\n\nTon expertise couvre :\n- Catalyse verte et solvants alternatifs\n- Économie circulaire moléculaire\n- Réglementation REACH et SVHC\n\nTu guides les startups dans le développement de produits chimiques respectueux de l'environnement."}
+              className="w-full px-4 py-3 text-sm focus:outline-none resize-y leading-relaxed" style={{ border: "1px solid var(--uf-line)", borderRadius: "var(--uf-r-md)", color: "var(--uf-ink)", background: "var(--uf-paper)", fontFamily: "var(--uf-mono)" }} />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-medium tracking-[0.12em] uppercase" style={{ fontFamily: "var(--uf-mono)", color: "var(--uf-muted)" }}>
+              Base de connaissances
+              <span className="normal-case tracking-normal ml-2 font-normal" style={{ color: "var(--uf-muted-2)" }}>— Collez des contenus que l&apos;agent utilisera comme référence (optionnel)</span>
+            </label>
+            <textarea value={knowledge} onChange={(e) => setKnowledge(e.target.value)} rows={5}
+              placeholder="Collez ici des frameworks, méthodes, données de référence, guides..."
+              className="w-full px-4 py-3 text-sm focus:outline-none resize-y leading-relaxed" style={{ border: "1px solid var(--uf-line)", borderRadius: "var(--uf-r-md)", color: "var(--uf-ink)", background: "var(--uf-paper)" }} />
+          </div>
+
+          {error && (
+            <p className="text-sm text-red-600 px-4 py-3" style={{ background: "#fef2f2", borderRadius: "var(--uf-r-md)" }}>{error}</p>
+          )}
+
+          <div className="flex gap-3">
+            <button onClick={save} disabled={saving} className="px-6 py-3 text-sm font-medium rounded-full disabled:opacity-40 hover:-translate-y-px transition-transform" style={{ background: "var(--uf-ink)", color: "var(--uf-paper)" }}>
+              {saving ? "Sauvegarde…" : editing ? "Enregistrer les modifications" : "Créer l'agent"}
+            </button>
+            <button onClick={cancel} className="px-4 py-3 text-sm rounded-full" style={{ color: "var(--uf-muted)" }}>
+              Annuler
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

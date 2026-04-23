@@ -841,7 +841,7 @@ export function buildSynthesisUserMessage(
   return `## Question soumise au CODIR\n${question}\n\n## Analyses des directeurs\n\n${analysesText}`;
 }
 
-export function buildCodirAgentPrompt(agentKey: AgentKey, startupDescription?: string | null, extraKnowledge?: string | null): string {
+export function buildCodirAgentPrompt(agentKey: AgentKey | string, startupDescription?: string | null, extraKnowledge?: string | null, customBasePrompt?: string): string {
   const knowledgeSection = extraKnowledge?.trim()
     ? `\n\n## Connaissances métier complémentaires\n${extraKnowledge.trim()}`
     : "";
@@ -850,8 +850,10 @@ export function buildCodirAgentPrompt(agentKey: AgentKey, startupDescription?: s
     ? `\n\n## Contexte de la startup\n${startupDescription.trim()}\n\n## Règle d'ancrage — CRITIQUE\nTon analyse DOIT référencer les données réelles de la startup : son nom, son secteur, ses KPIs, ses décisions récentes, ses enjeux. Ne donne jamais une analyse générique quand le contexte est disponible. Cite des éléments concrets du profil startup dans ton analyse.`
     : "\n\n## Règle d'ancrage\nAucun profil startup disponible. Base-toi sur les informations de la question pour contextualiser ton analyse.";
 
+  const base = customBasePrompt ?? BASE_PROMPTS[agentKey as AgentKey] ?? "Tu es un agent spécialisé.";
+
   return (
-    BASE_PROMPTS[agentKey] +
+    base +
     knowledgeSection +
     startupSection +
     `\n\n## Mode CODIR\nTu participes à une séance de comité de direction.` +

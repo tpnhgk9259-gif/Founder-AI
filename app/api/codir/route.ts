@@ -68,6 +68,7 @@ async function runAgentAnalysis(
 const codirSchema = z.object({
   startupId: z.string().uuid(),
   question: z.string().min(1).max(5000),
+  customAgentIds: z.array(z.string().uuid()).optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -95,7 +96,7 @@ export async function POST(req: NextRequest) {
     return Response.json({ error: msg }, { status: 400 });
   }
 
-  const { startupId, question } = body;
+  const { startupId, question, customAgentIds } = body;
 
   if (startupId) {
     const allowed = await userOwnsStartup(userId, startupId);
@@ -169,30 +170,56 @@ export async function POST(req: NextRequest) {
           }).catch(() => null);
         }
 
-        // ── Phase 1 : dispatch parallèle ───────────────────────────────
-        const analyses: { agentKey: string; content: string }[] = new Array(
-          CODIR_AGENTS.length
-        );
+        // ── Phase 1 : dispatch parallèle (5 agents de base + agents custom invités) ──
+        // Charger les agents custom invités
+        let customAgentsData: { id: string; name: string; role: string; system_prompt: string }[] = [];
+        if (customAgentIds?.length) {
+          const { data } = await supabaseAdmin
+            .from("custom_agents")
+            .select("id, name, role, system_prompt")
+            .in("id", customAgentIds);
+          customAgentsData = data ?? [];
+        }
+
+        const allAgents = [
+          ...CODIR_AGENTS.map((a) => ({ key: a.key, label: a.label, customPrompt: null as string | null })),
+          ...customAgentsData.map((ca) => ({
+            key: `custom_${ca.id}`,
+            label: ca.name,
+            customPrompt: `Tu es ${ca.name}, ${ca.role}.\n\n${ca.system_prompt}`,
+          })),
+        ];
+
+        const analyses: { agentKey: string; content: string }[] = new Array(allAgents.length);
 
         await Promise.all(
-          CODIR_AGENTS.map(async (agent, i) => {
+          allAgents.map(async (agent, i) => {
             send({ type: "agent_start", agentKey: agent.key, label: agent.label });
             try {
-              const result = await runAgentAnalysis(
-                agent.key,
-                question,
-                startupDescription,
-                knowledgeMap[agent.key] ?? null
-              );
+              const agentPrompt = agent.customPrompt
+                ? buildCodirAgentPrompt(agent.key as AgentKey, startupDescription, knowledgeMap[agent.key] ?? null, agent.customPrompt)
+                : undefined;
+
+              const result = agent.customPrompt
+                ? await (async () => {
+                    const timeout = new Promise<never>((_, reject) => setTimeout(() => reject(new Error("Timeout")), AGENT_TIMEOUT_MS));
+                    const call = claude.messages.create({
+                      model: MODELS.CHAT,
+                      max_tokens: 1024,
+                      system: agentPrompt!,
+                      messages: [{ role: "user", content: question }],
+                    });
+                    const response = await Promise.race([call, timeout]);
+                    const text = response.content.filter((b): b is Anthropic.TextBlock => b.type === "text").map((b) => b.text).join("");
+                    return { text, inputTokens: response.usage?.input_tokens ?? 0, outputTokens: response.usage?.output_tokens ?? 0, model: response.model };
+                  })()
+                : await runAgentAnalysis(agent.key as AgentKey, question, startupDescription, knowledgeMap[agent.key] ?? null);
+
               analyses[i] = { agentKey: agent.key, content: result.text };
               logUsage({ startupId, userId, model: result.model, endpoint: "codir/agent", inputTokens: result.inputTokens, outputTokens: result.outputTokens });
               send({ type: "agent_done", agentKey: agent.key });
             } catch {
-              // Timeout ou erreur : la synthèse se fait avec les autres agents
-              analyses[i] = {
-                agentKey: agent.key,
-                content: "[Analyse non disponible — timeout]",
-              };
+              analyses[i] = { agentKey: agent.key, content: "[Analyse non disponible — timeout]" };
               send({ type: "agent_error", agentKey: agent.key });
             }
           })

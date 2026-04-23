@@ -242,9 +242,11 @@ const AGENT_AVATARS: Record<string, string> = {
 function Sidebar({
   activeView,
   onSelect,
+  customAgents = [],
 }: {
   activeView: ActiveView;
   onSelect: (v: ActiveView) => void;
+  customAgents?: { id: string; name: string; role: string; emoji: string }[];
 }) {
   return (
     <aside className="w-[248px] flex-shrink-0 flex flex-col overflow-y-auto" style={{ background: "var(--uf-paper-2)", borderRight: "1px solid var(--uf-line)" }}>
@@ -282,6 +284,38 @@ function Sidebar({
           );
         })}
       </div>
+
+      {/* Agents custom du partenaire */}
+      {customAgents.length > 0 && (
+        <div className="px-3.5 pb-2">
+          <div className="px-1.5 pb-2">
+            <span className="text-[10px] font-medium tracking-[0.12em] uppercase" style={{ fontFamily: "var(--uf-mono)", color: "var(--uf-muted-2)" }}>Agents partenaire</span>
+          </div>
+          {customAgents.map((ca) => {
+            const key = `custom_${ca.id}` as ActiveView;
+            const isActive = activeView === key;
+            return (
+              <button
+                key={ca.id}
+                onClick={() => onSelect(key)}
+                className="w-full text-left flex items-center gap-3 px-2.5 py-2.5 transition-all mb-1"
+                style={{
+                  background: isActive ? "var(--uf-card)" : "transparent",
+                  border: isActive ? "1px solid var(--uf-line)" : "1px solid transparent",
+                  borderRadius: 10,
+                }}
+              >
+                <span className="text-xl flex-shrink-0">{ca.emoji}</span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-bold truncate" style={{ color: "var(--uf-ink)" }}>{ca.name}</p>
+                  <p className="text-[10.5px] truncate" style={{ color: "var(--uf-muted)" }}>{ca.role}</p>
+                </div>
+                {isActive && <span className="w-[7px] h-[7px] rounded-full flex-shrink-0" style={{ background: "var(--uf-teal)" }} />}
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {/* CODIR */}
       <div className="p-3.5 pt-0">
@@ -723,9 +757,10 @@ const AGENT_KEYS = ["strategie", "vente", "finance", "technique", "operations"] 
 type CodirPhase = "idle" | "dispatching" | "synthesizing" | "manager" | "done" | "error";
 interface AgentResult { agentKey: string; content: string }
 
-function CodirView({ startupId }: { startupId: string | null }) {
+function CodirView({ startupId, customAgents = [] }: { startupId: string | null; customAgents?: { id: string; name: string; role: string; emoji: string }[] }) {
   const [topic, setTopic] = useState("");
   const [phase, setPhase] = useState<CodirPhase>("idle");
+  const [selectedCustom, setSelectedCustom] = useState<Set<string>>(new Set());
   const [agentsDone, setAgentsDone] = useState<Set<string>>(new Set());
   const [agentsStarted, setAgentsStarted] = useState<Set<string>>(new Set());
   const [expandedAgent, setExpandedAgent] = useState<string | null>(null);
@@ -754,7 +789,11 @@ function CodirView({ startupId }: { startupId: string | null }) {
       const res = await fetch("/api/codir", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: topic, ...(startupId ? { startupId } : {}) }),
+        body: JSON.stringify({
+          question: topic,
+          ...(startupId ? { startupId } : {}),
+          customAgentIds: Array.from(selectedCustom),
+        }),
       });
 
       if (!res.ok || !res.body) {
@@ -878,23 +917,58 @@ function CodirView({ startupId }: { startupId: string | null }) {
           </button>
         </div>
 
+        {/* Sélection agents custom pour le CODIR */}
+        {customAgents.length > 0 && (phase === "idle" || phase === "done") && (
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-[11px] font-medium tracking-[0.12em] uppercase" style={{ fontFamily: "var(--uf-mono)", color: "var(--uf-muted)" }}>Inviter :</span>
+            {customAgents.map((ca) => {
+              const isSelected = selectedCustom.has(ca.id);
+              return (
+                <button
+                  key={ca.id}
+                  onClick={() => setSelectedCustom((prev) => {
+                    const next = new Set(prev);
+                    if (next.has(ca.id)) next.delete(ca.id); else next.add(ca.id);
+                    return next;
+                  })}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full transition-all"
+                  style={{
+                    background: isSelected ? "var(--uf-ink)" : "var(--uf-card)",
+                    color: isSelected ? "var(--uf-lime)" : "var(--uf-ink)",
+                    border: isSelected ? "1px solid var(--uf-ink)" : "1px solid var(--uf-line)",
+                  }}
+                >
+                  <span>{ca.emoji}</span>
+                  {ca.name}
+                  {isSelected && <span>✓</span>}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
         {/* Dispatch */}
         {(phase === "dispatching" || phase === "synthesizing" || phase === "done") && (
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-            {AGENT_KEYS.map((key) => {
-              const m = AGENT_META[key];
+            {[
+              ...AGENT_KEYS.map((key) => ({ key, name: AGENT_META[key].agent, avatar: AGENT_AVATARS[key], emoji: null as string | null })),
+              ...customAgents.filter((ca) => selectedCustom.has(ca.id)).map((ca) => ({ key: `custom_${ca.id}`, name: ca.name, avatar: null as string | null, emoji: ca.emoji })),
+            ].map(({ key, name, avatar, emoji }) => {
               const done = agentsDone.has(key);
               const started = agentsStarted.has(key);
               return (
                 <div key={key} className="px-3 py-2.5 flex items-center gap-2 transition-all" style={{
                   background: done ? "var(--uf-card)" : "transparent",
-                  border: done ? "1px solid var(--uf-line)" : "1px solid var(--uf-line)",
+                  border: "1px solid var(--uf-line)",
                   borderRadius: "var(--uf-r-md)",
                   opacity: !started && !done ? 0.5 : 1,
                 }}>
-                  <img src={AGENT_AVATARS[key]} alt={m.agent} className="w-7 h-7 rounded-full object-cover flex-shrink-0" />
+                  {avatar
+                    ? <img src={avatar} alt={name} className="w-7 h-7 rounded-full object-cover flex-shrink-0" />
+                    : <span className="w-7 h-7 rounded-full flex items-center justify-center text-sm flex-shrink-0" style={{ background: "var(--uf-paper-2)" }}>{emoji}</span>
+                  }
                   <div className="min-w-0">
-                    <p className="text-xs font-bold truncate" style={{ color: "var(--uf-ink)" }}>{m.agent}</p>
+                    <p className="text-xs font-bold truncate" style={{ color: "var(--uf-ink)" }}>{name}</p>
                     <p className="text-xs" style={{ color: done ? "var(--uf-teal)" : started ? "var(--uf-orange)" : "var(--uf-muted)" }}>
                       {done ? "✓ prêt" : started ? "analyse…" : "en attente"}
                     </p>
@@ -1014,6 +1088,7 @@ export default function Dashboard() {
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [userPlan, setUserPlan] = useState("starter");
   const [startupProfile, setStartupProfile] = useState<Record<string, unknown>>({});
+  const [customAgents, setCustomAgents] = useState<{ id: string; name: string; role: string; emoji: string }[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -1059,6 +1134,13 @@ export default function Dashboard() {
         if (data.documents) setDocuments(data.documents as StoredDocument[]);
         if (data.partners?.name) setPartnerName(data.partners.name);
         setStartupProfile(data);
+        // Charger les agents custom du partenaire
+        if (data.partner_id) {
+          fetch(`/api/partner/custom-agents?partnerId=${data.partner_id}`)
+            .then((r) => r.json())
+            .then((d) => setCustomAgents(d.agents ?? []))
+            .catch(() => {});
+        }
       }
     } catch { /* silencieux */ }
   }
@@ -1140,7 +1222,11 @@ export default function Dashboard() {
     }));
   }
 
-  const activeAgent = AGENTS.find((a) => a.key === activeView);
+  const activeAgent = AGENTS.find((a) => a.key === activeView)
+    ?? (activeView.startsWith("custom_") ? (() => {
+      const ca = customAgents.find((c) => `custom_${c.id}` === activeView);
+      return ca ? { key: activeView as typeof AGENTS[0]["key"], agent: ca.name, role: ca.role, skills: [] as string[], emoji: ca.emoji, gradient: "from-gray-400 to-gray-500", color: "text-gray-600", bg: "bg-gray-50", border: "border-gray-200", ring: "ring-gray-300", placeholder: `Posez votre question à ${ca.name}...`, suggestions: [] } : null;
+    })() : null);
   const docGroups = groupDocumentsByKind(documents);
 
   return (
@@ -1213,7 +1299,7 @@ export default function Dashboard() {
       {/* Corps */}
       {tab === "agents" ? (
         <div className="flex flex-1 overflow-hidden">
-          <Sidebar activeView={activeView} onSelect={setActiveView} />
+          <Sidebar activeView={activeView} onSelect={setActiveView} customAgents={customAgents} />
           <div className="flex-1 flex flex-col overflow-hidden">
             {/* Description du projet */}
             <div className="px-5 pt-3 pb-2 flex-shrink-0" style={{ background: "var(--uf-card)", borderBottom: "1px solid var(--uf-line)" }}>
@@ -1304,7 +1390,7 @@ export default function Dashboard() {
             </div>
 
             {activeView === "codir" ? (
-              <CodirView startupId={startupId} />
+              <CodirView startupId={startupId} customAgents={customAgents} />
             ) : activeAgent ? (
               <ConversationView
                 key={activeView}
