@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { createServerClient } from "@/lib/supabase";
 import { sendPasswordResetEmail } from "@/lib/email";
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://founderai.vercel.app";
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://founderai-kappa.vercel.app";
 
 export async function POST(req: NextRequest) {
   const { email } = await req.json();

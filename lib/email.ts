@@ -1,6 +1,6 @@
 import { Resend } from "resend";
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://founderai.vercel.app";
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://founderai-kappa.vercel.app";
 
 function getResend() {
   return new Resend(process.env.RESEND_API_KEY);
