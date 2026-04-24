@@ -17,6 +17,7 @@ import { retrieveRelevantChunks } from "@/lib/rag";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { logUsage } from "@/lib/usage";
 import { sendQuotaWarningEmail, sendQuotaReachedEmail } from "@/lib/email";
+import { enrichMessageWithUrls } from "@/lib/url-extract";
 
 const STANDARD_AGENTS = ["strategie", "vente", "finance", "technique", "operations"] as const;
 
@@ -164,14 +165,17 @@ export async function POST(req: NextRequest) {
         // Retirer le dernier message user qu'on vient d'ajouter (il sera passé en dernier)
         const historyWithoutLast = history.slice(0, -1);
 
-        // 4. Appel Claude Sonnet en streaming
+        // 4. Enrichir le message avec le contenu des URLs (si présentes)
+        const enrichedMessage = await enrichMessageWithUrls(message);
+
+        // 5. Appel Claude Sonnet en streaming
         const stream = claude.messages.stream({
           model: MODELS.CHAT,
           max_tokens: 2048,
           system: systemPrompt,
           messages: [
             ...historyWithoutLast,
-            { role: "user", content: message },
+            { role: "user", content: enrichedMessage },
           ],
         });
 
