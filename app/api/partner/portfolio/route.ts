@@ -39,19 +39,28 @@ export async function GET(req: NextRequest) {
     .select("id, name, emoji, role")
     .eq("partner_id", partnerId);
 
-  // Enrichir les startups avec l'email du fondateur et le plan
+  // Récupérer les assignations agent ↔ startup
+  const startupIds = (startups ?? []).map((s) => s.id);
+  const { data: assignments } = startupIds.length > 0
+    ? await supabase.from("startup_custom_agents").select("startup_id, custom_agent_id").in("startup_id", startupIds)
+    : { data: [] };
+
+  // Enrichir les startups avec l'email du fondateur, le plan et les agents assignés
   const enriched = (startups ?? []).map((s) => {
     const member = members?.find((m) => m.user_id === s.user_id);
-    // Filtrer les documents supprimés
     const docs = Array.isArray(s.documents)
       ? (s.documents as { id: string; name: string; uploadedAt: string; deleted_at?: string }[])
           .filter((d) => !d.deleted_at)
       : [];
+    const assignedAgentIds = (assignments ?? [])
+      .filter((a) => a.startup_id === s.id)
+      .map((a) => a.custom_agent_id);
     return {
       ...s,
       documents: docs,
       founderEmail: member?.email ?? null,
       grantedPlan: member?.granted_plan ?? "starter",
+      assignedAgentIds,
     };
   });
 

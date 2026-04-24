@@ -1076,6 +1076,7 @@ type PortfolioStartup = {
   documents: { id: string; name: string; uploadedAt: string }[];
   founderEmail: string | null;
   grantedPlan: string;
+  assignedAgentIds: string[];
 };
 
 type PortfolioCustomAgent = { id: string; name: string; emoji: string; role: string };
@@ -1199,19 +1200,48 @@ function PortfolioDetailView({ partnerId }: { partnerId: string }) {
                     ) : <p className="text-xs" style={{ color: "var(--uf-muted-2)" }}>Aucun document</p>}
                   </div>
 
-                  {/* Accès agents custom */}
+                  {/* Accès agents custom — toggles individuels */}
                   {customAgents.length > 0 && (
                     <div>
                       <h3 className="text-[11px] font-medium tracking-[0.12em] uppercase mb-3" style={{ fontFamily: "var(--uf-mono)", color: "var(--uf-muted)" }}>Agents spécifiques</h3>
-                      <p className="text-xs mb-2" style={{ color: "var(--uf-muted)" }}>
-                        Les agents custom sont disponibles pour toutes les startups du partenaire. La gestion individuelle par startup sera disponible prochainement.
+                      <p className="text-xs mb-3" style={{ color: "var(--uf-muted)" }}>
+                        Sélectionnez les agents auxquels cette startup a accès.
                       </p>
                       <div className="flex flex-wrap gap-2">
-                        {customAgents.map((ca) => (
-                          <span key={ca.id} className="flex items-center gap-1.5 text-xs px-3 py-1.5 font-medium" style={{ background: "var(--uf-ink)", color: "var(--uf-lime)", borderRadius: "var(--uf-r-pill)" }}>
-                            {ca.emoji} {ca.name}
-                          </span>
-                        ))}
+                        {customAgents.map((ca) => {
+                          const isAssigned = s.assignedAgentIds?.includes(ca.id);
+                          return (
+                            <button
+                              key={ca.id}
+                              onClick={async () => {
+                                if (isAssigned) {
+                                  await fetch(`/api/partner/startup-agents?startupId=${s.id}&customAgentId=${ca.id}`, { method: "DELETE" });
+                                  setStartups((prev) => prev.map((st) =>
+                                    st.id === s.id ? { ...st, assignedAgentIds: st.assignedAgentIds.filter((id) => id !== ca.id) } : st
+                                  ));
+                                } else {
+                                  await fetch("/api/partner/startup-agents", {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({ startupId: s.id, customAgentId: ca.id }),
+                                  });
+                                  setStartups((prev) => prev.map((st) =>
+                                    st.id === s.id ? { ...st, assignedAgentIds: [...st.assignedAgentIds, ca.id] } : st
+                                  ));
+                                }
+                              }}
+                              className="flex items-center gap-1.5 text-xs px-3 py-1.5 font-medium transition-all"
+                              style={{
+                                background: isAssigned ? "var(--uf-ink)" : "var(--uf-card)",
+                                color: isAssigned ? "var(--uf-lime)" : "var(--uf-muted)",
+                                border: isAssigned ? "1px solid var(--uf-ink)" : "1px solid var(--uf-line)",
+                                borderRadius: "var(--uf-r-pill)",
+                              }}
+                            >
+                              {ca.emoji} {ca.name} {isAssigned ? "✓" : "+"}
+                            </button>
+                          );
+                        })}
                       </div>
                     </div>
                   )}

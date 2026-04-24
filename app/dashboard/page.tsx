@@ -1134,12 +1134,17 @@ export default function Dashboard() {
         if (data.documents) setDocuments(data.documents as StoredDocument[]);
         if (data.partners?.name) setPartnerName(data.partners.name);
         setStartupProfile(data);
-        // Charger les agents custom du partenaire
-        if (data.partner_id) {
-          fetch(`/api/partner/custom-agents?partnerId=${data.partner_id}`)
-            .then((r) => r.json())
-            .then((d) => setCustomAgents(d.agents ?? []))
-            .catch(() => {});
+        // Charger les agents custom assignés à cette startup
+        if (data.partner_id && id) {
+          Promise.all([
+            fetch(`/api/partner/custom-agents?partnerId=${data.partner_id}`).then((r) => r.json()),
+            fetch(`/api/startup/custom-agents?startupId=${id}`).then((r) => r.json()),
+          ]).then(([agentsData, assignData]) => {
+            const allAgents = agentsData.agents ?? [];
+            const assignedIds = new Set(assignData.agentIds ?? []);
+            // Si des assignations existent, filtrer. Sinon, aucun agent custom (pas d'assignation = pas d'accès)
+            setCustomAgents(assignedIds.size > 0 ? allAgents.filter((a: { id: string }) => assignedIds.has(a.id)) : []);
+          }).catch(() => {});
         }
       }
     } catch { /* silencieux */ }
