@@ -372,8 +372,8 @@ export default function PartnerPage() {
       {/* ── Contenu ──────────────────────────────────────────────────────────── */}
       <main className="flex-1 overflow-y-auto">
 
-        {/* ── Aperçu + Portefeuille fusionnés ──────────────────────────── */}
-        {(view === "apercu" || view === "portefeuille") && (
+        {/* ── Aperçu ──────────────────────────────────────────────────── */}
+        {view === "apercu" && (
           <div className="p-8 max-w-4xl">
             {/* Header */}
             <div className="mb-8">
@@ -527,6 +527,11 @@ export default function PartnerPage() {
           </div>
         )}
 
+
+        {/* ── Portefeuille détaillé ──────────────────────────────────────── */}
+        {view === "portefeuille" && (
+          <PortfolioDetailView partnerId={partner.id} />
+        )}
 
         {/* ── Personnalisation ─────────────────────────────────────────────── */}
         {view === "personnalisation" && (
@@ -1047,6 +1052,170 @@ function FormField({
         placeholder={placeholder}
         className="w-full border-2 border-slate-200 focus:border-indigo-400 focus:outline-none rounded-xl px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 transition-colors"
       />
+    </div>
+  );
+}
+
+// ─── Portfolio Detail View ────────────────────────────────────────────────────
+
+type PortfolioStartup = {
+  id: string;
+  name: string | null;
+  sector: string | null;
+  stage: string | null;
+  description: string | null;
+  logo: string | null;
+  key_kpis: { name: string; value: string; unit: string; trend?: string }[];
+  recent_decisions: { date: string; description: string; owner?: string }[];
+  current_issues: { title: string; priority: string; status?: string }[];
+  documents: { id: string; name: string; uploadedAt: string }[];
+  founderEmail: string | null;
+  grantedPlan: string;
+};
+
+type PortfolioCustomAgent = { id: string; name: string; emoji: string; role: string };
+
+function PortfolioDetailView({ partnerId }: { partnerId: string }) {
+  const [startups, setStartups] = useState<PortfolioStartup[]>([]);
+  const [customAgents, setCustomAgents] = useState<PortfolioCustomAgent[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [expanded, setExpanded] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/partner/portfolio")
+      .then((r) => r.json())
+      .then((data) => {
+        setStartups(data.startups ?? []);
+        setCustomAgents(data.customAgents ?? []);
+      })
+      .finally(() => setLoading(false));
+  }, [partnerId]);
+
+  if (loading) return <div className="p-8"><p style={{ color: "var(--uf-muted)" }}>Chargement du portefeuille…</p></div>;
+
+  if (startups.length === 0) {
+    return (
+      <div className="p-8 max-w-3xl">
+        <h1 className="uppercase tracking-[-0.015em] mb-2" style={{ fontFamily: "var(--uf-display)", fontSize: 28, color: "var(--uf-ink)" }}>Portefeuille</h1>
+        <div className="p-10 text-center" style={{ background: "var(--uf-card)", border: "1px dashed var(--uf-line)", borderRadius: "var(--uf-r-xl)" }}>
+          <p className="text-3xl mb-3">📋</p>
+          <p className="font-bold" style={{ color: "var(--uf-ink)" }}>Aucune startup inscrite</p>
+          <p className="text-sm mt-1" style={{ color: "var(--uf-muted)" }}>Les startups apparaîtront ici une fois qu&apos;elles auront créé leur compte.</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-8 max-w-4xl">
+      <div className="mb-6">
+        <h1 className="uppercase tracking-[-0.015em]" style={{ fontFamily: "var(--uf-display)", fontSize: 28, color: "var(--uf-ink)" }}>Portefeuille</h1>
+        <p className="text-sm mt-1" style={{ color: "var(--uf-muted)" }}>{startups.length} startup{startups.length > 1 ? "s" : ""} · Cliquez pour voir les détails</p>
+      </div>
+
+      <div className="space-y-3">
+        {startups.map((s) => {
+          const isOpen = expanded === s.id;
+          const planColors: Record<string, string> = { starter: "var(--uf-orange)", growth: "var(--uf-teal)", scale: "var(--uf-violet)" };
+          const planColor = planColors[s.grantedPlan] ?? "var(--uf-muted)";
+
+          return (
+            <div key={s.id} style={{ background: "var(--uf-card)", border: "1px solid var(--uf-line)", borderRadius: "var(--uf-r-xl)", overflow: "hidden" }}>
+              {/* Header startup */}
+              <button
+                onClick={() => setExpanded(isOpen ? null : s.id)}
+                className="w-full text-left px-5 py-4 flex items-center gap-4"
+              >
+                <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0" style={{ background: "var(--uf-paper-2)", color: "var(--uf-ink)" }}>
+                  {s.logo ? <img src={s.logo} alt="" className="w-full h-full rounded-full object-cover" /> : (s.name?.[0]?.toUpperCase() ?? "?")}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold truncate" style={{ color: "var(--uf-ink)" }}>{s.name ?? "Sans nom"}</p>
+                  <p className="text-xs truncate" style={{ color: "var(--uf-muted)" }}>
+                    {s.sector ?? "—"} · {s.founderEmail ?? ""}
+                  </p>
+                </div>
+                <span className="text-[11px] font-medium px-2.5 py-1 rounded-full shrink-0" style={{ fontFamily: "var(--uf-mono)", background: planColor, color: "#fff" }}>
+                  {s.grantedPlan}
+                </span>
+                <span className="text-sm" style={{ color: "var(--uf-muted)", transform: isOpen ? "rotate(180deg)" : "none", transition: "transform 0.2s" }}>▼</span>
+              </button>
+
+              {/* Détails (expanded) */}
+              {isOpen && (
+                <div className="px-5 pb-5 space-y-5" style={{ borderTop: "1px solid var(--uf-line)" }}>
+
+                  {/* KPIs */}
+                  <div className="pt-4">
+                    <h3 className="text-[11px] font-medium tracking-[0.12em] uppercase mb-3" style={{ fontFamily: "var(--uf-mono)", color: "var(--uf-muted)" }}>KPIs</h3>
+                    {s.key_kpis?.length > 0 ? (
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        {s.key_kpis.map((kpi, i) => (
+                          <div key={i} className="px-3 py-2" style={{ background: "var(--uf-paper-2)", borderRadius: "var(--uf-r-sm)" }}>
+                            <p className="text-xs" style={{ color: "var(--uf-muted)" }}>{kpi.name}</p>
+                            <p className="font-bold text-sm" style={{ color: "var(--uf-ink)" }}>
+                              {kpi.value} {kpi.unit}
+                              {kpi.trend && <span className="ml-1" style={{ color: kpi.trend === "up" ? "var(--uf-teal)" : kpi.trend === "down" ? "#ef4444" : "var(--uf-muted)" }}>
+                                {kpi.trend === "up" ? "↑" : kpi.trend === "down" ? "↓" : "→"}
+                              </span>}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    ) : <p className="text-xs" style={{ color: "var(--uf-muted-2)" }}>Aucun KPI renseigné</p>}
+                  </div>
+
+                  {/* Décisions récentes */}
+                  <div>
+                    <h3 className="text-[11px] font-medium tracking-[0.12em] uppercase mb-3" style={{ fontFamily: "var(--uf-mono)", color: "var(--uf-muted)" }}>Décisions récentes</h3>
+                    {s.recent_decisions?.length > 0 ? (
+                      <div className="space-y-1.5">
+                        {s.recent_decisions.slice(0, 5).map((d, i) => (
+                          <div key={i} className="flex items-start gap-2 text-sm">
+                            <span className="text-xs shrink-0 mt-0.5" style={{ color: "var(--uf-muted)" }}>{d.date}</span>
+                            <span style={{ color: "var(--uf-ink)" }}>{d.description}</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : <p className="text-xs" style={{ color: "var(--uf-muted-2)" }}>Aucune décision enregistrée</p>}
+                  </div>
+
+                  {/* Documents */}
+                  <div>
+                    <h3 className="text-[11px] font-medium tracking-[0.12em] uppercase mb-3" style={{ fontFamily: "var(--uf-mono)", color: "var(--uf-muted)" }}>Documents ({s.documents?.length ?? 0})</h3>
+                    {s.documents?.length > 0 ? (
+                      <div className="flex flex-wrap gap-2">
+                        {s.documents.map((doc) => (
+                          <span key={doc.id} className="flex items-center gap-1.5 text-xs px-2.5 py-1.5" style={{ background: "var(--uf-paper-2)", borderRadius: "var(--uf-r-sm)", color: "var(--uf-ink)" }}>
+                            📄 {doc.name}
+                          </span>
+                        ))}
+                      </div>
+                    ) : <p className="text-xs" style={{ color: "var(--uf-muted-2)" }}>Aucun document</p>}
+                  </div>
+
+                  {/* Accès agents custom */}
+                  {customAgents.length > 0 && (
+                    <div>
+                      <h3 className="text-[11px] font-medium tracking-[0.12em] uppercase mb-3" style={{ fontFamily: "var(--uf-mono)", color: "var(--uf-muted)" }}>Agents spécifiques</h3>
+                      <p className="text-xs mb-2" style={{ color: "var(--uf-muted)" }}>
+                        Les agents custom sont disponibles pour toutes les startups du partenaire. La gestion individuelle par startup sera disponible prochainement.
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {customAgents.map((ca) => (
+                          <span key={ca.id} className="flex items-center gap-1.5 text-xs px-3 py-1.5 font-medium" style={{ background: "var(--uf-ink)", color: "var(--uf-lime)", borderRadius: "var(--uf-r-pill)" }}>
+                            {ca.emoji} {ca.name}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
