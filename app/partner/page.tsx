@@ -359,6 +359,19 @@ export default function PartnerPage() {
           ))}
         </nav>
 
+        <div className="px-5 py-4" style={{ borderTop: "1px solid var(--uf-line)" }}>
+          <button
+            onClick={async () => {
+              const supabase = createBrowserClient();
+              await supabase.auth.signOut();
+              window.location.href = "/connexion";
+            }}
+            className="text-xs font-medium transition-colors"
+            style={{ color: "var(--uf-muted)" }}
+          >
+            Déconnexion
+          </button>
+        </div>
       </aside>
 
       {/* ── Contenu ──────────────────────────────────────────────────────────── */}
