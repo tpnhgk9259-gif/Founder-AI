@@ -11,19 +11,30 @@ export default function ResetPassword() {
   const [error, setError] = useState("");
   const [ready, setReady] = useState(false);
 
-  // Supabase injecte le token dans le hash de l'URL
   useEffect(() => {
     const supabase = createBrowserClient();
-    // Écouter l'événement PASSWORD_RECOVERY
-    supabase.auth.onAuthStateChange((event) => {
-      if (event === "PASSWORD_RECOVERY") {
+
+    // Écouter les changements d'auth (PASSWORD_RECOVERY ou SIGNED_IN)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY" || event === "SIGNED_IN") {
         setReady(true);
       }
     });
-    // Aussi vérifier si on a déjà une session (le lien a été cliqué)
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) setReady(true);
-    });
+
+    // Vérifier si le hash contient un token recovery
+    const hash = window.location.hash;
+    if (hash && hash.includes("type=recovery")) {
+      // Supabase va parser le hash automatiquement — attendre un peu
+      const checkSession = async () => {
+        // Laisser Supabase le temps de parser le hash
+        await new Promise((r) => setTimeout(r, 1000));
+        const { data } = await supabase.auth.getSession();
+        if (data.session) setReady(true);
+      };
+      checkSession();
+    }
+
+    return () => subscription.unsubscribe();
   }, []);
 
   async function handleSubmit(e: React.FormEvent) {
