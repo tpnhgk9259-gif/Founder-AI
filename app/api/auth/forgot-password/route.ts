@@ -12,23 +12,24 @@ export async function POST(req: NextRequest) {
 
   const supabase = createServerClient();
 
-  // Générer le lien de reset via l'admin API (ne déclenche PAS l'email Supabase)
   const { data, error } = await supabase.auth.admin.generateLink({
     type: "recovery",
     email: email.trim().toLowerCase(),
-    options: {
-      redirectTo: `${BASE_URL}/reset-password`,
-    },
   });
 
   if (error || !data?.properties?.action_link) {
-    // Ne pas révéler si l'email existe ou non (sécurité)
     return Response.json({ ok: true });
   }
 
-  // Envoyer via notre propre template Resend
+  // Extraire le token du lien Supabase et construire notre propre URL
+  // Le action_link ressemble à : https://xxx.supabase.co/auth/v1/verify?token=xxx&type=recovery&redirect_to=...
+  // On garde le lien Supabase tel quel mais on force le redirect_to
+  const actionUrl = new URL(data.properties.action_link);
+  actionUrl.searchParams.set("redirect_to", `${BASE_URL}/reset-password`);
+  const cleanLink = actionUrl.toString();
+
   try {
-    await sendPasswordResetEmail(email.trim().toLowerCase(), data.properties.action_link);
+    await sendPasswordResetEmail(email.trim().toLowerCase(), cleanLink);
   } catch (err) {
     console.error("[forgot-password] Erreur envoi email:", err);
   }
