@@ -372,194 +372,161 @@ export default function PartnerPage() {
       {/* ── Contenu ──────────────────────────────────────────────────────────── */}
       <main className="flex-1 overflow-y-auto">
 
-        {/* ── Aperçu ──────────────────────────────────────────────────────── */}
-        {view === "apercu" && (
-          <div className="p-8 max-w-3xl">
-            <h1 className="text-2xl font-black text-slate-900 mb-1">Bienvenue, {partner.name}</h1>
-            <p className="text-slate-500 text-sm mb-8">
-              {PARTNER_TYPES.find((t) => t.value === partner.type)?.label} · Espace partenaire FounderAI
-            </p>
-
-            <div className="grid grid-cols-3 gap-4 mb-8">
-              <StatCard
-                label="Startups dans le portefeuille"
-                value={portfolioCount}
-                icon="🚀"
-                color="indigo"
-              />
-              <StatCard
-                label="Comptes activés"
-                value={registeredCount}
-                icon="✅"
-                color="emerald"
-              />
-              <StatCard
-                label="En attente d'inscription"
-                value={portfolioCount - registeredCount}
-                icon="⏳"
-                color="amber"
-              />
+        {/* ── Aperçu + Portefeuille fusionnés ──────────────────────────── */}
+        {(view === "apercu" || view === "portefeuille") && (
+          <div className="p-8 max-w-4xl">
+            {/* Header */}
+            <div className="mb-8">
+              <h1 className="uppercase tracking-[-0.015em]" style={{ fontFamily: "var(--uf-display)", fontSize: 28, color: "var(--uf-ink)" }}>
+                {partner.name}
+              </h1>
+              <p className="text-sm mt-1" style={{ color: "var(--uf-muted)" }}>
+                {PARTNER_TYPES.find((t) => t.value === partner.type)?.label} · {portfolioCount} startup{portfolioCount > 1 ? "s" : ""} · {registeredCount} activ{registeredCount > 1 ? "es" : "e"}
+              </p>
             </div>
 
-            <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm mb-4">
-              <h2 className="font-black text-slate-800 text-sm mb-3">Configuration actuelle</h2>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="bg-slate-50 rounded-xl p-3.5">
-                  <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Agents</p>
-                  <div className="space-y-1">
-                    {(Object.keys(AGENT_META) as AgentKey[]).map((key) => (
-                      <div key={key} className="flex items-center gap-2">
-                        <span className="text-sm">{AGENT_META[key].emoji}</span>
-                        <span className="text-sm font-semibold text-slate-700">
-                          {agentNames[key]}
-                        </span>
-                        <span className="text-xs text-slate-400">· {AGENT_META[key].label}</span>
-                      </div>
-                    ))}
+            {/* Guide rapide */}
+            {portfolioCount === 0 && (
+              <div className="mb-8 p-6" style={{ background: "var(--uf-ink)", borderRadius: "var(--uf-r-xl)", color: "var(--uf-paper)" }}>
+                <h2 className="uppercase tracking-normal mb-3" style={{ fontFamily: "var(--uf-display)", fontSize: 22, color: "var(--uf-lime)" }}>
+                  Bienvenue dans votre espace
+                </h2>
+                <div className="grid sm:grid-cols-3 gap-4 text-sm" style={{ color: "rgba(255,255,255,0.8)" }}>
+                  <div>
+                    <span className="text-lg">1️⃣</span>
+                    <p className="mt-1 font-medium" style={{ color: "var(--uf-paper)" }}>Ajoutez vos startups</p>
+                    <p className="text-xs mt-0.5">Cliquez sur le + dans le bandeau du forfait choisi et entrez l&apos;email du fondateur.</p>
+                  </div>
+                  <div>
+                    <span className="text-lg">2️⃣</span>
+                    <p className="mt-1 font-medium" style={{ color: "var(--uf-paper)" }}>Personnalisez les agents</p>
+                    <p className="text-xs mt-0.5">Renommez les agents et adaptez le style du manager dans l&apos;onglet Personnalisation.</p>
+                  </div>
+                  <div>
+                    <span className="text-lg">3️⃣</span>
+                    <p className="mt-1 font-medium" style={{ color: "var(--uf-paper)" }}>Créez des agents sur-mesure</p>
+                    <p className="text-xs mt-0.5">Ajoutez des agents spécialisés pour votre programme dans l&apos;onglet Mes agents.</p>
                   </div>
                 </div>
-                <div className="bg-slate-50 rounded-xl p-3.5">
-                  <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Startup Manager</p>
-                  <div className="flex items-center gap-2 mb-1.5">
-                    <span className="text-xl">{managerPersona.emoji}</span>
-                    <div>
-                      <p className="text-sm font-black text-slate-800">{managerPersona.name}</p>
-                      <p className="text-xs text-slate-500">{managerPersona.title}</p>
-                    </div>
-                  </div>
-                  <p className="text-xs text-slate-500 leading-relaxed line-clamp-2">{managerPersona.style}</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex gap-3">
-              <button
-                onClick={() => setView("portefeuille")}
-                className="flex-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold px-4 py-2.5 rounded-xl text-sm transition-colors border border-indigo-100"
-              >
-                Gérer le portefeuille →
-              </button>
-              <button
-                onClick={() => setView("personnalisation")}
-                className="flex-1 bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold px-4 py-2.5 rounded-xl text-sm transition-colors border border-slate-200"
-              >
-                Personnaliser l'expérience →
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* ── Portefeuille ─────────────────────────────────────────────────── */}
-        {view === "portefeuille" && (
-          <div className="p-8 max-w-3xl">
-            <h1 className="text-2xl font-black text-slate-900 mb-1">Portefeuille</h1>
-            <p className="text-slate-500 text-sm mb-6">
-              Ajoutez les startups de votre portefeuille. Elles bénéficieront de votre personnalisation dès leur connexion.
-            </p>
-
-            {/* Invite form */}
-            <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm mb-5">
-              <p className="text-xs font-bold text-slate-600 uppercase tracking-wider mb-3">Ajouter une startup</p>
-              <div className="flex gap-2">
-                <input
-                  type="email"
-                  value={inviteEmail}
-                  onChange={(e) => setInviteEmail(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && inviteMember()}
-                  placeholder="email@startup.com"
-                  className="flex-1 border-2 border-slate-200 focus:border-indigo-400 focus:outline-none rounded-xl px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 transition-colors"
-                />
-                <select
-                  value={invitePlan}
-                  onChange={(e) => setInvitePlan(e.target.value as "starter" | "growth" | "scale")}
-                  className="border-2 border-slate-200 focus:border-indigo-400 focus:outline-none rounded-xl px-3 py-2.5 text-sm text-slate-700 bg-white"
-                >
-                  <option value="starter">Plan Starter</option>
-                  <option value="growth">Plan Growth</option>
-                  <option value="scale">Plan Scale</option>
-                </select>
-                <button
-                  onClick={inviteMember}
-                  disabled={!inviteEmail.trim() || inviteLoading}
-                  className="bg-gradient-to-br from-indigo-600 to-violet-600 hover:opacity-90 disabled:opacity-40 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-all shadow-sm whitespace-nowrap"
-                >
-                  {inviteLoading ? "Ajout…" : "Ajouter"}
-                </button>
-              </div>
-            <div className="mt-3 flex items-center gap-2 text-xs text-slate-500">
-              <span className="px-2 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100 font-semibold">
-                Starter {starterUsed}/{starterAllowance}
-              </span>
-              <span className="px-2 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 font-semibold">
-                Growth {growthUsed}/{growthAllowance}
-              </span>
-              <span className="px-2 py-1 rounded-full bg-violet-50 text-violet-700 border border-violet-100 font-semibold">
-                Scale {scaleUsed}/{scaleAllowance}
-              </span>
-            </div>
-              {inviteError && (
-                <p className="text-red-600 text-xs mt-2 font-medium">{inviteError}</p>
-              )}
-            </div>
-
-            {/* Liste */}
-            {portfolioCount === 0 ? (
-              <div className="bg-white rounded-2xl border border-dashed border-slate-200 p-10 text-center">
-                <p className="text-4xl mb-3">🚀</p>
-                <p className="text-slate-500 text-sm">Aucune startup dans le portefeuille.</p>
-                <p className="text-slate-400 text-xs mt-1">Ajoutez des startups par email ci-dessus.</p>
-              </div>
-            ) : (
-              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-                <div className="grid grid-cols-[1fr_1fr_auto_auto_auto] gap-x-4 px-4 py-2.5 border-b border-slate-100 bg-slate-50">
-                  <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Email</p>
-                  <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Startup</p>
-                  <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Plan accordé</p>
-                  <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Statut</p>
-                  <p className="text-xs font-bold text-slate-500 uppercase tracking-wider"></p>
-                </div>
-                {members
-                  .filter((m) => m.role === "portfolio")
-                  .map((m) => (
-                    <div
-                      key={m.id}
-                      className="grid grid-cols-[1fr_1fr_auto_auto_auto] gap-x-4 px-4 py-3.5 border-b border-slate-50 items-center hover:bg-slate-50 transition-colors"
-                    >
-                      <p className="text-sm text-slate-700 font-medium truncate">{m.email}</p>
-                      <p className="text-sm text-slate-500 truncate">
-                        {m.startup?.name ?? <span className="text-slate-300 italic">—</span>}
-                      </p>
-                      <select
-                        value={m.granted_plan}
-                        onChange={(e) => updateMemberPlan(m.id, e.target.value as "starter" | "growth" | "scale")}
-                        className="text-xs font-semibold border border-slate-200 rounded-lg px-2 py-1 bg-white text-slate-700"
-                      >
-                        <option value="starter">Starter</option>
-                        <option value="growth">Growth</option>
-                        <option value="scale">Scale</option>
-                      </select>
-                      <span
-                        className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full ${
-                          m.user_id
-                            ? "bg-emerald-50 text-emerald-600 border border-emerald-100"
-                            : "bg-amber-50 text-amber-600 border border-amber-100"
-                        }`}
-                      >
-                        {m.user_id ? "✓ Inscrit" : "En attente"}
-                      </span>
-                      <button
-                        onClick={() => removeMember(m.id)}
-                        className="text-slate-300 hover:text-red-400 transition-colors text-sm font-bold"
-                        title="Retirer"
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  ))}
               </div>
             )}
+
+            {inviteError && (
+              <p className="text-sm text-red-600 px-4 py-3 mb-4" style={{ background: "#fef2f2", borderRadius: "var(--uf-r-md)" }}>{inviteError}</p>
+            )}
+
+            {/* Bandeaux par forfait */}
+            {([
+              { plan: "starter" as const, label: "Starter", desc: "3 agents · 50 sessions/mois", color: "var(--uf-orange)", bgLight: "#FFF7F0", borderColor: "#FFD6B8", used: starterUsed, max: starterAllowance },
+              { plan: "growth" as const, label: "Growth", desc: "4 agents + CODIR · Illimité", color: "var(--uf-teal)", bgLight: "#F0FBF9", borderColor: "#B3E6DE", used: growthUsed, max: growthAllowance },
+              { plan: "scale" as const, label: "Scale", desc: "5 agents + CODIR · Premium", color: "var(--uf-violet)", bgLight: "#F5F0FF", borderColor: "#C9B8FF", used: scaleUsed, max: scaleAllowance },
+            ]).map(({ plan, label, desc, color, bgLight, borderColor, used, max }) => {
+              const planMembers = members.filter((m) => m.role === "portfolio" && m.granted_plan === plan);
+              return (
+                <div key={plan} className="mb-5 overflow-hidden" style={{ background: bgLight, border: `1px solid ${borderColor}`, borderRadius: "var(--uf-r-xl)" }}>
+                  {/* Header bandeau */}
+                  <div className="px-6 py-4 flex items-center justify-between" style={{ borderBottom: `1px solid ${borderColor}` }}>
+                    <div className="flex items-center gap-3">
+                      <div className="w-3 h-3 rounded-full" style={{ background: color }} />
+                      <div>
+                        <span className="font-bold" style={{ color: "var(--uf-ink)" }}>Mes startups {label}</span>
+                        <span className="text-xs ml-2" style={{ color: "var(--uf-muted)" }}>{desc}</span>
+                      </div>
+                    </div>
+                    <span className="text-[11px] font-medium px-2.5 py-1 rounded-full" style={{ fontFamily: "var(--uf-mono)", background: "var(--uf-card)", color: "var(--uf-muted)", border: "1px solid var(--uf-line)" }}>
+                      {used} / {max}
+                    </span>
+                  </div>
+
+                  {/* Contenu : logos startups + bouton ajouter */}
+                  <div className="px-6 py-5">
+                    <div className="flex flex-wrap items-center gap-3">
+                      {planMembers.map((m) => (
+                        <div key={m.id} className="flex items-center gap-2 px-3 py-2" style={{ background: "var(--uf-card)", border: "1px solid var(--uf-line)", borderRadius: "var(--uf-r-md)" }}>
+                          <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style={{ background: borderColor, color: "var(--uf-ink)" }}>
+                            {(m.startup?.name ?? m.email)?.[0]?.toUpperCase() ?? "?"}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-sm font-medium truncate" style={{ color: "var(--uf-ink)", maxWidth: 140 }}>
+                              {m.startup?.name ?? m.email.split("@")[0]}
+                            </p>
+                            <p className="text-[10px] truncate" style={{ color: m.user_id ? "var(--uf-teal)" : "var(--uf-muted)" }}>
+                              {m.user_id ? "✓ Actif" : "⏳ Invité"}
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => removeMember(m.id)}
+                            className="text-xs opacity-0 group-hover:opacity-100 hover:text-red-500 transition-all ml-1"
+                            style={{ color: "var(--uf-muted)" }}
+                            title="Retirer"
+                          >✕</button>
+                        </div>
+                      ))}
+
+                      {/* Bouton + ajouter */}
+                      {used < max && (
+                        <button
+                          onClick={() => {
+                            setInvitePlan(plan);
+                            const email = prompt(`Email du fondateur à ajouter en ${label} :`);
+                            if (email?.trim()) {
+                              setInviteEmail(email.trim());
+                              // Trick : on set l'email et le plan, puis on appelle inviteMember au prochain tick
+                              setTimeout(() => {
+                                const btn = document.getElementById(`invite-btn-${plan}`);
+                                if (btn) btn.click();
+                              }, 100);
+                            }
+                          }}
+                          className="w-12 h-12 rounded-full flex items-center justify-center text-xl transition-all hover:scale-110"
+                          style={{ border: `2px dashed ${borderColor}`, color, background: "var(--uf-card)" }}
+                          title={`Ajouter une startup ${label}`}
+                        >
+                          +
+                        </button>
+                      )}
+                      <button
+                        id={`invite-btn-${plan}`}
+                        className="hidden"
+                        onClick={() => { setInvitePlan(plan); inviteMember(); }}
+                      />
+                    </div>
+
+                    {planMembers.length === 0 && used < max && (
+                      <p className="text-xs mt-2" style={{ color: "var(--uf-muted)" }}>
+                        Cliquez sur + pour inviter votre première startup {label}.
+                      </p>
+                    )}
+                    {max === 0 && (
+                      <p className="text-xs" style={{ color: "var(--uf-muted)" }}>
+                        Aucun siège {label} dans votre licence. Contactez l&apos;administrateur.
+                      </p>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+
+            {/* Actions rapides */}
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setView("personnalisation")}
+                className="flex-1 px-4 py-3 text-sm font-medium rounded-full transition-all hover:-translate-y-px"
+                style={{ border: "1px solid var(--uf-line)", color: "var(--uf-ink)" }}
+              >
+                🎨 Personnaliser les agents
+              </button>
+              <button
+                onClick={() => setView("agents")}
+                className="flex-1 px-4 py-3 text-sm font-medium rounded-full transition-all hover:-translate-y-px"
+                style={{ border: "1px solid var(--uf-line)", color: "var(--uf-ink)" }}
+              >
+                🤖 Créer un agent sur-mesure
+              </button>
+            </div>
           </div>
         )}
+
 
         {/* ── Personnalisation ─────────────────────────────────────────────── */}
         {view === "personnalisation" && (
