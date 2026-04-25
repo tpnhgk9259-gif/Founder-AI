@@ -142,12 +142,8 @@ const SlideSolution = ({ s = LUMEN, n, total }) => (
       { text: V('solution_title', 'NOTRE SOLUTION') },
     ]}/>
 
-    <Body x={14} y={68} w={120} size={12} lh={1.55} color={PDF_COLORS.muted}>
-      {V('mvp_intro', "Description de la solution et de sa proposition de valeur unique.")}
-    </Body>
-
     {/* 3-step flow */}
-    <div style={{ position: 'absolute', left: 14 * MM, top: 98 * MM, width: 252 * MM, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 4 * MM }}>
+    <div style={{ position: 'absolute', left: 14 * MM, top: 68 * MM, width: 252 * MM, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 4 * MM }}>
       {[
         { n: '01', color: PDF_COLORS.orange, t: V('pillar1_title', 'Pilier 1'),  d: V('pillar1_desc', 'Description du premier pilier de la solution.') },
         { n: '02', color: PDF_COLORS.teal,    t: V('pillar2_title', 'Pilier 2'),   d: V('pillar2_desc', 'Description du deuxième pilier.') },
