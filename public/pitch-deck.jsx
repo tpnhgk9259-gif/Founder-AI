@@ -73,15 +73,15 @@ const SlideProblem = ({ s = LUMEN, n, total }) => (
     <Eyebrow x={14} y={22} accent={PDF_COLORS.magenta}>01 — Le problème</Eyebrow>
 
     <TitleBlock x={14} y={30} size={40} lines={[
-      { text: V('problem_title', "L'ÉNERGIE, 2e POSTE DE CHARGES").split('\n')[0] || "LE PROBLÈME" },
-      { text: V('problem_title', "").split('\n')[1] || '' },
+      { text: V('problem_title', 'LE PROBLÈME').split('\n')[0] || 'LE PROBLÈME' },
+      { text: V('problem_title', '').split('\n')[1] || '' },
     ]}/>
 
     {/* Left stats */}
     <Abs x={14} y={72}>
       <div style={{ fontFamily: 'Anton, sans-serif', fontSize: 80, color: PDF_COLORS.magenta, lineHeight: 0.9 }}>{V('stat1_value', '18 %')}</div>
       <div style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic', fontSize: 14, color: PDF_COLORS.muted, marginTop: 6, width: 58 * MM, lineHeight: 1.35 }}>
-        {V('stat1_label', "du CA moyen en facture d'énergie pour un restaurant indépendant.")}
+        {V('stat1_label', 'Statistique clé sur le problème identifié.')}
       </div>
     </Abs>
 
@@ -505,7 +505,7 @@ const SlideTeam = ({ s = LUMEN, n, total }) => (
               <div style={{ fontFamily: 'Anton', fontSize: 22, marginTop: 3 * MM, textTransform: 'uppercase', lineHeight: 1 }}>{f.name}</div>
               <div style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic', fontSize: 12, color: PDF_COLORS.muted, marginTop: 1 * MM }}>{f.role}</div>
               <div style={{ display: 'flex', gap: 2 * MM, marginTop: 3 * MM, flexWrap: 'wrap' }}>
-                {[`0${i + 1}`, 'EX-' + f.role.split('Ex-')[1].split('(')[0].trim().toUpperCase(), 'Co-fondateur'].map(t => (
+                {[`0${i + 1}`, (f.role || '').toUpperCase(), 'Co-fondateur'].map(t => (
                   <span key={t} style={{ padding: `${0.8 * MM}px ${2 * MM}px`, border: `1px solid ${PDF_COLORS.line}`, borderRadius: 999, fontFamily: 'Geist Mono', fontSize: 7.5, letterSpacing: '0.14em', textTransform: 'uppercase', color: PDF_COLORS.muted }}>{t}</span>
                 ))}
               </div>
