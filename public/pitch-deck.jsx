@@ -28,9 +28,10 @@ function autoSize(text, baseSize = 40) {
   if (!text) return baseSize;
   const len = text.length;
   if (len < 30) return baseSize;
-  if (len < 50) return Math.round(baseSize * 0.8);
-  if (len < 80) return Math.round(baseSize * 0.65);
-  return Math.round(baseSize * 0.5);
+  if (len < 50) return Math.round(baseSize * 0.9);
+  if (len < 80) return Math.round(baseSize * 0.8);
+  if (len < 120) return Math.round(baseSize * 0.7);
+  return Math.round(baseSize * 0.6);
 }
 
 const LUMEN = {
