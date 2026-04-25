@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<title>Pitch Deck V2 — Preview (FounderAI)</title>
+<meta name="viewport" content="width=1500"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/pdf-tokens.css"/>
+<style>
+  body { margin: 0; background: #E5E2D8; }
+  .hdr { max-width: 1400px; margin: 0 auto 32px; padding: 56px 56px 0; }
+  .hdr h1 { font-family: 'Anton', sans-serif; font-size: 48px; line-height: 0.88; text-transform: uppercase; margin: 14px 0 0; color: #0F0E0B; }
+  .hdr p { font-family: 'Instrument Serif', Georgia, serif; font-style: italic; font-size: 20px; color: #6C6760; margin: 14px 0 0; }
+  .toolbar { position: fixed; top: 20px; right: 20px; z-index: 100; display: flex; gap: 8px; }
+  .toolbar button { padding: 12px 24px; background: #0F0E0B; color: #FBF8F0; border: none; border-radius: 999px; font-family: 'Geist', sans-serif; font-size: 14px; cursor: pointer; }
+  .toolbar button:hover { opacity: 0.9; }
+  .toolbar .back { background: transparent; border: 1px solid #D9D3C4; color: #0F0E0B; }
+  @media print { .hdr, .toolbar, .pdf-sheet-caption { display: none !important; } }
+</style>
+</head>
+<body class="pdf-canvas-bg">
+
+<div class="toolbar">
+  <button class="back" onclick="window.close() || history.back()">← Retour</button>
+  <button onclick="window.print()">Exporter en PDF ↓</button>
+</div>
+
+<div class="hdr">
+  <h1 id="hdr-title">PITCH DECK</h1>
+  <p>Preview — 12 slides, 280 × 157,5 mm paysage. Vérifiez le rendu puis exportez en PDF.</p>
+</div>
+
+<div id="pitch-root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="/pdf-shared.jsx"></script>
+<script type="text/babel" src="/pitch-deck.jsx"></script>
+
+<script type="text/babel">
+  // Lire les données du formulaire depuis sessionStorage
+  const raw = sessionStorage.getItem('founderai_pitch_deck_v2');
+  let v = {};
+  if (raw) { try { v = JSON.parse(raw); } catch(e) {} }
+
+  // Construire les données startup à partir du formulaire
+  const hasData = Object.keys(v).length > 0;
+  const startupData = hasData ? {
+    name: v.startupName || 'Ma Startup',
+    tagline: v.tagline || 'Votre tagline ici.',
+    oneliner: v.solution_title || '',
+    stage: v.funds_title || 'Seed',
+    founders: [
+      v.member1_name && { name: v.member1_name, role: v.member1_role || 'CEO', photo: 'magenta' },
+      v.member2_name && { name: v.member2_name, role: v.member2_role || 'CTO', photo: 'violet' },
+      v.member3_name && { name: v.member3_name, role: v.member3_role || 'COO', photo: 'teal' },
+    ].filter(Boolean),
+  } : LUMEN;
+
+  // Rendre les valeurs accessibles aux slides
+  window.FORM_VALUES = v;
+
+  if (hasData && v.startupName) {
+    document.getElementById('hdr-title').textContent = 'PITCH DECK — ' + v.startupName.toUpperCase();
+  }
+
+  setTimeout(() => {
+    ReactDOM.createRoot(document.getElementById('pitch-root')).render(
+      <PitchDeckMock s={startupData}/>
+    );
+  }, 50);
+</script>
+
+</body>
+</html>

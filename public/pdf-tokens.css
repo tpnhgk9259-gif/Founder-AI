@@ -1,0 +1,100 @@
+/* Maquettes PDF — format paysage 280×157.5 mm (print A5 landscape-ish) */
+:root {
+  --mm: 3.78px; /* 1mm ≈ 3.7795px @ 96dpi */
+  --pdf-w: calc(280 * var(--mm));
+  --pdf-h: calc(157.5 * var(--mm));
+}
+
+.pdf-canvas-bg {
+  background: #ECE7DA;
+  min-height: 100vh;
+  padding: 56px;
+  font-family: 'Geist', 'Inter Tight', -apple-system, sans-serif;
+  color: #0F0E0B;
+}
+
+.pdf-stack {
+  display: flex; flex-direction: column; gap: 72px;
+  max-width: 1400px; margin: 0 auto;
+}
+
+.pdf-group-label {
+  font-family: 'Geist Mono', ui-monospace, monospace;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #6C6760;
+  display: flex; align-items: baseline; gap: 14px;
+  margin-bottom: 8px;
+}
+.pdf-group-label strong {
+  color: #0F0E0B;
+  font-weight: 600;
+  font-family: 'Anton', sans-serif;
+  font-size: 28px;
+  letter-spacing: 0.02em;
+}
+.pdf-group-label em {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-style: italic;
+  font-size: 18px;
+  color: #6C6760;
+  font-weight: 400;
+  letter-spacing: -0.005em;
+  text-transform: none;
+}
+
+.pdf-row {
+  display: flex; flex-wrap: wrap; gap: 28px;
+}
+
+.pdf-sheet {
+  width: var(--pdf-w);
+  height: var(--pdf-h);
+  background: #FBF8F0;
+  box-shadow: 0 18px 40px -14px rgba(15,14,11,0.22), 0 2px 4px rgba(15,14,11,0.06);
+  position: relative;
+  overflow: hidden;
+  flex: 0 0 auto;
+  font-family: 'Geist', sans-serif;
+  color: #0F0E0B;
+}
+.pdf-sheet.is-dark { background: #0F0E0B; color: #FBF8F0; }
+
+.pdf-sheet-caption {
+  font-family: 'Geist Mono', ui-monospace, monospace;
+  font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: #6C6760;
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 10px;
+}
+.pdf-sheet-caption .n {
+  background: #0F0E0B; color: #FBF8F0;
+  padding: 2px 8px; border-radius: 3px; font-weight: 700;
+}
+
+/* Print-safe dims for download if needed */
+@page { size: 280mm 157.5mm; margin: 0; }
+@media print {
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+  body, .pdf-canvas-bg { background: #fff !important; padding: 0 !important; margin: 0 !important; }
+  .pdf-group-label, .pdf-sheet-caption, .pdf-intro, .hdr, .print-btn { display: none !important; }
+  .pdf-stack { gap: 0 !important; display: block !important; }
+  .pdf-row { gap: 0 !important; display: block !important; }
+  .pdf-sheet {
+    box-shadow: none !important;
+    page-break-after: always;
+    page-break-inside: avoid;
+    break-after: page;
+    break-inside: avoid;
+    display: block !important;
+    width: 280mm !important;
+    height: 157.5mm !important;
+    overflow: hidden !important;
+    position: relative !important;
+  }
+}

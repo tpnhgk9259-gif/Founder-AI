@@ -1201,6 +1201,17 @@ export default function PitchDeckSeedPage() {
             >
               {generating ? <><Spinner /> Génération…</> : <>📄 Générer le PDF</>}
             </button>
+            <button
+              onClick={() => {
+                sessionStorage.setItem("founderai_pitch_deck_v2", JSON.stringify({ ...values, startupName }));
+                window.open("/pitch-deck-v2-preview.html", "_blank");
+              }}
+              disabled={!hasContent}
+              className="flex items-center gap-1.5 font-bold text-xs px-3 py-2 rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+              style={{ background: "var(--uf-ink)", color: "var(--uf-paper)" }}
+            >
+              ✨ Preview V2
+            </button>
           </div>
         </div>
 
