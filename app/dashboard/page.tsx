@@ -1601,7 +1601,7 @@ const PLAN_LABELS: Record<string, string> = { starter: "Starter", growth: "Growt
 const TEMPLATE_ROUTES: Record<string, string> = {
   "Lean Canvas": "/dashboard/modeles/lean-canvas",
   "MVP": "/dashboard/modeles/mvp",
-  "Pitch Deck Seed": "/dashboard/modeles/pitch-deck-seed",
+  "Pitch Deck Seed": "/dashboard/modeles/pitch-deck-v2",
   "BP Seed": "/dashboard/modeles/bp-seed",
 };
 
