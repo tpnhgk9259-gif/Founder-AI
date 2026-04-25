@@ -5,6 +5,34 @@
 // Helper : lire une valeur du formulaire avec fallback
 const V = (key, fallback = '') => (window.FORM_VALUES && window.FORM_VALUES[key]) || fallback;
 
+// Helper : découper un titre long en lignes de max N caractères
+function splitTitle(text, maxChars = 35) {
+  if (!text) return [''];
+  const words = text.split(' ');
+  const lines = [];
+  let current = '';
+  for (const word of words) {
+    if (current && (current + ' ' + word).length > maxChars) {
+      lines.push(current);
+      current = word;
+    } else {
+      current = current ? current + ' ' + word : word;
+    }
+  }
+  if (current) lines.push(current);
+  return lines.length > 0 ? lines : [''];
+}
+
+// Helper : taille auto selon longueur du texte
+function autoSize(text, baseSize = 40) {
+  if (!text) return baseSize;
+  const len = text.length;
+  if (len < 30) return baseSize;
+  if (len < 50) return Math.round(baseSize * 0.8);
+  if (len < 80) return Math.round(baseSize * 0.65);
+  return Math.round(baseSize * 0.5);
+}
+
 const LUMEN = {
   name: 'Lumen',
   tagline: 'Le guide énergétique des restaurants indépendants.',
@@ -72,10 +100,9 @@ const SlideProblem = ({ s = LUMEN, n, total }) => (
     <PDFHeader kind="Pitch Deck" page={n} total={total}/>
     <Eyebrow x={14} y={22} accent={PDF_COLORS.magenta}>01 — Le problème</Eyebrow>
 
-    <TitleBlock x={14} y={30} size={40} lines={[
-      { text: V('problem_title', 'LE PROBLÈME').split('\n')[0] || 'LE PROBLÈME' },
-      { text: V('problem_title', '').split('\n')[1] || '' },
-    ]}/>
+    <TitleBlock x={14} y={30} size={autoSize(V('problem_title', 'LE PROBLÈME'))} w={250} lines={
+      splitTitle(V('problem_title', 'LE PROBLÈME'), 40).map(l => ({ text: l }))
+    }/>
 
     {/* Left stats */}
     <Abs x={14} y={72}>
@@ -110,10 +137,9 @@ const SlideSolution = ({ s = LUMEN, n, total }) => (
     <PDFHeader kind="Pitch Deck" page={n} total={total}/>
     <Eyebrow x={14} y={22} accent={PDF_COLORS.teal}>02 — La solution</Eyebrow>
 
-    <TitleBlock x={14} y={30} size={40} lines={[
-      { text: V('solution_title', 'NOTRE SOLUTION').split('\n')[0] || 'NOTRE SOLUTION' },
-      { text: V('solution_title', '').split('\n')[1] || '' },
-    ]}/>
+    <TitleBlock x={14} y={30} size={autoSize(V('solution_title', 'NOTRE SOLUTION'))} w={250} lines={
+      splitTitle(V('solution_title', 'NOTRE SOLUTION'), 40).map(l => ({ text: l }))
+    }/>
 
     <Body x={14} y={68} w={120} size={12} lh={1.55} color={PDF_COLORS.muted}>
       {V('mvp_intro', "Description de la solution et de sa proposition de valeur unique.")}
@@ -148,9 +174,12 @@ const SlideMarket = ({ s = LUMEN, n, total }) => (
     <PDFHeader kind="Pitch Deck" page={n} total={total}/>
     <Eyebrow x={14} y={22} accent={PDF_COLORS.violet}>03 — Le marché</Eyebrow>
 
-    <TitleBlock x={14} y={30} size={36} lines={[
-      { text: V('market_size') ? `UN MARCHÉ DE ${V('market_size').toUpperCase()} ${V('market_geo', '').toUpperCase()}` : 'UN PREMIER TAM DE 1,8 MD€ EN FRANCE.' },
-    ]}/>
+    {(() => {
+      const marketTitle = V('market_size') ? `Un marche de ${V('market_size')} ${V('market_geo', '')}` : 'Un premier TAM de 1,8 Md en France.';
+      return <TitleBlock x={14} y={30} size={autoSize(marketTitle, 36)} w={250} lines={
+        splitTitle(marketTitle, 45).map(l => ({ text: l }))
+      }/>;
+    })()}
 
     {/* Horizontal bars — TAM / SAM / SOM (dégressives) */}
     <Abs x={14} y={46}>
@@ -534,10 +563,9 @@ const SlideFunds = ({ s = LUMEN, n, total }) => (
   <div className="pdf-sheet">
     <PDFHeader kind="Pitch Deck" page={n} total={total}/>
     <Eyebrow x={14} y={22} accent={PDF_COLORS.orange}>09 — Usage des fonds</Eyebrow>
-    <TitleBlock x={14} y={30} size={40} lines={[
-      { text: V('funds_title', '800 K€ POUR 18 MOIS DE RUNWAY.').split('\n')[0] || 'USAGE DES FONDS' },
-      { text: V('funds_title', '').split('\n')[1] || '' },
-    ]}/>
+    <TitleBlock x={14} y={30} size={autoSize(V('funds_title', 'USAGE DES FONDS'))} w={250} lines={
+      splitTitle(V('funds_title', 'USAGE DES FONDS'), 40).map(l => ({ text: l }))
+    }/>
 
     {/* Donut chart (CSS conic) */}
     <Abs x={14} y={74}>
