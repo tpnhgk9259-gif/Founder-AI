@@ -75,9 +75,9 @@ export async function POST(req: NextRequest) {
     const docId = crypto.randomUUID();
     const supabase = createServerClient();
 
-    // Upload vers Supabase Storage uniquement pour les fichiers manuels (pas les docs générés)
+    // Upload vers Supabase Storage (tous les fichiers, y compris les docs générés)
     let storagePath: string | undefined;
-    if (!providedText) {
+    if (file.size > 0) {
       const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
       storagePath = `${startupId}/${docId}_${safeName}`;
       const buffer = Buffer.from(await file.arrayBuffer());
