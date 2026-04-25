@@ -48,15 +48,14 @@ const Title = ({ x, y, size = 32, color = PDF_COLORS.ink, children, style, w }) 
 // Multi-line title where each line is rendered in normal flow (block).
 // Children can be string[], or array of {text, color, size, serif}
 const TitleBlock = ({ x, y, size = 32, color = PDF_COLORS.ink, lines = [], style, w }) => (
-  <Abs x={x} y={y} w={w}>
+  <Abs x={x} y={y} w={w || 252}>
     <div style={{
       fontFamily: 'Anton, Bebas Neue, sans-serif',
       fontSize: size,
-      lineHeight: 0.9,
+      lineHeight: 0.95,
       letterSpacing: '-0.012em',
       textTransform: 'uppercase',
       color,
-      whiteSpace: 'nowrap',
       ...style,
     }}>
       {lines.map((ln, i) => {

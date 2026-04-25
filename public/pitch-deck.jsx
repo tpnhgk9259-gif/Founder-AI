@@ -101,9 +101,9 @@ const SlideProblem = ({ s = LUMEN, n, total }) => (
     <PDFHeader kind="Pitch Deck" page={n} total={total}/>
     <Eyebrow x={14} y={22} accent={PDF_COLORS.magenta}>01 — Le problème</Eyebrow>
 
-    <TitleBlock x={14} y={30} size={autoSize(V('problem_title', 'LE PROBLÈME'))} w={250} lines={
-      splitTitle(V('problem_title', 'LE PROBLÈME'), 40).map(l => ({ text: l }))
-    }/>
+    <TitleBlock x={14} y={30} size={autoSize(V('problem_title', 'LE PROBLÈME'))} lines={[
+      { text: V('problem_title', 'LE PROBLÈME') },
+    ]}/>
 
     {/* Left stats */}
     <Abs x={14} y={72}>
@@ -138,9 +138,9 @@ const SlideSolution = ({ s = LUMEN, n, total }) => (
     <PDFHeader kind="Pitch Deck" page={n} total={total}/>
     <Eyebrow x={14} y={22} accent={PDF_COLORS.teal}>02 — La solution</Eyebrow>
 
-    <TitleBlock x={14} y={30} size={autoSize(V('solution_title', 'NOTRE SOLUTION'))} w={250} lines={
-      splitTitle(V('solution_title', 'NOTRE SOLUTION'), 40).map(l => ({ text: l }))
-    }/>
+    <TitleBlock x={14} y={30} size={autoSize(V('solution_title', 'NOTRE SOLUTION'))} lines={[
+      { text: V('solution_title', 'NOTRE SOLUTION') },
+    ]}/>
 
     <Body x={14} y={68} w={120} size={12} lh={1.55} color={PDF_COLORS.muted}>
       {V('mvp_intro', "Description de la solution et de sa proposition de valeur unique.")}
@@ -177,9 +177,9 @@ const SlideMarket = ({ s = LUMEN, n, total }) => (
 
     {(() => {
       const marketTitle = V('market_size') ? `Un marche de ${V('market_size')} ${V('market_geo', '')}` : 'Un premier TAM de 1,8 Md en France.';
-      return <TitleBlock x={14} y={30} size={autoSize(marketTitle, 36)} w={250} lines={
-        splitTitle(marketTitle, 45).map(l => ({ text: l }))
-      }/>;
+      return <TitleBlock x={14} y={30} size={autoSize(marketTitle, 36)} lines={[
+        { text: marketTitle },
+      ]}/>;
     })()}
 
     {/* Horizontal bars — TAM / SAM / SOM (dégressives) */}
@@ -564,9 +564,9 @@ const SlideFunds = ({ s = LUMEN, n, total }) => (
   <div className="pdf-sheet">
     <PDFHeader kind="Pitch Deck" page={n} total={total}/>
     <Eyebrow x={14} y={22} accent={PDF_COLORS.orange}>09 — Usage des fonds</Eyebrow>
-    <TitleBlock x={14} y={30} size={autoSize(V('funds_title', 'USAGE DES FONDS'))} w={250} lines={
-      splitTitle(V('funds_title', 'USAGE DES FONDS'), 40).map(l => ({ text: l }))
-    }/>
+    <TitleBlock x={14} y={30} size={autoSize(V('funds_title', 'USAGE DES FONDS'))} lines={[
+      { text: V('funds_title', 'USAGE DES FONDS') },
+    ]}/>
 
     {/* Donut chart (CSS conic) */}
     <Abs x={14} y={74}>
