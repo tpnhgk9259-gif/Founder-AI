@@ -21,16 +21,17 @@ const SLIDES: { key: SlideKey; num: string; label: string; color: string }[] = [
   { key: "contact", num: "12", label: "Contact", color: "var(--uf-ink)" },
 ];
 
-type Field = { key: string; label: string; placeholder?: string; type?: "text" | "textarea" | "image" | "color"; half?: boolean };
+type Field = { key: string; label: string; placeholder?: string; type?: "text" | "textarea" | "image" | "color" | "toggle"; half?: boolean };
 
 const FIELDS: Record<SlideKey, Field[]> = {
   cover: [
     { key: "startupName", label: "Nom de la startup", placeholder: "Lumen" },
     { key: "tagline", label: "Tagline", placeholder: "Le copilote énergie des restaurateurs indépendants." },
     { key: "stage", label: "Stade & levée", placeholder: "Pré-seed · Recherche 800 k€" },
-    { key: "startup_logo", label: "Logo de la startup (les couleurs du deck s'adaptent automatiquement)", type: "image" },
-    { key: "brand_color", label: "Couleur principale (optionnel, override auto)", placeholder: "#FF6A1F", half: true, type: "color" },
+    { key: "startup_logo", label: "Logo de la startup", type: "image" },
+    { key: "adapt_colors", label: "Adapter les couleurs du deck à mon logo", type: "toggle" },
     { key: "cover_image", label: "Image de couverture (produit, app, photo)", type: "image" },
+    { key: "brand_color", label: "Couleur principale (override manuel)", placeholder: "#FF6A1F", half: true, type: "color" },
   ],
   problem: [
     { key: "problem_title", label: "Titre du problème", placeholder: "L'énergie, 2e poste de charges — ignoré." },
@@ -329,7 +330,26 @@ export default function PitchDeckV2Page() {
                 <label className="text-[11px] font-medium tracking-[0.1em] uppercase block mb-1" style={{ fontFamily: "var(--uf-mono)", color: "var(--uf-muted)" }}>
                   {f.label}
                 </label>
-                {f.type === "image" ? (
+                {f.type === "toggle" ? (
+                  <button
+                    type="button"
+                    onClick={() => updateField(f.key, values[f.key] === "true" ? "false" : "true")}
+                    className="flex items-center gap-3 py-1"
+                  >
+                    <div
+                      className="relative w-11 h-6 rounded-full transition-colors"
+                      style={{ background: values[f.key] === "true" ? "var(--uf-orange)" : "var(--uf-line)" }}
+                    >
+                      <div
+                        className="absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform"
+                        style={{ left: values[f.key] === "true" ? 22 : 2 }}
+                      />
+                    </div>
+                    <span className="text-sm" style={{ color: "var(--uf-ink)" }}>
+                      {values[f.key] === "true" ? "Activé" : "Désactivé"}
+                    </span>
+                  </button>
+                ) : f.type === "image" ? (
                   <div className="flex items-center gap-4">
                     <div
                       className="w-24 h-24 flex items-center justify-center overflow-hidden cursor-pointer"
