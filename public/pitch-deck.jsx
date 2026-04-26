@@ -488,10 +488,7 @@ const SlideTeam = ({ s = LUMEN, n, total }) => (
   <div className="pdf-sheet">
     <PDFHeader kind="Pitch Deck" page={n} total={total}/>
     <Eyebrow x={14} y={22} accent={PDF_COLORS.teal}>08 — Équipe</Eyebrow>
-    <TitleBlock x={14} y={30} size={40} lines={[
-      { text: 'TROIS FONDATEURS,' },
-      { text: 'ONZE ANS ENSEMBLE.' },
-    ]}/>
+    <Title x={14} y={30} size={36}>L&apos;ÉQUIPE</Title>
 
     <Abs x={14} y={60}>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 4 * MM, width: 252 * MM }}>
