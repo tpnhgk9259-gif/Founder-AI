@@ -709,7 +709,7 @@ export default function PitchDeckV2Page() {
               className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-full disabled:opacity-40 hover:-translate-y-px transition-transform"
               style={{ background: "var(--uf-orange)", color: "#fff" }}
             >
-              {filling ? "Génération…" : "Auto-fill IA"}
+              {filling ? "Génération…" : "Demander à mes agents"}
             </button>
             <button
               onClick={openPreview}
