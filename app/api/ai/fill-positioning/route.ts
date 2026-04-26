@@ -30,10 +30,28 @@ Réponds UNIQUEMENT avec un objet JSON valide (sans markdown, sans backticks).`,
   },
   {
     key: "vente",
-    fields: `Tu remplis la section "Marché cible" d'un document de positionnement (Obviously Awesome, April Dunford).
+    fields: `Tu remplis les sections "Marché cible" et "Segmentation" d'un document de positionnement (Obviously Awesome + Disciplined Entrepreneurship).
 
-Remplis ce champ :
-- target_market : Décris l'ICP (Ideal Customer Profile) et les early adopters. Inclus : titre/fonction du décideur, taille d'entreprise, secteur, budget typique, nombre d'entreprises dans le marché cible, et pourquoi ces clients valorisent le plus la proposition de valeur.
+Remplis ces champs dans un objet JSON :
+- target_market : Décris l'ICP (Ideal Customer Profile) et les early adopters. Inclus : titre/fonction du décideur, taille d'entreprise, secteur, budget typique, nombre d'entreprises dans le marché cible.
+- beachhead_plan : Plan d'attaque pour dominer le meilleur segment en 12-18 mois (3-5 actions concrètes).
+- segments : Un TABLEAU JSON de 5-6 segments de marché potentiels. Chaque segment est un objet avec :
+  - name : nom du segment (ex: "PME industrie 50-200 pers.")
+  - urgency : note de 1 à 5 (urgence du besoin pour ce segment)
+  - accessibility : note de 1 à 5 (facilité d'acquisition, réseaux existants)
+  - potential : note de 1 à 5 (taille du gain, revenus, stratégie)
+
+Le segment avec le score le plus élevé devrait être le beachhead market.
+
+Exemple de format :
+{
+  "target_market": "...",
+  "beachhead_plan": "1. ...\n2. ...",
+  "segments": [
+    {"name": "PME industrie", "urgency": 5, "accessibility": 4, "potential": 3},
+    {"name": "Grands comptes pharma", "urgency": 3, "accessibility": 2, "potential": 5}
+  ]
+}
 
 Réponds UNIQUEMENT avec un objet JSON valide (sans markdown, sans backticks).`,
   },
@@ -43,7 +61,7 @@ async function runAgentFill(
   agentKey: AgentKey,
   fieldsInstruction: string,
   startupDescription: string | null,
-): Promise<{ values: Record<string, string>; inputTokens: number; outputTokens: number }> {
+): Promise<{ values: Record<string, unknown>; inputTokens: number; outputTokens: number }> {
   const chunks = await retrieveRelevantChunks(agentKey, "positionnement concurrence marché").catch(() => null);
   const extraKnowledge = chunks?.join("\n\n") ?? null;
   const systemPrompt = buildCodirAgentPrompt(agentKey, startupDescription, extraKnowledge);
@@ -68,7 +86,7 @@ async function runAgentFill(
   const jsonMatch = rawText.match(/\{[\s\S]*\}/);
   if (!jsonMatch) return { values: {}, inputTokens: response.usage?.input_tokens ?? 0, outputTokens: response.usage?.output_tokens ?? 0 };
 
-  let values: Record<string, string>;
+  let values: Record<string, unknown>;
   try {
     values = JSON.parse(jsonrepair(jsonMatch[0]));
   } catch {
@@ -97,13 +115,24 @@ export async function POST(req: NextRequest) {
       AGENT_PROMPTS.map((ap) => runAgentFill(ap.key, ap.fields, context))
     );
 
-    const mergedValues: Record<string, string> = {};
+    const mergedValues: Record<string, unknown> = {};
     let totalInput = 0;
     let totalOutput = 0;
 
+    let extractedSegments: unknown[] | null = null;
+
     results.forEach((result) => {
       if (result.status === "fulfilled") {
-        Object.assign(mergedValues, result.value.values);
+        const vals = { ...result.value.values };
+        // Extract segments array if present
+        if (Array.isArray(vals.segments)) {
+          extractedSegments = vals.segments as unknown[];
+          delete vals.segments;
+        } else if (typeof vals.segments === "string") {
+          try { extractedSegments = JSON.parse(vals.segments as string); } catch { /* ignore */ }
+          delete vals.segments;
+        }
+        Object.assign(mergedValues, vals);
         totalInput += result.value.inputTokens;
         totalOutput += result.value.outputTokens;
       }
@@ -118,7 +147,7 @@ export async function POST(req: NextRequest) {
       outputTokens: totalOutput,
     });
 
-    return Response.json({ values: mergedValues });
+    return Response.json({ values: mergedValues, segments: extractedSegments });
   } catch (err) {
     return Response.json({ error: String(err) }, { status: 500 });
   }

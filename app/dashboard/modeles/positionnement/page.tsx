@@ -58,14 +58,32 @@ const SECTIONS: Section[] = [
 ];
 
 const STATEMENT_KEY = "positioning_statement";
+const BEACHHEAD_KEY = "beachhead_plan";
+const MAX_SEGMENTS = 8;
+
+type Segment = {
+  name: string;
+  urgency: number;    // 1-5
+  accessibility: number; // 1-5
+  potential: number;  // 1-5
+};
+
+function emptySegment(): Segment {
+  return { name: "", urgency: 0, accessibility: 0, potential: 0 };
+}
+
+function segmentScore(s: Segment): number {
+  return s.urgency + s.accessibility + s.potential;
+}
 
 export default function PositionnementPage() {
   const [startupId, setStartupId] = useState<string | null>(null);
   const [startupName, setStartupName] = useState("");
   const [startupLogo, setStartupLogo] = useState("");
   const [values, setValues] = useState<Record<string, string>>(() =>
-    Object.fromEntries([...SECTIONS.map((s) => [s.key, ""]), [STATEMENT_KEY, ""]])
+    Object.fromEntries([...SECTIONS.map((s) => [s.key, ""]), [STATEMENT_KEY, ""], [BEACHHEAD_KEY, ""]])
   );
+  const [segments, setSegments] = useState<Segment[]>([emptySegment(), emptySegment(), emptySegment(), emptySegment()]);
   const [filling, setFilling] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState("");
@@ -84,15 +102,50 @@ export default function PositionnementPage() {
         .catch(() => {});
       const saved = localStorage.getItem(`founderai_positioning_${sid}`);
       if (saved) {
-        try { setValues((prev) => ({ ...prev, ...JSON.parse(saved) })); } catch { /* ignore */ }
+        try {
+          const parsed = JSON.parse(saved);
+          if (parsed._segments) { setSegments(parsed._segments); delete parsed._segments; }
+          setValues((prev) => ({ ...prev, ...parsed }));
+        } catch { /* ignore */ }
       }
     }
   }, []);
 
+  function persist(vals: Record<string, string>, segs: Segment[]) {
+    if (startupId) localStorage.setItem(`founderai_positioning_${startupId}`, JSON.stringify({ ...vals, _segments: segs }));
+  }
+
   function updateField(key: string, val: string) {
     setValues((prev) => {
       const next = { ...prev, [key]: val };
-      if (startupId) localStorage.setItem(`founderai_positioning_${startupId}`, JSON.stringify(next));
+      persist(next, segments);
+      return next;
+    });
+  }
+
+  function updateSegment(idx: number, patch: Partial<Segment>) {
+    setSegments((prev) => {
+      const next = [...prev];
+      next[idx] = { ...next[idx], ...patch };
+      persist(values, next);
+      return next;
+    });
+  }
+
+  function addSegment() {
+    if (segments.length >= MAX_SEGMENTS) return;
+    setSegments((prev) => {
+      const next = [...prev, emptySegment()];
+      persist(values, next);
+      return next;
+    });
+  }
+
+  function removeSegment(idx: number) {
+    if (segments.length <= 2) return;
+    setSegments((prev) => {
+      const next = prev.filter((_, i) => i !== idx);
+      persist(values, next);
       return next;
     });
   }
@@ -109,9 +162,11 @@ export default function PositionnementPage() {
       });
       const json = await res.json();
       if (!res.ok) { setError(json.error ?? "Erreur lors de la génération."); return; }
+      const newSegments = json.segments ?? segments;
+      if (json.segments) setSegments(newSegments);
       setValues((prev) => {
         const next = { ...prev, ...json.values };
-        if (startupId) localStorage.setItem(`founderai_positioning_${startupId}`, JSON.stringify(next));
+        persist(next, newSegments);
         return next;
       });
     } catch {
@@ -248,6 +303,108 @@ export default function PositionnementPage() {
         y += 6;
       });
 
+      // Segmentation & Beachhead
+      const scoredSegments = segments.filter((s) => s.name.trim() && s.urgency > 0);
+      if (scoredSegments.length > 0) {
+        y = checkPage(y, 16 + scoredSegments.length * 7);
+
+        doc.setDrawColor(13, 180, 160);
+        doc.setLineWidth(0.8);
+        doc.line(M, y, M + 14, y);
+        doc.setFontSize(8);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(13, 180, 160);
+        doc.text("SEGMENTATION & BEACHHEAD MARKET", M + 17, y + 0.5);
+        doc.setDrawColor(...LINE);
+        doc.setLineWidth(0.2);
+        doc.line(M + 17 + doc.getTextWidth("SEGMENTATION & BEACHHEAD MARKET") + 2, y, PW - M, y);
+        y += 6;
+
+        // Table header
+        const colX = [M + 2, M + 60, M + 90, M + 120, M + 150];
+        doc.setFontSize(7);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(...MUTED);
+        doc.text("SEGMENT", colX[0], y + 3);
+        doc.setTextColor(232, 53, 142);
+        doc.text("URGENCE", colX[1], y + 3);
+        doc.setTextColor(110, 75, 232);
+        doc.text("ACCESS.", colX[2], y + 3);
+        doc.setTextColor(255, 106, 31);
+        doc.text("POTENTIEL", colX[3], y + 3);
+        doc.setTextColor(...INK);
+        doc.text("SCORE", colX[4], y + 3);
+        y += 5;
+        doc.setDrawColor(...INK);
+        doc.setLineWidth(0.4);
+        doc.line(M, y, PW - M, y);
+        y += 2;
+
+        // Sort by score desc
+        const sorted = [...scoredSegments].sort((a, b) => segmentScore(b) - segmentScore(a));
+        const topScore = segmentScore(sorted[0]);
+
+        sorted.forEach((seg) => {
+          y = checkPage(y, 7);
+          const score = segmentScore(seg);
+          const isBest = score === topScore;
+
+          if (isBest) {
+            doc.setFillColor(13, 180, 160, 0.08);
+            doc.rect(M, y - 1, W, 6, "F");
+          }
+
+          doc.setFontSize(8);
+          doc.setFont("helvetica", isBest ? "bold" : "normal");
+          doc.setTextColor(...INK);
+          doc.text(seg.name, colX[0], y + 3);
+
+          // Dots for scores
+          function drawDots(x: number, val: number, color: [number, number, number]) {
+            for (let i = 1; i <= 5; i++) {
+              if (i <= val) { doc.setFillColor(...color); } else { doc.setFillColor(...LINE); }
+              doc.circle(x + (i - 1) * 4.5, y + 2.5, 1.5, "F");
+            }
+          }
+          drawDots(colX[1], seg.urgency, [232, 53, 142]);
+          drawDots(colX[2], seg.accessibility, [110, 75, 232]);
+          drawDots(colX[3], seg.potential, [255, 106, 31]);
+
+          doc.setFont("helvetica", "bold");
+          doc.setTextColor(isBest ? 13 : 15, isBest ? 180 : 14, isBest ? 160 : 11);
+          doc.text(`${score}/15`, colX[4], y + 3);
+
+          y += 7;
+        });
+
+        // Beachhead plan
+        const beachheadPlan = values[BEACHHEAD_KEY]?.trim();
+        if (beachheadPlan && sorted.length > 0) {
+          y += 2;
+          y = checkPage(y, 20);
+          doc.setFillColor(255, 255, 255);
+          const bLines = doc.splitTextToSize(beachheadPlan, W - 10);
+          const bH = bLines.length * 4.5 + 12;
+          doc.roundedRect(M, y, W, bH, 1.5, 1.5, "F");
+          doc.setDrawColor(13, 180, 160);
+          doc.setLineWidth(0.4);
+          doc.roundedRect(M, y, W, bH, 1.5, 1.5);
+
+          doc.setFontSize(7);
+          doc.setFont("helvetica", "bold");
+          doc.setTextColor(13, 180, 160);
+          doc.text(`BEACHHEAD : ${sorted[0].name.toUpperCase()}`, M + 4, y + 5);
+
+          doc.setFontSize(8.5);
+          doc.setFont("helvetica", "normal");
+          doc.setTextColor(...INK);
+          doc.text(bLines, M + 4, y + 10);
+          y += bH + 4;
+        }
+
+        y += 4;
+      }
+
       // Statement de positionnement
       const statement = values[STATEMENT_KEY]?.trim();
       if (statement) {
@@ -332,7 +489,11 @@ export default function PositionnementPage() {
     }
   }
 
-  const hasContent = Object.values(values).some((v) => v.trim().length > 0);
+  const hasContent = Object.values(values).some((v) => v.trim().length > 0) || segments.some((s) => s.name.trim());
+  const filledSegments = segments.filter((s) => s.name.trim() && s.urgency > 0);
+  const bestSegment = filledSegments.length > 0
+    ? filledSegments.reduce((a, b) => segmentScore(a) > segmentScore(b) ? a : b)
+    : null;
 
   return (
     <div className="min-h-screen" style={{ background: "var(--uf-paper)" }}>
@@ -364,8 +525,9 @@ export default function PositionnementPage() {
             </button>
             <button
               onClick={() => {
-                const empty = Object.fromEntries([...SECTIONS.map((s) => [s.key, ""]), [STATEMENT_KEY, ""]]);
+                const empty = Object.fromEntries([...SECTIONS.map((s) => [s.key, ""]), [STATEMENT_KEY, ""], [BEACHHEAD_KEY, ""]]);
                 setValues(empty);
+                setSegments([emptySegment(), emptySegment(), emptySegment(), emptySegment()]);
                 if (startupId) localStorage.removeItem(`founderai_positioning_${startupId}`);
                 setSaveSuccess(false);
                 setError("");
@@ -442,6 +604,124 @@ export default function PositionnementPage() {
             />
           </div>
         ))}
+
+        {/* ── Section 6 : Segmentation & Beachhead ── */}
+        <div className="p-5" style={{ background: "var(--uf-card)", border: "1.5px solid #0DB4A050", borderLeft: "4px solid #0DB4A0", borderRadius: "var(--uf-r-xl)" }}>
+          <div className="flex items-center gap-3 mb-1">
+            <span className="w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-bold text-white" style={{ background: "#0DB4A0", fontFamily: "var(--uf-mono)" }}>06</span>
+            <h2 className="font-bold uppercase tracking-wide" style={{ color: "var(--uf-ink)", fontFamily: "var(--uf-display)", fontSize: 16 }}>
+              Segmentation & Beachhead Market
+            </h2>
+          </div>
+          <p className="text-xs mb-4" style={{ color: "var(--uf-muted)", fontStyle: "italic" }}>
+            Listez vos segments potentiels et notez-les. Le segment avec le meilleur score devient votre beachhead — le march{"\u00E9"} que vous pouvez dominer en premier (Bill Aulet, MIT).
+          </p>
+
+          {/* Grille de scoring */}
+          <div style={{ overflowX: "auto" }}>
+            <table className="w-full text-sm" style={{ borderCollapse: "collapse" }}>
+              <thead>
+                <tr>
+                  <th className="text-left px-3 py-2 text-[10px] font-medium tracking-[0.12em] uppercase" style={{ fontFamily: "var(--uf-mono)", color: "var(--uf-muted)", borderBottom: "2px solid var(--uf-ink)", width: "35%" }}>Segment</th>
+                  <th className="text-center px-2 py-2 text-[10px] font-medium tracking-[0.12em] uppercase" style={{ fontFamily: "var(--uf-mono)", color: "#E8358E", borderBottom: "2px solid var(--uf-ink)" }}>Urgence</th>
+                  <th className="text-center px-2 py-2 text-[10px] font-medium tracking-[0.12em] uppercase" style={{ fontFamily: "var(--uf-mono)", color: "#6E4BE8", borderBottom: "2px solid var(--uf-ink)" }}>Accessibilit{"\u00E9"}</th>
+                  <th className="text-center px-2 py-2 text-[10px] font-medium tracking-[0.12em] uppercase" style={{ fontFamily: "var(--uf-mono)", color: "#FF6A1F", borderBottom: "2px solid var(--uf-ink)" }}>Potentiel</th>
+                  <th className="text-center px-2 py-2 text-[10px] font-medium tracking-[0.12em] uppercase" style={{ fontFamily: "var(--uf-mono)", color: "var(--uf-ink)", borderBottom: "2px solid var(--uf-ink)" }}>Score</th>
+                  <th className="w-8" style={{ borderBottom: "2px solid var(--uf-ink)" }} />
+                </tr>
+              </thead>
+              <tbody>
+                {segments.map((seg, idx) => {
+                  const score = segmentScore(seg);
+                  const isBest = bestSegment && seg.name === bestSegment.name && score === segmentScore(bestSegment) && score > 0;
+                  return (
+                    <tr key={idx} style={{ borderBottom: "1px solid var(--uf-line)", background: isBest ? "#0DB4A010" : "transparent" }}>
+                      <td className="px-3 py-2">
+                        <input
+                          type="text"
+                          value={seg.name}
+                          onChange={(e) => updateSegment(idx, { name: e.target.value })}
+                          placeholder={["PME industrie 50-200 pers.", "Grands comptes pharma", "ETI agroalimentaire", "Startups deeptech"][idx] ?? "Segment..."}
+                          className="w-full text-sm px-2 py-1 focus:outline-none"
+                          style={{ border: "1px solid var(--uf-line)", borderRadius: "var(--uf-r-sm)", color: "var(--uf-ink)", background: "var(--uf-paper)" }}
+                        />
+                      </td>
+                      {(["urgency", "accessibility", "potential"] as const).map((key) => (
+                        <td key={key} className="text-center px-2 py-2">
+                          <div className="flex justify-center gap-0.5">
+                            {[1, 2, 3, 4, 5].map((n) => (
+                              <button
+                                key={n}
+                                type="button"
+                                onClick={() => updateSegment(idx, { [key]: seg[key] === n ? 0 : n })}
+                                className="w-6 h-6 rounded text-[10px] font-bold transition-all"
+                                style={{
+                                  background: seg[key] >= n
+                                    ? (key === "urgency" ? "#E8358E" : key === "accessibility" ? "#6E4BE8" : "#FF6A1F")
+                                    : "var(--uf-paper-2)",
+                                  color: seg[key] >= n ? "#fff" : "var(--uf-muted)",
+                                  border: "none",
+                                  cursor: "pointer",
+                                }}
+                              >
+                                {n}
+                              </button>
+                            ))}
+                          </div>
+                        </td>
+                      ))}
+                      <td className="text-center px-2 py-2">
+                        <span className="text-sm font-bold" style={{ fontFamily: "var(--uf-mono)", color: isBest ? "#0DB4A0" : "var(--uf-ink)" }}>
+                          {score > 0 ? `${score}/15` : "-"}
+                        </span>
+                      </td>
+                      <td className="px-1 py-2">
+                        {segments.length > 2 && (
+                          <button type="button" onClick={() => removeSegment(idx)} className="text-xs transition-colors hover:opacity-70" style={{ color: "var(--uf-muted)" }}>
+                            {"\u2715"}
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {segments.length < MAX_SEGMENTS && (
+            <button
+              type="button"
+              onClick={addSegment}
+              className="mt-3 text-xs font-medium px-3 py-1.5 rounded-full transition-all"
+              style={{ border: "1.5px solid var(--uf-line)", color: "var(--uf-muted)", background: "var(--uf-paper)" }}
+            >
+              + Ajouter un segment
+            </button>
+          )}
+
+          {/* Beachhead winner */}
+          {bestSegment && (
+            <div className="mt-4 p-4" style={{ background: "#0DB4A014", border: "1.5px solid #0DB4A040", borderRadius: "var(--uf-r-lg)" }}>
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-sm font-bold" style={{ color: "#0DB4A0", fontFamily: "var(--uf-display)" }}>BEACHHEAD MARKET</span>
+                <span className="text-xs px-2 py-0.5 rounded-full font-bold" style={{ background: "#0DB4A0", color: "#fff", fontFamily: "var(--uf-mono)" }}>{segmentScore(bestSegment)}/15</span>
+              </div>
+              <div className="text-sm font-semibold mb-2" style={{ color: "var(--uf-ink)" }}>{bestSegment.name}</div>
+              <p className="text-xs mb-2" style={{ color: "var(--uf-muted)", fontStyle: "italic" }}>
+                {"D\u00E9crivez votre plan d'attaque : comment allez-vous dominer ce segment en 12-18 mois ?"}
+              </p>
+              <textarea
+                value={values[BEACHHEAD_KEY]}
+                onChange={(e) => updateField(BEACHHEAD_KEY, e.target.value)}
+                placeholder={"1. Recruter 10 clients pilotes via le réseau industrie\n2. Atteindre 80% de rétention sur 6 mois\n3. Développer 3 cas d'usage référençables\n4. Lever une preuve de traction pour le segment suivant"}
+                rows={4}
+                className="w-full text-sm px-4 py-3 focus:outline-none resize-y"
+                style={{ border: "1px solid #0DB4A060", borderRadius: "var(--uf-r-lg)", color: "var(--uf-ink)", background: "var(--uf-paper)", lineHeight: 1.6 }}
+              />
+            </div>
+          )}
+        </div>
 
         {/* Statement de positionnement */}
         <div
