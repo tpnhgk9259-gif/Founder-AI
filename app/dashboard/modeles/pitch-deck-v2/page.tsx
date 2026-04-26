@@ -289,6 +289,7 @@ const FIELDS_DEEPTECH: Partial<Record<SlideKey, Field[]>> = {
     { key: "partner_indus2", label: "Partenaire industriel 2 (optionnel)", placeholder: "Verkor", half: true },
   ],
   roadmap_rd: [
+    { key: "roadmap_rd_title", label: "Titre de la slide", placeholder: "De la recherche au marché." },
     { key: "rd1_quarter", label: "Jalon R&D 1 — Période", placeholder: "T2 26", half: true },
     { key: "rd1_title", label: "Jalon R&D 1 — Titre", placeholder: "Seed + bourse EIC", half: true },
     { key: "rd1_note", label: "Jalon R&D 1 — Détail", placeholder: "1,5 M€ equity + 2 M€ grant EIC Accelerator" },

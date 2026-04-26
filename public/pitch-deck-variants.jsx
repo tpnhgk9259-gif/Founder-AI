@@ -146,11 +146,8 @@ const SlideRoadmapRD = ({ s = LUMEN, n, total }) => {
   return (
     <div className="pdf-sheet">
       <PDFHeader startup={V('startupName') || s.name} logo={V('startup_logo')} kind="Pitch Deck" page={n} total={total}/>
-      <Eyebrow x={14} y={22} accent={PDF_COLORS.violet}>11 — Roadmap R&D</Eyebrow>
-      <TitleBlock x={14} y={30} size={36} lines={[
-        { text: 'DE LA RECHERCHE' },
-        { text: 'AU MARCHE.', color: PDF_COLORS.violet },
-      ]}/>
+      <Eyebrow x={14} y={22} accent={PDF_COLORS.violet}>12 — Roadmap R&D</Eyebrow>
+      <Title x={14} y={30} size={autoSize(V('roadmap_rd_title', 'DE LA RECHERCHE AU MARCHE.'))}>{V('roadmap_rd_title', 'DE LA RECHERCHE AU MARCHE.')}</Title>
 
       {/* Timeline */}
       <Abs x={14} y={60}>
