@@ -31,7 +31,7 @@ const FIELDS: Record<SlideKey, Field[]> = {
     { key: "startup_logo", label: "Logo de la startup", type: "image" },
     { key: "adapt_colors", label: "Adapter les couleurs du deck à mon logo", type: "toggle" },
     { key: "cover_image", label: "Image de couverture (produit, app, photo)", type: "image" },
-    { key: "brand_color", label: "Couleur principale (override manuel)", placeholder: "#FF6A1F", half: true, type: "color" },
+    { key: "brand_color", label: "Couleur principale (forcer manuellement)", placeholder: "#FF6A1F", half: true, type: "color" },
   ],
   problem: [
     { key: "problem_title", label: "Titre du problème", placeholder: "L'énergie, 2e poste de charges — ignoré." },
