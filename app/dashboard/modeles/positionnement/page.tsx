@@ -232,7 +232,6 @@ export default function PositionnementPage() {
       doc.setFontSize(10);
       doc.setFont("helvetica", "italic");
       doc.setTextColor(...MUTED);
-      doc.text("Obviously Awesome \u2014 April Dunford", M, M + 26);
 
       let y = M + 34;
 
@@ -510,7 +509,6 @@ export default function PositionnementPage() {
                 <h1 className="uppercase tracking-[-0.015em]" style={{ fontFamily: "var(--uf-display)", fontSize: 22, lineHeight: 0.85, color: "var(--uf-ink)" }}>
                   Positionnement
                 </h1>
-                <p className="text-xs mt-1" style={{ color: "var(--uf-muted)", fontStyle: "italic" }}>Obviously Awesome — April Dunford</p>
               </div>
             </div>
           </div>
@@ -756,7 +754,7 @@ export default function PositionnementPage() {
         </div>
 
         <p className="text-center text-[11px] pt-2" style={{ color: "var(--uf-muted)" }}>
-          Framework Obviously Awesome — April Dunford. Remplissez dans l'ordre : chaque composante alimente la suivante.
+          Remplissez dans l'ordre : chaque composante alimente la suivante.
         </p>
       </div>
     </div>
