@@ -1624,7 +1624,7 @@ const ALL_TEMPLATES: DocumentTemplate[] = [
   { emoji: "🚀", name: "Pitch Deck Seed",                description: "Structure en 10 slides pour lever en early-stage.",             requiredPlan: "starter" },
   { emoji: "📈", name: "BP Seed",                        description: "Business plan simplifié pour votre première levée.",            requiredPlan: "starter" },
   { emoji: "🎯", name: "Positionnement et compétition",  description: "Analyse concurrentielle et différenciation marché.",            requiredPlan: "growth"  },
-  { emoji: "🗺️", name: "Product Roadmap Builder",        description: "Template de roadmap trimestrielle orientée impact.",            requiredPlan: "growth"  },
+  { emoji: "🗺️", name: "Roadmap Produit",                 description: "Template de roadmap trimestrielle orientée impact.",            requiredPlan: "growth"  },
   { emoji: "💼", name: "Sales Strategy",                 description: "Stratégie commerciale, pipeline et canaux d'acquisition.",      requiredPlan: "growth"  },
   { emoji: "🔒", name: "IP Strategy",                    description: "Stratégie de propriété intellectuelle et brevets.",             requiredPlan: "growth"  },
   { emoji: "🏗️", name: "Operating System Canvas",        description: "Modèle opérationnel pour scaler votre organisation.",          requiredPlan: "scale"   },
