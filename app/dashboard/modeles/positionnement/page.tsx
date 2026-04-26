@@ -612,7 +612,7 @@ export default function PositionnementPage() {
             </h2>
           </div>
           <p className="text-xs mb-4" style={{ color: "var(--uf-muted)", fontStyle: "italic" }}>
-            Listez vos segments potentiels et notez-les. Le segment avec le meilleur score devient votre march{"\u00E9"} d'ancrage ��� celui que vous pouvez dominer en premier.
+            Listez vos segments potentiels et notez-les. Le segment avec le meilleur score devient votre march{"\u00E9"} d'ancrage {"\u2014"} celui que vous pouvez dominer en premier.
           </p>
 
           {/* Grille de scoring */}
