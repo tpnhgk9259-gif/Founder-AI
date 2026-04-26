@@ -85,9 +85,7 @@ export default function PositionnementPage() {
   );
   const [segments, setSegments] = useState<Segment[]>([emptySegment(), emptySegment(), emptySegment(), emptySegment()]);
   const [filling, setFilling] = useState(false);
-  const [generating, setGenerating] = useState(false);
   const [error, setError] = useState("");
-  const [saveSuccess, setSaveSuccess] = useState(false);
 
   useEffect(() => {
     const sid = localStorage.getItem("founderai_startup_id");
@@ -176,316 +174,10 @@ export default function PositionnementPage() {
     }
   }
 
-  async function handleGeneratePdf() {
-    if (!startupId) return;
-    setGenerating(true);
-    setError("");
-    setSaveSuccess(false);
-
-    try {
-      const { jsPDF } = await import("jspdf");
-      const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-
-      const PW = 210;
-      const PH = 297;
-      const M = 14;
-      const W = PW - 2 * M;
-
-      const ORANGE: [number, number, number] = [255, 106, 31];
-      const INK: [number, number, number] = [15, 14, 11];
-      const MUTED: [number, number, number] = [108, 103, 96];
-      const LINE: [number, number, number] = [224, 217, 199];
-      const PAPER: [number, number, number] = [251, 248, 240];
-
-      // Fond
-      doc.setFillColor(...PAPER);
-      doc.rect(0, 0, PW, PH, "F");
-
-      // Header
-      doc.setFillColor(...ORANGE);
-      doc.circle(M + 3.5, M + 3.5, 3.5, "F");
-      doc.setFontSize(5);
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(255, 255, 255);
-      doc.text("f", M + 2.3, M + 5);
-
-      doc.setFontSize(8);
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(...INK);
-      const headerName = (startupName || "Startup").toUpperCase();
-      doc.text(headerName, M + 10, M + 5);
-      doc.setFont("helvetica", "normal");
-      doc.setTextColor(...MUTED);
-      doc.setFontSize(7);
-      doc.text("\u00B7  Positionnement", M + 10 + doc.getTextWidth(headerName) + 3, M + 5);
-      doc.text(new Date().toLocaleDateString("fr-FR"), PW - M, M + 5, { align: "right" });
-
-      doc.setDrawColor(...LINE);
-      doc.setLineWidth(0.3);
-      doc.line(M, M + 9, PW - M, M + 9);
-
-      // Titre
-      doc.setFontSize(22);
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(...INK);
-      doc.text("POSITIONNEMENT", M, M + 20);
-      doc.setFontSize(10);
-      doc.setFont("helvetica", "italic");
-      doc.setTextColor(...MUTED);
-
-      let y = M + 34;
-
-      function checkPage(curY: number, needed: number): number {
-        if (curY + needed > PH - M - 6) {
-          doc.addPage();
-          doc.setFillColor(...PAPER);
-          doc.rect(0, 0, PW, PH, "F");
-          return M + 6;
-        }
-        return curY;
-      }
-
-      // Sections
-      const sectionColors: [number, number, number][] = [
-        [232, 53, 142],  // magenta
-        [110, 75, 232],  // violet
-        [255, 106, 31],  // orange
-        [13, 180, 160],  // teal
-        [255, 209, 42],  // yellow
-      ];
-
-      SECTIONS.forEach((section, idx) => {
-        const content = values[section.key]?.trim() || "";
-        const contentLines = content ? doc.splitTextToSize(content, W - 10) : [];
-        const blockH = 14 + contentLines.length * 4.5 + 6;
-
-        y = checkPage(y, blockH);
-
-        const sc = sectionColors[idx];
-
-        // Barre accent
-        doc.setDrawColor(...sc);
-        doc.setLineWidth(1);
-        doc.line(M, y, M, y + blockH - 2);
-
-        // Numéro
-        doc.setFillColor(...sc);
-        doc.roundedRect(M + 3, y, 7, 5, 1, 1, "F");
-        doc.setFontSize(7);
-        doc.setFont("helvetica", "bold");
-        doc.setTextColor(255, 255, 255);
-        doc.text(section.num, M + 5, y + 3.5);
-
-        // Titre section
-        doc.setFontSize(10);
-        doc.setFont("helvetica", "bold");
-        doc.setTextColor(...INK);
-        doc.text(section.label.toUpperCase(), M + 13, y + 4);
-
-        // Description
-        doc.setFontSize(7);
-        doc.setFont("helvetica", "italic");
-        doc.setTextColor(...MUTED);
-        const descLines = doc.splitTextToSize(section.description, W - 14);
-        doc.text(descLines.slice(0, 2), M + 13, y + 9);
-        y += 14;
-
-        // Contenu
-        if (contentLines.length > 0) {
-          doc.setFontSize(9);
-          doc.setFont("helvetica", "normal");
-          doc.setTextColor(...INK);
-          doc.text(contentLines, M + 6, y);
-          y += contentLines.length * 4.5;
-        }
-
-        y += 6;
-      });
-
-      // Segmentation & Beachhead
-      const scoredSegments = segments.filter((s) => s.name.trim() && s.urgency > 0);
-      if (scoredSegments.length > 0) {
-        y = checkPage(y, 16 + scoredSegments.length * 7);
-
-        doc.setDrawColor(13, 180, 160);
-        doc.setLineWidth(0.8);
-        doc.line(M, y, M + 14, y);
-        doc.setFontSize(8);
-        doc.setFont("helvetica", "bold");
-        doc.setTextColor(13, 180, 160);
-        doc.text("SEGMENTATION & MARCH\u00C9 D'ANCRAGE", M + 17, y + 0.5);
-        doc.setDrawColor(...LINE);
-        doc.setLineWidth(0.2);
-        doc.line(M + 17 + doc.getTextWidth("SEGMENTATION & MARCH\u00C9 D'ANCRAGE") + 2, y, PW - M, y);
-        y += 6;
-
-        // Table header
-        const colX = [M + 2, M + 60, M + 90, M + 120, M + 150];
-        doc.setFontSize(7);
-        doc.setFont("helvetica", "bold");
-        doc.setTextColor(...MUTED);
-        doc.text("SEGMENT", colX[0], y + 3);
-        doc.setTextColor(232, 53, 142);
-        doc.text("URGENCE", colX[1], y + 3);
-        doc.setTextColor(110, 75, 232);
-        doc.text("ACCESS.", colX[2], y + 3);
-        doc.setTextColor(255, 106, 31);
-        doc.text("POTENTIEL", colX[3], y + 3);
-        doc.setTextColor(...INK);
-        doc.text("SCORE", colX[4], y + 3);
-        y += 5;
-        doc.setDrawColor(...INK);
-        doc.setLineWidth(0.4);
-        doc.line(M, y, PW - M, y);
-        y += 2;
-
-        // Sort by score desc
-        const sorted = [...scoredSegments].sort((a, b) => segmentScore(b) - segmentScore(a));
-        const topScore = segmentScore(sorted[0]);
-
-        sorted.forEach((seg) => {
-          y = checkPage(y, 7);
-          const score = segmentScore(seg);
-          const isBest = score === topScore;
-
-          if (isBest) {
-            doc.setFillColor(13, 180, 160, 0.08);
-            doc.rect(M, y - 1, W, 6, "F");
-          }
-
-          doc.setFontSize(8);
-          doc.setFont("helvetica", isBest ? "bold" : "normal");
-          doc.setTextColor(...INK);
-          doc.text(seg.name, colX[0], y + 3);
-
-          // Dots for scores
-          function drawDots(x: number, val: number, color: [number, number, number]) {
-            for (let i = 1; i <= 5; i++) {
-              if (i <= val) { doc.setFillColor(...color); } else { doc.setFillColor(...LINE); }
-              doc.circle(x + (i - 1) * 4.5, y + 2.5, 1.5, "F");
-            }
-          }
-          drawDots(colX[1], seg.urgency, [232, 53, 142]);
-          drawDots(colX[2], seg.accessibility, [110, 75, 232]);
-          drawDots(colX[3], seg.potential, [255, 106, 31]);
-
-          doc.setFont("helvetica", "bold");
-          doc.setTextColor(isBest ? 13 : 15, isBest ? 180 : 14, isBest ? 160 : 11);
-          doc.text(`${score}/15`, colX[4], y + 3);
-
-          y += 7;
-        });
-
-        // Beachhead plan
-        const beachheadPlan = values[BEACHHEAD_KEY]?.trim();
-        if (beachheadPlan && sorted.length > 0) {
-          y += 2;
-          y = checkPage(y, 20);
-          doc.setFillColor(255, 255, 255);
-          const bLines = doc.splitTextToSize(beachheadPlan, W - 10);
-          const bH = bLines.length * 4.5 + 12;
-          doc.roundedRect(M, y, W, bH, 1.5, 1.5, "F");
-          doc.setDrawColor(13, 180, 160);
-          doc.setLineWidth(0.4);
-          doc.roundedRect(M, y, W, bH, 1.5, 1.5);
-
-          doc.setFontSize(7);
-          doc.setFont("helvetica", "bold");
-          doc.setTextColor(13, 180, 160);
-          doc.text(`MARCH\u00C9 D'ANCRAGE : ${sorted[0].name.toUpperCase()}`, M + 4, y + 5);
-
-          doc.setFontSize(8.5);
-          doc.setFont("helvetica", "normal");
-          doc.setTextColor(...INK);
-          doc.text(bLines, M + 4, y + 10);
-          y += bH + 4;
-        }
-
-        y += 4;
-      }
-
-      // Positionnement
-      const statement = values[STATEMENT_KEY]?.trim();
-      if (statement) {
-        y = checkPage(y, 30);
-
-        doc.setDrawColor(...ORANGE);
-        doc.setLineWidth(0.8);
-        doc.line(M, y, M + 14, y);
-        doc.setFontSize(8);
-        doc.setFont("helvetica", "bold");
-        doc.setTextColor(...ORANGE);
-        doc.text("POSITIONNEMENT", M + 17, y + 0.5);
-
-        y += 6;
-        doc.setFillColor(255, 255, 255);
-        doc.roundedRect(M, y, W, 0, 1.5, 1.5, "F"); // placeholder for height
-
-        doc.setFontSize(11);
-        doc.setFont("helvetica", "bold");
-        doc.setTextColor(...INK);
-        const stLines = doc.splitTextToSize(statement, W - 10);
-        const stH = stLines.length * 5.5 + 8;
-        doc.setFillColor(255, 255, 255);
-        doc.roundedRect(M, y, W, stH, 1.5, 1.5, "F");
-        doc.setDrawColor(...ORANGE);
-        doc.setLineWidth(0.4);
-        doc.roundedRect(M, y, W, stH, 1.5, 1.5);
-        doc.text(stLines, M + 5, y + 6);
-        y += stH + 6;
-      }
-
-      // Footer
-      const totalPages = (doc as unknown as { internal: { getNumberOfPages: () => number } }).internal.getNumberOfPages();
-      for (let p = 1; p <= totalPages; p++) {
-        doc.setPage(p);
-        doc.setDrawColor(...LINE);
-        doc.setLineWidth(0.2);
-        doc.line(M, PH - M - 2, PW - M, PH - M - 2);
-        doc.setFontSize(6.5);
-        doc.setFont("helvetica", "normal");
-        doc.setTextColor(...MUTED);
-        doc.text(`${headerName}  \u00B7  Positionnement  \u00B7  ${new Date().toLocaleDateString("fr-FR")}`, M, PH - M + 1);
-        doc.text(`${p} / ${totalPages}`, PW - M, PH - M + 1, { align: "right" });
-      }
-
-      // Export
-      const dateStr = new Date().toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric" });
-      const fileName = `Positionnement${startupName ? ` \u2014 ${startupName}` : ""} (${dateStr}).pdf`;
-      const pdfBlob = doc.output("blob");
-
-      const dlUrl = URL.createObjectURL(pdfBlob);
-      const dlLink = document.createElement("a");
-      dlLink.href = dlUrl;
-      dlLink.download = fileName;
-      dlLink.click();
-      URL.revokeObjectURL(dlUrl);
-
-      // Upload
-      const file = new File([pdfBlob], fileName, { type: "application/pdf" });
-      const textContent = SECTIONS.map((s) => `${s.label}\n${values[s.key] || "\u2014"}`).join("\n\n")
-        + (statement ? `\n\nPositionnement\n${statement}` : "");
-
-      const formData = new FormData();
-      formData.append("startupId", startupId!);
-      formData.append("file", file);
-      formData.append("text", textContent);
-
-      const uploadRes = await fetch("/api/startup/upload", { method: "POST", body: formData });
-      if (!uploadRes.ok) {
-        const ct = uploadRes.headers.get("content-type") || "";
-        const msg = ct.includes("application/json")
-          ? ((await uploadRes.json()).error ?? "Erreur lors de la sauvegarde.")
-          : `Erreur serveur temporaire (${uploadRes.status}).`;
-        setError(msg);
-        return;
-      }
-      setSaveSuccess(true);
-    } catch (err) {
-      setError(String(err));
-    } finally {
-      setGenerating(false);
-    }
+  function openPreview() {
+    const data = { ...values, _segments: segments, startupName };
+    sessionStorage.setItem("founderai_positioning", JSON.stringify(data));
+    window.open("/positionnement-preview.html", "_blank");
   }
 
   const hasContent = Object.values(values).some((v) => v.trim().length > 0) || segments.some((s) => s.name.trim());
@@ -527,7 +219,6 @@ export default function PositionnementPage() {
                 setValues(empty);
                 setSegments([emptySegment(), emptySegment(), emptySegment(), emptySegment()]);
                 if (startupId) localStorage.removeItem(`founderai_positioning_${startupId}`);
-                setSaveSuccess(false);
                 setError("");
               }}
               className="px-4 py-2.5 text-sm font-medium rounded-full transition-all"
@@ -536,12 +227,12 @@ export default function PositionnementPage() {
               Vider
             </button>
             <button
-              onClick={handleGeneratePdf}
-              disabled={generating || !startupId || !hasContent}
+              onClick={openPreview}
+              disabled={!hasContent}
               className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-full disabled:opacity-40 hover:-translate-y-px transition-transform"
               style={{ background: "var(--uf-ink)", color: "var(--uf-paper)" }}
             >
-              {generating ? "Génération..." : "Générer le PDF"}
+              Preview & Export PDF
             </button>
           </div>
         </div>
@@ -551,12 +242,6 @@ export default function PositionnementPage() {
         {error && (
           <div className="text-sm px-4 py-3" style={{ color: "var(--uf-orange)", background: "#FF6A1F14", border: "1px solid #FF6A1F30", borderRadius: "var(--uf-r-lg)" }}>
             {error}
-          </div>
-        )}
-
-        {saveSuccess && (
-          <div className="text-sm px-4 py-3 flex items-center gap-2" style={{ color: "var(--uf-teal)", background: "#0DB4A014", border: "1px solid #0DB4A030", borderRadius: "var(--uf-r-lg)" }}>
-            {"\u2705"} PDF généré et ajouté à vos documents !
           </div>
         )}
 

@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<title>Positionnement — Preview (FounderAI)</title>
+<meta name="viewport" content="width=1100"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --paper: #FBF8F0; --paper2: #F2EEE2; --card: #FFFFFF;
+    --ink: #0F0E0B; --ink2: #242220;
+    --muted: #6C6760; --muted2: #A09A8E;
+    --line: #E0D9C7;
+    --orange: #FF6A1F; --magenta: #E8358E; --teal: #0DB4A0;
+    --violet: #6E4BE8; --yellow: #FFD12A; --lime: #C8E64D;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #E5E2D8; font-family: 'Geist', sans-serif; color: var(--ink); }
+
+  .toolbar { position: fixed; top: 20px; right: 20px; z-index: 100; display: flex; gap: 8px; }
+  .toolbar button { padding: 12px 24px; background: var(--ink); color: var(--paper); border: none; border-radius: 999px; font-family: 'Geist', sans-serif; font-size: 14px; cursor: pointer; }
+  .toolbar button:hover { opacity: 0.9; }
+  .toolbar .back { background: transparent; border: 1px solid #D9D3C4; color: var(--ink); }
+
+  .page {
+    width: 210mm; min-height: 297mm; margin: 40px auto; padding: 14mm;
+    background: var(--paper); box-shadow: 0 4px 40px rgba(0,0,0,0.08);
+    position: relative;
+  }
+
+  .header { display: flex; align-items: center; gap: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--line); margin-bottom: 20px; }
+  .header .logo { width: 24px; height: 24px; border-radius: 50%; background: var(--orange); display: flex; align-items: center; justify-content: center; color: #fff; font-family: 'Anton', sans-serif; font-size: 14px; }
+  .header .name { font-family: 'Geist Mono', monospace; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+  .header .name strong { color: var(--ink); font-weight: 700; }
+  .header .date { margin-left: auto; font-family: 'Geist Mono', monospace; font-size: 9px; color: var(--muted); }
+
+  h1.title { font-family: 'Anton', sans-serif; font-size: 42px; text-transform: uppercase; line-height: 0.88; letter-spacing: -0.012em; margin-bottom: 6px; }
+  .subtitle { font-family: 'Instrument Serif', Georgia, serif; font-style: italic; font-size: 18px; color: var(--muted); margin-bottom: 30px; }
+
+  .section { margin-bottom: 24px; padding: 18px 20px; background: var(--card); border-radius: 8px; border-left: 4px solid var(--orange); }
+  .section .num { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 5px; color: #fff; font-family: 'Geist Mono', monospace; font-size: 10px; font-weight: 700; margin-right: 10px; }
+  .section .label { font-family: 'Anton', sans-serif; font-size: 16px; text-transform: uppercase; letter-spacing: 0.02em; display: inline; }
+  .section .desc { font-size: 10px; color: var(--muted); font-style: italic; margin: 6px 0 10px; }
+  .section .content { font-size: 12px; line-height: 1.7; white-space: pre-wrap; }
+
+  /* Segmentation table */
+  .seg-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 8px; }
+  .seg-table th { font-family: 'Geist Mono', monospace; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 600; padding: 6px 10px; text-align: center; border-bottom: 2px solid var(--ink); }
+  .seg-table th:first-child { text-align: left; }
+  .seg-table td { padding: 8px 10px; border-bottom: 1px solid var(--line); }
+  .seg-table td:first-child { font-weight: 600; }
+  .seg-table tr.best { background: #0DB4A010; }
+  .seg-table .dots { display: flex; gap: 3px; justify-content: center; }
+  .seg-table .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .seg-table .score { font-family: 'Geist Mono', monospace; font-weight: 700; text-align: center; }
+
+  .beachhead { margin-top: 16px; padding: 16px 20px; background: var(--card); border: 1.5px solid #0DB4A060; border-radius: 8px; }
+  .beachhead .bh-title { font-family: 'Anton', sans-serif; font-size: 14px; color: var(--teal); text-transform: uppercase; margin-bottom: 4px; }
+  .beachhead .bh-segment { font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+  .beachhead .bh-plan { font-size: 12px; line-height: 1.7; white-space: pre-wrap; }
+
+  .statement { margin-top: 30px; padding: 20px 24px; background: var(--card); border: 2px solid var(--orange); border-radius: 8px; }
+  .statement .st-label { font-family: 'Anton', sans-serif; font-size: 14px; color: var(--orange); text-transform: uppercase; margin-bottom: 8px; }
+  .statement .st-text { font-size: 14px; line-height: 1.7; font-weight: 500; }
+
+  .footer { margin-top: 30px; padding-top: 10px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; font-family: 'Geist Mono', monospace; font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+
+  @media print {
+    .toolbar { display: none !important; }
+    body { background: white; }
+    .page { box-shadow: none; margin: 0; width: 100%; }
+    @page { size: A4 portrait; margin: 0; }
+    .page { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <button class="back" onclick="window.close() || history.back()">← Retour</button>
+  <button onclick="window.print()">Exporter en PDF ↓</button>
+</div>
+
+<div class="page" id="root"></div>
+
+<script>
+  const raw = sessionStorage.getItem('founderai_positioning');
+  let d = {};
+  if (raw) { try { d = JSON.parse(raw); } catch(e) {} }
+  const V = (k, fb) => (d[k] || '').trim() || fb || '';
+  const segments = d._segments || [];
+
+  const SECTIONS = [
+    { key: 'competitive_alternatives', label: 'Alternatives compétitives', color: '#E8358E', num: '01' },
+    { key: 'unique_attributes',        label: 'Attributs uniques',         color: '#6E4BE8', num: '02' },
+    { key: 'value',                    label: 'Valeur délivrée',           color: '#FF6A1F', num: '03' },
+    { key: 'target_market',            label: 'Marché cible',              color: '#0DB4A0', num: '04' },
+    { key: 'market_category',          label: 'Catégorie de marché',       color: '#FFD12A', num: '05' },
+  ];
+
+  const startupName = V('startupName', d.startupName || 'Startup');
+  const today = new Date().toLocaleDateString('fr-FR');
+
+  let html = '';
+
+  // Header
+  html += `<div class="header">
+    <div class="logo">f</div>
+    <div class="name"><strong>${startupName.toUpperCase()}</strong> &middot; Positionnement</div>
+    <div class="date">${today}</div>
+  </div>`;
+
+  // Title
+  html += `<h1 class="title">POSITIONNEMENT</h1>`;
+  html += `<div class="subtitle">${startupName}</div>`;
+
+  // 5 sections
+  SECTIONS.forEach(s => {
+    const content = V(s.key);
+    if (!content) return;
+    html += `<div class="section" style="border-left-color: ${s.color}">
+      <div><span class="num" style="background: ${s.color}">${s.num}</span><span class="label">${s.label}</span></div>
+      <div class="content">${content.replace(/</g, '&lt;').replace(/\n/g, '<br>')}</div>
+    </div>`;
+  });
+
+  // Segmentation
+  const scored = segments.filter(s => s.name && s.urgency > 0);
+  if (scored.length > 0) {
+    const sorted = [...scored].sort((a, b) => (b.urgency + b.accessibility + b.potential) - (a.urgency + a.accessibility + a.potential));
+    const topScore = sorted[0].urgency + sorted[0].accessibility + sorted[0].potential;
+
+    html += `<div class="section" style="border-left-color: #0DB4A0">
+      <div><span class="num" style="background: #0DB4A0">06</span><span class="label">Segmentation & Marché d'ancrage</span></div>
+      <table class="seg-table">
+        <thead><tr>
+          <th style="color: #6C6760">Segment</th>
+          <th style="color: #E8358E">Urgence</th>
+          <th style="color: #6E4BE8">Accessibilité</th>
+          <th style="color: #FF6A1F">Potentiel</th>
+          <th style="color: #0F0E0B">Score</th>
+        </tr></thead>
+        <tbody>`;
+
+    sorted.forEach(seg => {
+      const score = seg.urgency + seg.accessibility + seg.potential;
+      const isBest = score === topScore;
+      const dotsFn = (val, color) => Array.from({length: 5}, (_, i) =>
+        `<div class="dot" style="background: ${i < val ? color : '#E0D9C7'}"></div>`
+      ).join('');
+
+      html += `<tr class="${isBest ? 'best' : ''}">
+        <td>${seg.name}</td>
+        <td><div class="dots">${dotsFn(seg.urgency, '#E8358E')}</div></td>
+        <td><div class="dots">${dotsFn(seg.accessibility, '#6E4BE8')}</div></td>
+        <td><div class="dots">${dotsFn(seg.potential, '#FF6A1F')}</div></td>
+        <td class="score" style="color: ${isBest ? '#0DB4A0' : '#0F0E0B'}">${score}/15</td>
+      </tr>`;
+    });
+
+    html += `</tbody></table>`;
+
+    // Beachhead
+    const plan = V('beachhead_plan');
+    if (plan) {
+      html += `<div class="beachhead">
+        <div class="bh-title">Marché d'ancrage : ${sorted[0].name}</div>
+        <div class="bh-plan">${plan.replace(/</g, '&lt;').replace(/\n/g, '<br>')}</div>
+      </div>`;
+    }
+
+    html += `</div>`;
+  }
+
+  // Statement
+  const statement = V('positioning_statement');
+  if (statement) {
+    html += `<div class="statement">
+      <div class="st-label">Positionnement</div>
+      <div class="st-text">${statement.replace(/</g, '&lt;').replace(/\n/g, '<br>')}</div>
+    </div>`;
+  }
+
+  // Footer
+  html += `<div class="footer">
+    <span>${startupName.toUpperCase()} &middot; Positionnement &middot; ${today}</span>
+    <span>Confidentiel</span>
+  </div>`;
+
+  document.getElementById('root').innerHTML = html;
+</script>
+
+</body>
+</html>
