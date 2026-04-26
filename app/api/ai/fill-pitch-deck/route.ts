@@ -170,20 +170,76 @@ function detectTemplate(businessModel: string | null | undefined, explicit?: str
   return (explicit as Template) || "standard";
 }
 
+// ── Domain → agent key mapping (which standard agent handles which domain) ──
+
+const DOMAIN_TO_AGENT: Record<string, AgentKey> = {
+  strategy: "strategie",
+  market: "vente",
+  product: "technique",
+  finance: "finance",
+  operations: "operations",
+  technology: "technique",
+  regulatory: "technique",
+  clinical: "technique",
+};
+
+// ── Fetch custom agents with priority for a startup ─────────────────────
+
+type CustomAgentOverride = {
+  id: string;
+  name: string;
+  system_prompt: string;
+  priority_domains: string[];
+  partner_id: string;
+};
+
+async function getCustomAgentOverrides(startupId: string): Promise<CustomAgentOverride[]> {
+  const { createServerClient } = await import("@/lib/supabase");
+  const supabase = createServerClient();
+
+  // Get assigned custom agents for this startup
+  const { data: assignments } = await supabase
+    .from("startup_custom_agents")
+    .select("custom_agent_id")
+    .eq("startup_id", startupId);
+
+  if (!assignments?.length) return [];
+
+  const agentIds = assignments.map((a) => a.custom_agent_id);
+  const { data: agents } = await supabase
+    .from("custom_agents")
+    .select("id, name, system_prompt, priority_domains, partner_id")
+    .in("id", agentIds)
+    .not("priority_domains", "eq", "{}");
+
+  return (agents ?? []) as CustomAgentOverride[];
+}
+
 // ── Agent call ──────────────────────────────────────────────────────────
 
 const AGENT_TIMEOUT_MS = 30_000;
 
 async function runAgentFill(
-  agentKey: AgentKey,
+  agentKey: AgentKey | string,
   fieldsInstruction: string,
   template: Template,
   startupDescription: string | null,
   startupId: string,
+  customSystemPrompt?: string,
+  customPartnerId?: string,
 ): Promise<{ values: Record<string, string>; inputTokens: number; outputTokens: number; model: string }> {
-  const chunks = await retrieveRelevantChunks(agentKey, `pitch deck ${template}`).catch(() => null);
-  const extraKnowledge = chunks?.join("\n\n") ?? null;
-  const systemPrompt = buildCodirAgentPrompt(agentKey, startupDescription, extraKnowledge);
+  let systemPrompt: string;
+
+  if (customSystemPrompt) {
+    // Custom agent: use its own system prompt + startup context
+    const chunks = await retrieveRelevantChunks(agentKey, `pitch deck ${template}`, 5, customPartnerId ?? null).catch(() => null);
+    const extraKnowledge = chunks?.join("\n\n") ?? null;
+    systemPrompt = buildCodirAgentPrompt(agentKey as AgentKey, startupDescription, extraKnowledge, customSystemPrompt);
+  } else {
+    const chunks = await retrieveRelevantChunks(agentKey, `pitch deck ${template}`).catch(() => null);
+    const extraKnowledge = chunks?.join("\n\n") ?? null;
+    systemPrompt = buildCodirAgentPrompt(agentKey as AgentKey, startupDescription, extraKnowledge);
+  }
 
   const templateLabel = template === "deeptech" ? "Deeptech" : template === "medtech" ? "Dispositif médical" : "Standard";
 
@@ -259,14 +315,70 @@ export async function POST(req: NextRequest) {
     }
   } catch { /* keep explicit template */ }
 
-  const agentAssignments = AGENT_FIELDS[template];
+  const agentAssignments = { ...AGENT_FIELDS[template] };
+
+  // Fetch custom agent overrides for this startup
+  const customOverrides = await getCustomAgentOverrides(startupId).catch(() => []);
+
+  // Build override map: domain → custom agent
+  const domainOverrides: Record<string, CustomAgentOverride> = {};
+  for (const ca of customOverrides) {
+    for (const domain of ca.priority_domains) {
+      domainOverrides[domain] = ca;
+    }
+  }
+
+  // Map domains to agent assignment keys
+  const DOMAIN_TO_ASSIGNMENT_KEY: Record<string, string[]> = {
+    strategy: ["strategie"],
+    market: ["vente"],
+    product: ["technique"],
+    finance: ["finance"],
+    operations: ["operations"],
+    technology: ["technique"],
+    regulatory: ["technique"],
+    clinical: ["technique"],
+  };
 
   try {
-    // Phase 1: Dispatch parallèle aux 5 agents (mode CODIR)
-    const agentKeys = Object.keys(agentAssignments) as AgentKey[];
+    // Build dispatch list: standard agents + custom overrides
+    type DispatchEntry = {
+      key: string;
+      fields: string;
+      customPrompt?: string;
+      customPartnerId?: string;
+    };
+
+    const dispatches: DispatchEntry[] = [];
+    const overriddenKeys = new Set<string>();
+
+    // First, add custom agent dispatches for overridden domains
+    for (const [domain, customAgent] of Object.entries(domainOverrides)) {
+      const assignmentKeys = DOMAIN_TO_ASSIGNMENT_KEY[domain] ?? [];
+      for (const aKey of assignmentKeys) {
+        if (agentAssignments[aKey] && !overriddenKeys.has(aKey)) {
+          overriddenKeys.add(aKey);
+          dispatches.push({
+            key: `custom_${customAgent.id}`,
+            fields: agentAssignments[aKey].fields,
+            customPrompt: customAgent.system_prompt,
+            customPartnerId: customAgent.partner_id,
+          });
+        }
+      }
+    }
+
+    // Then, add remaining standard agents
+    for (const [aKey, assignment] of Object.entries(agentAssignments)) {
+      if (!overriddenKeys.has(aKey)) {
+        dispatches.push({ key: aKey, fields: assignment.fields });
+      }
+    }
+
+    // Phase 1: Dispatch parallèle (mode CODIR)
     const results = await Promise.allSettled(
-      agentKeys.map((key) =>
-        runAgentFill(key, agentAssignments[key].fields, template, context, startupId)
+      dispatches.map((d) =>
+        runAgentFill(d.key, d.fields, template, context, startupId, d.customPrompt, d.customPartnerId)
       )
     );
 
@@ -281,7 +393,7 @@ export async function POST(req: NextRequest) {
         totalInput += result.value.inputTokens;
         totalOutput += result.value.outputTokens;
       } else {
-        console.error(`Agent ${agentKeys[i]} failed:`, result.reason);
+        console.error(`Agent ${dispatches[i].key} failed:`, result.reason);
       }
     });
 

@@ -35,6 +35,17 @@ const SLIDE_AGENT: Record<string, Record<string, string>> = {
   },
 };
 
+// Mapping slide → domaine de priorité (pour résoudre les overrides custom)
+const SLIDE_DOMAIN: Record<string, string> = {
+  cover: "operations", problem: "strategy", solution: "strategy", market: "market",
+  product: "product", traction: "market", business: "finance",
+  competition: "strategy", team: "operations", funds: "finance",
+  roadmap: "product", contact: "operations",
+  technology: "technology", validation_sci: "technology", roadmap_rd: "technology",
+  product_market_access: "product", validation_clin: "clinical",
+  regulatory: "regulatory", roadmap_reg: "regulatory",
+};
+
 // ─── Types ──────────────────────────────────────────────────────────────────
 
 type TemplateType = "standard" | "deeptech" | "medtech";
@@ -658,9 +669,21 @@ export default function PitchDeckV2Page() {
   const [activeSlide, setActiveSlide] = useState<string>("cover");
   const [startupId, setStartupId] = useState<string | null>(null);
   const [filling, setFilling] = useState(false);
+  const [customAgentOverrides, setCustomAgentOverrides] = useState<Record<string, { name: string; emoji: string }>>({});
 
   const slides = TEMPLATE_SLIDES[template];
   const allFields = getFields(template);
+
+  // Résoudre l'agent pour une slide (custom override ou standard)
+  function getSlideAgent(slideKey: string): AgentInfo & { isCustom?: boolean } {
+    const domain = SLIDE_DOMAIN[slideKey];
+    if (domain && customAgentOverrides[domain]) {
+      const ca = customAgentOverrides[domain];
+      return { name: `${ca.emoji} ${ca.name}`, color: "#0F0E0B", shape: "8px", isCustom: true };
+    }
+    const agentKey = SLIDE_AGENT[template]?.[slideKey];
+    return agentKey && AGENTS[agentKey] ? AGENTS[agentKey] : { name: "?", color: "#ccc", shape: "50%" };
+  }
 
   // Reset active slide si elle n'existe plus dans le template
   useEffect(() => {
@@ -682,6 +705,27 @@ export default function PitchDeckV2Page() {
         if (data.description) prefill.tagline = data.description;
         if (data.sector) prefill.tam_label = data.sector;
         setValues((prev) => ({ ...prefill, ...prev }));
+      })
+      .catch(() => {});
+    // Fetch custom agents assigned to this startup
+    fetch(`/api/startup/custom-agents?startupId=${id}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (!data.agentIds?.length) return;
+        // Fetch full agent details from partner API (via a lightweight endpoint)
+        fetch(`/api/startup/custom-agents-detail?startupId=${id}`)
+          .then((r) => r.json())
+          .then((detail) => {
+            if (!detail.agents) return;
+            const overrides: Record<string, { name: string; emoji: string }> = {};
+            for (const agent of detail.agents) {
+              for (const domain of agent.priority_domains ?? []) {
+                overrides[domain] = { name: agent.name, emoji: agent.emoji };
+              }
+            }
+            setCustomAgentOverrides(overrides);
+          })
+          .catch(() => {});
       })
       .catch(() => {});
   }, []);
@@ -822,16 +866,14 @@ export default function PitchDeckV2Page() {
               {slides.find((s) => s.key === activeSlide)?.label ?? ""}
             </h2>
             {(() => {
-              const agentKey = SLIDE_AGENT[template]?.[activeSlide];
-              const agent = agentKey ? AGENTS[agentKey] : null;
-              if (!agent) return null;
+              const agent = getSlideAgent(activeSlide);
               return (
                 <div className="flex items-center gap-1.5 ml-auto px-3 py-1 rounded-full" style={{ background: `${agent.color}14`, border: `1px solid ${agent.color}30` }}>
                   <div style={{
                     width: 18, height: 18, background: agent.color,
                     borderRadius: agent.shape,
                     display: "flex", alignItems: "center", justifyContent: "center",
-                    color: agentKey === "marc" ? "#0F0E0B" : "#fff",
+                    color: agent.isCustom ? "#fff" : (agent.color === "#FFD12A" ? "#0F0E0B" : "#fff"),
                     fontFamily: "var(--uf-display)", fontSize: 9,
                   }}>{agent.name[0]}</div>
                   <span className="text-[11px] font-medium" style={{ color: agent.color }}>{agent.name} remplit</span>

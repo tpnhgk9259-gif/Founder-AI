@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
   const partnerId = await getPartnerAdmin(userId);
   if (!partnerId) return Response.json({ error: "Accès réservé aux admins partenaires" }, { status: 403 });
 
-  const { name, role, emoji, systemPrompt, knowledge } = await req.json();
+  const { name, role, emoji, systemPrompt, knowledge, priorityDomains } = await req.json();
   if (!name?.trim() || !role?.trim()) {
     return Response.json({ error: "Nom et rôle requis" }, { status: 400 });
   }
@@ -76,6 +76,7 @@ export async function POST(req: NextRequest) {
       role: role.trim(),
       emoji: emoji || "🤖",
       system_prompt: systemPrompt?.trim() || "",
+      priority_domains: Array.isArray(priorityDomains) ? priorityDomains : [],
     })
     .select()
     .single();
@@ -115,7 +116,7 @@ export async function PUT(req: NextRequest) {
   const partnerId = await getPartnerAdmin(userId);
   if (!partnerId) return Response.json({ error: "Accès réservé aux admins partenaires" }, { status: 403 });
 
-  const { agentId, name, role, emoji, systemPrompt, knowledge } = await req.json();
+  const { agentId, name, role, emoji, systemPrompt, knowledge, priorityDomains } = await req.json();
   if (!agentId) return Response.json({ error: "agentId requis" }, { status: 400 });
 
   const supabase = createServerClient();
@@ -134,6 +135,7 @@ export async function PUT(req: NextRequest) {
   if (role !== undefined) updates.role = role.trim();
   if (emoji !== undefined) updates.emoji = emoji;
   if (systemPrompt !== undefined) updates.system_prompt = systemPrompt.trim();
+  if (priorityDomains !== undefined) updates.priority_domains = Array.isArray(priorityDomains) ? priorityDomains : [];
 
   const { error } = await supabase.from("custom_agents").update(updates).eq("id", agentId);
   if (error) return Response.json({ error: error.message }, { status: 500 });

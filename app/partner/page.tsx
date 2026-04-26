@@ -712,12 +712,26 @@ export default function PartnerPage() {
 
 // ─── Agent Builder ────────────────────────────────────────────────────────────
 
+type PriorityDomain = "strategy" | "market" | "product" | "finance" | "operations" | "regulatory" | "clinical" | "technology";
+
+const PRIORITY_DOMAIN_OPTIONS: { value: PriorityDomain; label: string; desc: string }[] = [
+  { value: "strategy", label: "Stratégie", desc: "Problème, solution, concurrence" },
+  { value: "market", label: "Marché & Traction", desc: "TAM/SAM/SOM, KPIs, graphiques" },
+  { value: "product", label: "Produit", desc: "Features, screenshots, démo" },
+  { value: "finance", label: "Finance", desc: "Business model, pricing, unit economics, fonds" },
+  { value: "operations", label: "Opérations", desc: "Équipe, identité, contact" },
+  { value: "technology", label: "Technologie & IP", desc: "Brevets, TRL, publications (deeptech)" },
+  { value: "regulatory", label: "Réglementaire", desc: "CE/FDA, parcours, organisme notifié (medtech)" },
+  { value: "clinical", label: "Validation clinique", desc: "Essais, KOLs, résultats (medtech)" },
+];
+
 type CustomAgent = {
   id: string;
   name: string;
   role: string;
   emoji: string;
   system_prompt: string;
+  priority_domains: PriorityDomain[];
   active: boolean;
   created_at: string;
 };
@@ -733,6 +747,7 @@ function AgentBuilderView({ partnerId, maxAgents }: { partnerId: string; maxAgen
   const [role, setRole] = useState("");
   const [emoji, setEmoji] = useState("🤖");
   const [systemPrompt, setSystemPrompt] = useState("");
+  const [priorityDomains, setPriorityDomains] = useState<PriorityDomain[]>([]);
   const [knowledge, setKnowledge] = useState("");
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -753,6 +768,7 @@ function AgentBuilderView({ partnerId, maxAgents }: { partnerId: string; maxAgen
     setRole("");
     setEmoji("🤖");
     setSystemPrompt("");
+    setPriorityDomains([]);
     setKnowledge("");
     setError("");
   }
@@ -764,6 +780,7 @@ function AgentBuilderView({ partnerId, maxAgents }: { partnerId: string; maxAgen
     setRole(agent.role);
     setEmoji(agent.emoji);
     setSystemPrompt(agent.system_prompt);
+    setPriorityDomains(agent.priority_domains ?? []);
     setKnowledge("");
     setError("");
   }
@@ -779,7 +796,7 @@ function AgentBuilderView({ partnerId, maxAgents }: { partnerId: string; maxAgen
     setSaving(true);
     setError("");
     try {
-      const body = { name, role, emoji, systemPrompt, knowledge: knowledge || undefined };
+      const body = { name, role, emoji, systemPrompt, priorityDomains, knowledge: knowledge || undefined };
       let res: Response;
       if (editing) {
         res = await fetch("/api/partner/custom-agents", {
@@ -912,6 +929,35 @@ function AgentBuilderView({ partnerId, maxAgents }: { partnerId: string; maxAgen
             <textarea value={systemPrompt} onChange={(e) => setSystemPrompt(e.target.value)} rows={8}
               placeholder={"Tu es un expert en chimie verte spécialisé dans les procédés durables.\n\nTon expertise couvre :\n- Catalyse verte et solvants alternatifs\n- Économie circulaire moléculaire\n- Réglementation REACH et SVHC\n\nTu guides les startups dans le développement de produits chimiques respectueux de l'environnement."}
               className="w-full px-4 py-3 text-sm focus:outline-none resize-y leading-relaxed" style={{ border: "1px solid var(--uf-line)", borderRadius: "var(--uf-r-md)", color: "var(--uf-ink)", background: "var(--uf-paper)", fontFamily: "var(--uf-mono)" }} />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-medium tracking-[0.12em] uppercase" style={{ fontFamily: "var(--uf-mono)", color: "var(--uf-muted)" }}>
+              Domaines de priorité
+              <span className="normal-case tracking-normal ml-2 font-normal" style={{ color: "var(--uf-muted-2)" }}>— Sur quels sujets cet agent remplace les agents standards</span>
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              {PRIORITY_DOMAIN_OPTIONS.map((d) => {
+                const checked = priorityDomains.includes(d.value);
+                return (
+                  <button
+                    key={d.value}
+                    type="button"
+                    onClick={() => setPriorityDomains((prev) => checked ? prev.filter((v) => v !== d.value) : [...prev, d.value])}
+                    className="text-left px-3 py-2 transition-all"
+                    style={{
+                      background: checked ? "var(--uf-orange)" : "var(--uf-paper)",
+                      border: checked ? "1.5px solid var(--uf-orange)" : "1.5px solid var(--uf-line)",
+                      borderRadius: "var(--uf-r-md)",
+                      color: checked ? "#fff" : "var(--uf-ink)",
+                    }}
+                  >
+                    <div className="text-xs font-semibold">{d.label}</div>
+                    <div className="text-[10px] mt-0.5" style={{ color: checked ? "rgba(255,255,255,0.7)" : "var(--uf-muted)" }}>{d.desc}</div>
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           <div className="space-y-1.5">
