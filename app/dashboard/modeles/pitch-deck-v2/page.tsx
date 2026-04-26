@@ -21,14 +21,15 @@ const SLIDES: { key: SlideKey; num: string; label: string; color: string }[] = [
   { key: "contact", num: "12", label: "Contact", color: "var(--uf-ink)" },
 ];
 
-type Field = { key: string; label: string; placeholder?: string; type?: "text" | "textarea" | "image"; half?: boolean };
+type Field = { key: string; label: string; placeholder?: string; type?: "text" | "textarea" | "image" | "color"; half?: boolean };
 
 const FIELDS: Record<SlideKey, Field[]> = {
   cover: [
     { key: "startupName", label: "Nom de la startup", placeholder: "Lumen" },
     { key: "tagline", label: "Tagline", placeholder: "Le copilote énergie des restaurateurs indépendants." },
     { key: "stage", label: "Stade & levée", placeholder: "Pré-seed · Recherche 800 k€" },
-    { key: "startup_logo", label: "Logo de la startup (affiché dans l'en-tête)", type: "image" },
+    { key: "startup_logo", label: "Logo de la startup (les couleurs du deck s'adaptent automatiquement)", type: "image" },
+    { key: "brand_color", label: "Couleur principale (optionnel, override auto)", placeholder: "#FF6A1F", half: true, type: "color" },
     { key: "cover_image", label: "Image de couverture (produit, app, photo)", type: "image" },
   ],
   problem: [
@@ -373,6 +374,24 @@ export default function PitchDeckV2Page() {
                         </button>
                       )}
                     </div>
+                  </div>
+                ) : f.type === "color" ? (
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="color"
+                      value={values[f.key] || "#FF6A1F"}
+                      onChange={(e) => updateField(f.key, e.target.value)}
+                      className="w-10 h-10 cursor-pointer border-0 p-0"
+                      style={{ borderRadius: "var(--uf-r-sm)" }}
+                    />
+                    <input
+                      type="text"
+                      value={values[f.key] ?? ""}
+                      onChange={(e) => updateField(f.key, e.target.value)}
+                      placeholder={f.placeholder}
+                      className="flex-1 px-3 py-2 text-sm focus:outline-none"
+                      style={{ border: "1px solid var(--uf-line)", borderRadius: "var(--uf-r-sm)", color: "var(--uf-ink)", background: "var(--uf-paper)" }}
+                    />
                   </div>
                 ) : f.type === "textarea" ? (
                   <textarea

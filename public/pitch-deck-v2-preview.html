@@ -38,8 +38,8 @@
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
 
-<script type="text/babel" src="/pdf-shared.jsx?v=7"></script>
-<script type="text/babel" src="/pitch-deck.jsx?v=7"></script>
+<script type="text/babel" src="/pdf-shared.jsx?v=8"></script>
+<script type="text/babel" src="/pitch-deck.jsx?v=8"></script>
 
 <script type="text/babel">
   // Lire les données du formulaire depuis sessionStorage
@@ -68,10 +68,20 @@
     document.getElementById('hdr-title').textContent = 'PITCH DECK — ' + v.startupName.toUpperCase();
   }
 
-  setTimeout(() => {
+  // Extraire les couleurs du logo et adapter la palette avant le rendu
+  const renderDeck = () => {
     ReactDOM.createRoot(document.getElementById('pitch-root')).render(
       <PitchDeckMock s={startupData}/>
     );
+  };
+
+  setTimeout(async () => {
+    if (v.brand_color) {
+      window.applyBrandColor(v.brand_color);
+    } else if (v.startup_logo) {
+      await window.applyLogoColors(v.startup_logo);
+    }
+    renderDeck();
   }, 50);
 </script>
 
