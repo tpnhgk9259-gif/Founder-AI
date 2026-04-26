@@ -37,13 +37,14 @@ const SLIDES_DEEPTECH: SlideInfo[] = [
   { key: "solution",       num: "03", label: "Solution",             color: "var(--uf-teal)" },
   { key: "market",         num: "04", label: "Marché",               color: "var(--uf-violet)" },
   { key: "technology",     num: "05", label: "Technologie & IP",     color: "var(--uf-orange)" },
-  { key: "validation_sci", num: "06", label: "Validation scientifique", color: "var(--uf-lime)" },
-  { key: "business",       num: "07", label: "Business model",       color: "var(--uf-yellow)" },
-  { key: "competition",    num: "08", label: "Concurrence",          color: "var(--uf-magenta)" },
-  { key: "team",           num: "09", label: "Équipe",               color: "var(--uf-teal)" },
-  { key: "funds",          num: "10", label: "Usage des fonds",      color: "var(--uf-orange)" },
-  { key: "roadmap_rd",     num: "11", label: "Roadmap R&D",          color: "var(--uf-violet)" },
-  { key: "contact",        num: "12", label: "Contact",              color: "var(--uf-ink)" },
+  { key: "product",        num: "06", label: "Produit",              color: "var(--uf-lime)" },
+  { key: "validation_sci", num: "07", label: "Validation scientifique", color: "var(--uf-yellow)" },
+  { key: "business",       num: "08", label: "Business model",       color: "var(--uf-magenta)" },
+  { key: "competition",    num: "09", label: "Concurrence",          color: "var(--uf-teal)" },
+  { key: "team",           num: "10", label: "Équipe",               color: "var(--uf-orange)" },
+  { key: "funds",          num: "11", label: "Usage des fonds",      color: "var(--uf-violet)" },
+  { key: "roadmap_rd",     num: "12", label: "Roadmap R&D",          color: "var(--uf-lime)" },
+  { key: "contact",        num: "13", label: "Contact",              color: "var(--uf-ink)" },
 ];
 
 const SLIDES_MEDTECH: SlideInfo[] = [
@@ -52,13 +53,14 @@ const SLIDES_MEDTECH: SlideInfo[] = [
   { key: "solution",             num: "03", label: "Solution",               color: "var(--uf-teal)" },
   { key: "market",               num: "04", label: "Marché",                 color: "var(--uf-violet)" },
   { key: "product_market_access",num: "05", label: "Produit & Remboursement",color: "var(--uf-orange)" },
-  { key: "validation_clin",      num: "06", label: "Validation clinique",    color: "var(--uf-lime)" },
-  { key: "regulatory",           num: "07", label: "Parcours réglementaire", color: "var(--uf-yellow)" },
-  { key: "competition",          num: "08", label: "Concurrence",            color: "var(--uf-magenta)" },
-  { key: "team",                 num: "09", label: "Équipe",                 color: "var(--uf-teal)" },
-  { key: "funds",                num: "10", label: "Usage des fonds",        color: "var(--uf-orange)" },
-  { key: "roadmap_reg",          num: "11", label: "Roadmap réglementaire",  color: "var(--uf-violet)" },
-  { key: "contact",              num: "12", label: "Contact",                color: "var(--uf-ink)" },
+  { key: "product",              num: "06", label: "Produit",                color: "var(--uf-lime)" },
+  { key: "validation_clin",      num: "07", label: "Validation clinique",    color: "var(--uf-yellow)" },
+  { key: "regulatory",           num: "08", label: "Parcours réglementaire", color: "var(--uf-magenta)" },
+  { key: "competition",          num: "09", label: "Concurrence",            color: "var(--uf-teal)" },
+  { key: "team",                 num: "10", label: "Équipe",                 color: "var(--uf-orange)" },
+  { key: "funds",                num: "11", label: "Usage des fonds",        color: "var(--uf-violet)" },
+  { key: "roadmap_reg",          num: "12", label: "Roadmap réglementaire",  color: "var(--uf-lime)" },
+  { key: "contact",              num: "13", label: "Contact",                color: "var(--uf-ink)" },
 ];
 
 const TEMPLATE_SLIDES: Record<TemplateType, SlideInfo[]> = {
@@ -187,11 +189,6 @@ const FIELDS_COMMON: Partial<Record<SlideKey, Field[]>> = {
     { key: "closing_date", label: "Date de closing", placeholder: "Juillet 2026", half: true },
     { key: "min_ticket", label: "Ticket minimum", placeholder: "50 k€ · jusqu'à 250 k€", half: true },
   ],
-};
-
-// ─── Champs spécifiques Standard ────────────────────────────────────────────
-
-const FIELDS_STANDARD: Partial<Record<SlideKey, Field[]>> = {
   product: [
     { key: "product_title", label: "Titre", placeholder: "3 minutes pour savoir quoi faire." },
     { key: "product_image", label: "Image produit (screenshot, mockup, photo)", type: "image" },
@@ -206,6 +203,11 @@ const FIELDS_STANDARD: Partial<Record<SlideKey, Field[]>> = {
     { key: "feature5_title", label: "Feature 5 — Titre (optionnel)", placeholder: "Mode multi-sites", half: true },
     { key: "feature5_desc", label: "Feature 5 — Description", placeholder: "Pour les groupes de 2 à 30 établissements" },
   ],
+};
+
+// ─── Champs spécifiques Standard ────────────────────────────────────────────
+
+const FIELDS_STANDARD: Partial<Record<SlideKey, Field[]>> = {
   traction: [
     { key: "traction_title", label: "Titre", placeholder: "6 mois d'existence, 38 restos payants." },
     { key: "chart_label", label: "Nom de la métrique du graphique", placeholder: "MRR (€)", half: true },
@@ -483,7 +485,7 @@ export default function PitchDeckV2Page() {
               <span>FOUNDER<span style={{ color: "var(--uf-muted)" }}>AI</span></span>
             </a>
             <h1 className="mt-2 uppercase tracking-[-0.015em]" style={{ fontFamily: "var(--uf-display)", fontSize: 24, lineHeight: 0.82 }}>
-              Pitch Deck — 12 slides
+              Pitch Deck — {slides.length} slides
             </h1>
           </div>
           <div className="flex items-center gap-3">
