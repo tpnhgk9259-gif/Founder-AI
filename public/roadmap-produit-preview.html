@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<title>Roadmap Produit — Preview (FounderAI)</title>
+<meta name="viewport" content="width=1100"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --paper: #FBF8F0; --card: #FFFFFF;
+    --ink: #0F0E0B; --muted: #6C6760;
+    --line: #E0D9C7;
+    --orange: #FF6A1F; --violet: #6E4BE8; --teal: #0DB4A0;
+    --magenta: #E8358E; --yellow: #FFD12A;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #E5E2D8; font-family: 'Geist', sans-serif; color: var(--ink); }
+
+  .toolbar { position: fixed; top: 20px; right: 20px; z-index: 100; display: flex; gap: 8px; }
+  .toolbar button { padding: 12px 24px; background: var(--ink); color: var(--paper); border: none; border-radius: 999px; font-family: 'Geist', sans-serif; font-size: 14px; cursor: pointer; }
+  .toolbar button:hover { opacity: 0.9; }
+  .toolbar .back { background: transparent; border: 1px solid #D9D3C4; color: var(--ink); }
+
+  .page { width: 210mm; min-height: 297mm; margin: 40px auto; padding: 14mm; background: var(--paper); box-shadow: 0 4px 40px rgba(0,0,0,0.08); position: relative; }
+
+  .header { display: flex; align-items: center; gap: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--line); margin-bottom: 20px; }
+  .header .logo { width: 24px; height: 24px; border-radius: 50%; background: var(--orange); display: flex; align-items: center; justify-content: center; color: #fff; font-family: 'Anton', sans-serif; font-size: 14px; }
+  .header .name { font-family: 'Geist Mono', monospace; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+  .header .name strong { color: var(--ink); font-weight: 700; }
+  .header .date { margin-left: auto; font-family: 'Geist Mono', monospace; font-size: 9px; color: var(--muted); }
+
+  h1.title { font-family: 'Anton', sans-serif; font-size: 42px; text-transform: uppercase; line-height: 0.88; letter-spacing: -0.012em; margin-bottom: 24px; }
+
+  .section-title { font-family: 'Anton', sans-serif; font-size: 14px; text-transform: uppercase; letter-spacing: 0.02em; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .section-title .num { width: 20px; height: 20px; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; color: #fff; font-family: 'Geist Mono', monospace; font-size: 9px; font-weight: 700; }
+
+  .obj-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 24px; }
+  .obj-card { background: var(--card); border: 1px solid var(--line); border-top: 3px solid var(--orange); border-radius: 6px; padding: 12px 14px; }
+  .obj-card .obj-title { font-size: 12px; font-weight: 700; margin-bottom: 4px; }
+  .obj-card .obj-metric { font-family: 'Geist Mono', monospace; font-size: 10px; color: var(--orange); font-weight: 600; }
+
+  .timeline { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
+  .quarter { border-top: 3px solid var(--teal); padding-top: 8px; }
+  .quarter .q-label { font-family: 'Geist Mono', monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); font-weight: 700; margin-bottom: 8px; }
+  .feat-card { background: var(--card); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; margin-bottom: 6px; }
+  .feat-card .feat-title { font-size: 11px; font-weight: 700; margin-bottom: 3px; }
+  .feat-card .feat-desc { font-size: 9px; color: var(--muted); line-height: 1.4; margin-bottom: 4px; }
+  .feat-card .feat-meta { display: flex; gap: 8px; font-family: 'Geist Mono', monospace; font-size: 9px; }
+  .feat-card .feat-obj { font-size: 9px; color: var(--orange); font-style: italic; margin-bottom: 2px; }
+
+  .priority-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 24px; }
+  .priority-table th { font-family: 'Geist Mono', monospace; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600; padding: 6px 10px; border-bottom: 2px solid var(--ink); text-align: left; }
+  .priority-table td { padding: 8px 10px; border-bottom: 1px solid var(--line); }
+  .priority-table tr:first-child td { font-weight: 600; }
+  .score-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-family: 'Geist Mono', monospace; font-weight: 700; font-size: 10px; }
+
+  .footer { margin-top: 30px; padding-top: 10px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; font-family: 'Geist Mono', monospace; font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+
+  @media print {
+    .toolbar { display: none !important; }
+    body { background: white; }
+    .page { box-shadow: none; margin: 0; width: 100%; }
+    @page { size: A4 portrait; margin: 0; }
+    .page { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <button class="back" onclick="window.close() || history.back()">← Retour</button>
+  <button onclick="window.print()">Exporter en PDF ↓</button>
+</div>
+
+<div class="page" id="root"></div>
+
+<script>
+  const raw = sessionStorage.getItem('founderai_roadmap');
+  let d = {};
+  if (raw) { try { d = JSON.parse(raw); } catch(e) {} }
+
+  const objectives = d.objectives || [];
+  const actors = d.actors || [];
+  const features = d.features || [];
+  const startupName = d.startupName || 'Startup';
+  const today = new Date().toLocaleDateString('fr-FR');
+
+  const priorityScore = (f) => f.effort > 0 ? Math.round((f.impact / f.effort) * 10) / 10 : 0;
+
+  let html = '';
+
+  // Header
+  html += `<div class="header">
+    <div class="logo">f</div>
+    <div class="name"><strong>${startupName.toUpperCase()}</strong> &middot; Roadmap Produit</div>
+    <div class="date">${today}</div>
+  </div>`;
+
+  // Title
+  html += `<h1 class="title">ROADMAP PRODUIT</h1>`;
+
+  // Objectives
+  const filledObj = objectives.filter(o => o.title);
+  if (filledObj.length > 0) {
+    html += `<div class="section-title"><span class="num" style="background: var(--orange)">01</span> OBJECTIFS BUSINESS</div>`;
+    html += `<div class="obj-grid">`;
+    filledObj.forEach(o => {
+      html += `<div class="obj-card">
+        <div class="obj-title">${o.title}</div>
+        ${o.metric ? `<div class="obj-metric">${o.metric}</div>` : ''}
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  // Priority table
+  const scored = features.filter(f => f.title && f.impact > 0 && f.effort > 0);
+  const sorted = [...scored].sort((a, b) => priorityScore(b) - priorityScore(a));
+
+  if (sorted.length > 0) {
+    html += `<div class="section-title"><span class="num" style="background: var(--teal)">02</span> PRIORISATION (IMPACT / EFFORT)</div>`;
+    html += `<table class="priority-table"><thead><tr>
+      <th style="color: var(--muted)">Feature</th>
+      <th style="color: var(--orange)">Impact</th>
+      <th style="color: var(--violet)">Effort</th>
+      <th style="color: var(--teal)">Score</th>
+      <th style="color: var(--muted)">Trimestre</th>
+      <th style="color: var(--muted)">Objectif</th>
+    </tr></thead><tbody>`;
+
+    sorted.forEach(f => {
+      const score = priorityScore(f);
+      const obj = objectives[f.objectiveIdx];
+      const scoreColor = score >= 3 ? 'var(--teal)' : score >= 1.5 ? 'var(--orange)' : 'var(--muted)';
+      html += `<tr>
+        <td><strong>${f.title}</strong>${f.description ? `<br><span style="font-size:9px;color:var(--muted)">${f.description}</span>` : ''}</td>
+        <td style="color: var(--orange); font-weight: 700">${f.impact}/5</td>
+        <td style="color: var(--violet); font-weight: 700">${f.effort}/5</td>
+        <td><span class="score-badge" style="background: ${scoreColor}18; color: ${scoreColor}">${score}x</span></td>
+        <td style="font-family: 'Geist Mono', monospace; font-size: 10px">${f.quarter}</td>
+        <td style="font-size: 10px; color: var(--muted)">${obj?.title || ''}</td>
+      </tr>`;
+    });
+    html += `</tbody></table>`;
+  }
+
+  // Timeline view
+  const quarters = ['T2 26', 'T3 26', 'T4 26', 'T1 27', 'T2 27', 'T3 27'];
+  const usedQuarters = quarters.filter(q => sorted.some(f => f.quarter === q));
+
+  if (usedQuarters.length > 0) {
+    html += `<div class="section-title"><span class="num" style="background: var(--violet)">03</span> TIMELINE</div>`;
+    html += `<div class="timeline" style="grid-template-columns: repeat(${Math.min(usedQuarters.length, 3)}, 1fr)">`;
+
+    usedQuarters.slice(0, 6).forEach(q => {
+      const qFeats = sorted.filter(f => f.quarter === q);
+      html += `<div class="quarter">
+        <div class="q-label">${q}</div>`;
+      qFeats.forEach(f => {
+        const obj = objectives[f.objectiveIdx];
+        const score = priorityScore(f);
+        html += `<div class="feat-card">
+          ${obj?.title ? `<div class="feat-obj">${obj.title}</div>` : ''}
+          <div class="feat-title">${f.title}</div>
+          ${f.description ? `<div class="feat-desc">${f.description}</div>` : ''}
+          <div class="feat-meta">
+            <span style="color: var(--orange)">I:${f.impact}</span>
+            <span style="color: var(--violet)">E:${f.effort}</span>
+            <span style="color: var(--teal); font-weight: 700">${score}x</span>
+          </div>
+        </div>`;
+      });
+      html += `</div>`;
+    });
+    html += `</div>`;
+  }
+
+  // Footer
+  html += `<div class="footer">
+    <span>${startupName.toUpperCase()} &middot; Roadmap Produit &middot; ${today}</span>
+    <span>Confidentiel</span>
+  </div>`;
+
+  document.getElementById('root').innerHTML = html;
+</script>
+
+</body>
+</html>
