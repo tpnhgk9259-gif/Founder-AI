@@ -28,6 +28,7 @@ const FIELDS: Record<SlideKey, Field[]> = {
     { key: "startupName", label: "Nom de la startup", placeholder: "Lumen" },
     { key: "tagline", label: "Tagline", placeholder: "Le copilote énergie des restaurateurs indépendants." },
     { key: "stage", label: "Stade & levée", placeholder: "Pré-seed · Recherche 800 k€" },
+    { key: "startup_logo", label: "Logo de la startup (affiché dans l'en-tête)", type: "image" },
     { key: "cover_image", label: "Image de couverture (produit, app, photo)", type: "image" },
   ],
   problem: [

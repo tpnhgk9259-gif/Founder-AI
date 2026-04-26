@@ -94,7 +94,7 @@ const SlideCover = ({ s = LUMEN }) => (
 // ── SLIDE 02 · Problème ────────────────────────────────────────────
 const SlideProblem = ({ s = LUMEN, n, total }) => (
   <div className="pdf-sheet">
-    <PDFHeader kind="Pitch Deck" page={n} total={total}/>
+    <PDFHeader startup={V('startupName') || s.name} logo={V('startup_logo')} kind="Pitch Deck" page={n} total={total}/>
     <Eyebrow x={14} y={22} accent={PDF_COLORS.magenta}>01 — Le problème</Eyebrow>
 
     <TitleBlock x={14} y={30} size={autoSize(V('problem_title', 'LE PROBLÈME'))} lines={[
@@ -131,7 +131,7 @@ const SlideProblem = ({ s = LUMEN, n, total }) => (
 // ── SLIDE 03 · Solution ────────────────────────────────────────────
 const SlideSolution = ({ s = LUMEN, n, total }) => (
   <div className="pdf-sheet">
-    <PDFHeader kind="Pitch Deck" page={n} total={total}/>
+    <PDFHeader startup={V('startupName') || s.name} logo={V('startup_logo')} kind="Pitch Deck" page={n} total={total}/>
     <Eyebrow x={14} y={22} accent={PDF_COLORS.teal}>02 — La solution</Eyebrow>
 
     <TitleBlock x={14} y={30} size={autoSize(V('solution_title', 'NOTRE SOLUTION'))} lines={[
@@ -164,7 +164,7 @@ const SlideSolution = ({ s = LUMEN, n, total }) => (
 // ── SLIDE 04 · Marché ──────────────────────────────────────────────
 const SlideMarket = ({ s = LUMEN, n, total }) => (
   <div className="pdf-sheet">
-    <PDFHeader kind="Pitch Deck" page={n} total={total}/>
+    <PDFHeader startup={V('startupName') || s.name} logo={V('startup_logo')} kind="Pitch Deck" page={n} total={total}/>
     <Eyebrow x={14} y={22} accent={PDF_COLORS.violet}>03 — Le marché</Eyebrow>
 
     {(() => {
@@ -234,7 +234,7 @@ const SlideMarket = ({ s = LUMEN, n, total }) => (
 // ── SLIDE 05 · Produit ──────────────────────────────────────────────
 const SlideProduct = ({ s = LUMEN, n, total }) => (
   <div className="pdf-sheet">
-    <PDFHeader kind="Pitch Deck" page={n} total={total}/>
+    <PDFHeader startup={V('startupName') || s.name} logo={V('startup_logo')} kind="Pitch Deck" page={n} total={total}/>
     <Eyebrow x={14} y={22} accent={PDF_COLORS.orange}>04 — Le produit</Eyebrow>
     <TitleBlock x={14} y={30} size={autoSize(V('product_title', '3 MINUTES POUR SAVOIR QUOI FAIRE.'))} lines={[
       { text: V('product_title', '3 MINUTES POUR SAVOIR QUOI FAIRE.') },
@@ -294,7 +294,7 @@ const SlideTraction = ({ s = LUMEN, n, total }) => {
   const max = Math.max(...mrr);
   return (
     <div className="pdf-sheet">
-      <PDFHeader kind="Pitch Deck" page={n} total={total}/>
+      <PDFHeader startup={V('startupName') || s.name} logo={V('startup_logo')} kind="Pitch Deck" page={n} total={total}/>
       <Eyebrow x={14} y={22} accent={PDF_COLORS.lime}>05 — Traction</Eyebrow>
       <TitleBlock x={14} y={30} size={autoSize(V('traction_title', '6 MOIS, 38 CLIENTS PAYANTS.'))} lines={[
         { text: V('traction_title', '6 MOIS, 38 CLIENTS PAYANTS.') },
@@ -356,7 +356,7 @@ const SlideTraction = ({ s = LUMEN, n, total }) => {
 // ── SLIDE 07 · Business Model ───────────────────────────────────────
 const SlideBusiness = ({ s = LUMEN, n, total }) => (
   <div className="pdf-sheet">
-    <PDFHeader kind="Pitch Deck" page={n} total={total}/>
+    <PDFHeader startup={V('startupName') || s.name} logo={V('startup_logo')} kind="Pitch Deck" page={n} total={total}/>
     <Eyebrow x={14} y={22} accent={PDF_COLORS.yellow}>06 — Business model</Eyebrow>
     <TitleBlock x={14} y={30} size={autoSize(V('bm_title', 'BUSINESS MODEL'))} lines={[
       { text: V('bm_title', 'BUSINESS MODEL') },
@@ -430,7 +430,7 @@ const SlideCompet = ({ s = LUMEN, n, total }) => {
 
   return (
   <div className="pdf-sheet">
-    <PDFHeader kind="Pitch Deck" page={n} total={total}/>
+    <PDFHeader startup={V('startupName') || s.name} logo={V('startup_logo')} kind="Pitch Deck" page={n} total={total}/>
     <Eyebrow x={14} y={22} accent={PDF_COLORS.magenta}>07 — Concurrence</Eyebrow>
     <Title x={14} y={30} size={36}>{V('comp_title', 'CONCURRENCE')}</Title>
 
@@ -514,7 +514,7 @@ const SlideCompet = ({ s = LUMEN, n, total }) => {
 // ── SLIDE 09 · Équipe ──────────────────────────────────────────────
 const SlideTeam = ({ s = LUMEN, n, total }) => (
   <div className="pdf-sheet">
-    <PDFHeader kind="Pitch Deck" page={n} total={total}/>
+    <PDFHeader startup={V('startupName') || s.name} logo={V('startup_logo')} kind="Pitch Deck" page={n} total={total}/>
     <Eyebrow x={14} y={22} accent={PDF_COLORS.teal}>08 — Équipe</Eyebrow>
     <Title x={14} y={30} size={36}>L&apos;ÉQUIPE</Title>
 
@@ -545,7 +545,7 @@ const SlideTeam = ({ s = LUMEN, n, total }) => (
 // ── SLIDE 10 · Usage des fonds ──────────────────────────────────────
 const SlideFunds = ({ s = LUMEN, n, total }) => (
   <div className="pdf-sheet">
-    <PDFHeader kind="Pitch Deck" page={n} total={total}/>
+    <PDFHeader startup={V('startupName') || s.name} logo={V('startup_logo')} kind="Pitch Deck" page={n} total={total}/>
     <Eyebrow x={14} y={22} accent={PDF_COLORS.orange}>09 — Usage des fonds</Eyebrow>
     <Title x={14} y={30} size={36}>{V('funds_title', 'USAGE DES FONDS')}</Title>
 
@@ -599,7 +599,7 @@ const SlideFunds = ({ s = LUMEN, n, total }) => (
 // ── SLIDE 11 · Roadmap ──────────────────────────────────────────────
 const SlideRoadmap = ({ s = LUMEN, n, total }) => (
   <div className="pdf-sheet">
-    <PDFHeader kind="Pitch Deck" page={n} total={total}/>
+    <PDFHeader startup={V('startupName') || s.name} logo={V('startup_logo')} kind="Pitch Deck" page={n} total={total}/>
     <Eyebrow x={14} y={22} accent={PDF_COLORS.violet}>10 — Roadmap</Eyebrow>
     <TitleBlock x={14} y={30} size={36} lines={[
       { text: 'LES 24 PROCHAINS MOIS,' },
@@ -644,7 +644,7 @@ const SlideContact = ({ s = LUMEN, n, total }) => (
     {/* Full-bleed lime block right */}
     <div style={{ position: 'absolute', right: 0, top: 0, width: 130 * MM, height: '100%', background: PDF_COLORS.lime }}/>
 
-    <PDFHeader kind="Pitch Deck" page={n} total={total}/>
+    <PDFHeader startup={V('startupName') || s.name} logo={V('startup_logo')} kind="Pitch Deck" page={n} total={total}/>
     <Eyebrow x={14} y={22} accent={PDF_COLORS.ink}>11 — Contact</Eyebrow>
 
     <TitleBlock x={14} y={34} size={56} lines={[

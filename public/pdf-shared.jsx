@@ -176,18 +176,31 @@ const PDFLogo = ({ size = 7 * MM, x, y, color = PDF_COLORS.ink, accent = PDF_COL
   </Abs>
 );
 
-const PDFHeader = ({ startup, kind, page, total }) => (
+const PDFHeader = ({ startup, kind, page, total, logo }) => (
   <>
-    <PDFLogo size={5 * MM} x={10} y={10}/>
-    <Abs x={20} y={10}>
+    {logo ? (
+      <Abs x={10} y={8.5}>
+        <img src={logo} style={{ height: 6 * MM, maxWidth: 20 * MM, objectFit: 'contain' }}/>
+      </Abs>
+    ) : (
+      <Abs x={10} y={9}>
+        <div style={{
+          width: 5 * MM, height: 5 * MM, borderRadius: '50%',
+          background: PDF_COLORS.orange, color: '#fff',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontFamily: 'Anton, sans-serif', fontSize: 5 * MM * 0.55,
+        }}>{(startup || 'S')[0].toUpperCase()}</div>
+      </Abs>
+    )}
+    <Abs x={logo ? 32 : 20} y={10}>
       <div style={{
         fontFamily: 'Geist Mono, ui-monospace, monospace', fontSize: 8,
         letterSpacing: '0.14em', textTransform: 'uppercase',
         color: PDF_COLORS.muted, fontWeight: 500, lineHeight: 1.1, paddingTop: 2,
       }}>
-        <span style={{ color: PDF_COLORS.ink, fontWeight: 700 }}>FounderAI</span>
+        <span style={{ color: PDF_COLORS.ink, fontWeight: 700 }}>{startup || 'Startup'}</span>
         <span style={{ margin: '0 8px', color: PDF_COLORS.muted2 }}>·</span>
-        Livrable · {kind}
+        {kind}
       </div>
     </Abs>
     {page && (
