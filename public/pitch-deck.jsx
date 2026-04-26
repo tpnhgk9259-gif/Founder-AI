@@ -299,7 +299,7 @@ const SlideTraction = ({ s = LUMEN, n, total }) => {
       ]}/>
 
       {/* MRR chart */}
-      <Abs x={14} y={62}>
+      <Abs x={14} y={50}>
         <div style={{ width: 140 * MM, height: 72 * MM, background: PDF_COLORS.card, border: `1px solid ${PDF_COLORS.line}`, borderRadius: 6, padding: 4 * MM, position: 'relative' }}>
           <div style={{ fontFamily: 'Geist Mono', fontSize: 8, letterSpacing: '0.16em', textTransform: 'uppercase', color: PDF_COLORS.muted, fontWeight: 600 }}>MRR (€) · Nov 2025 → Avr 2026</div>
           <svg viewBox="0 0 400 180" style={{ width: '100%', height: '82%', marginTop: 2 * MM, display: 'block' }}>
@@ -326,7 +326,7 @@ const SlideTraction = ({ s = LUMEN, n, total }) => {
       </Abs>
 
       {/* KPI cards right */}
-      <Abs x={162} y={62}>
+      <Abs x={162} y={50}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2 * MM, width: 104 * MM }}>
           {[
             [V('kpi1_value', '+87 %'), V('kpi1_label', 'KPI 1'), PDF_COLORS.orange],
