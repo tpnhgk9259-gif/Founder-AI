@@ -318,9 +318,14 @@ const SlideProduct = ({ s = LUMEN, n, total }) => (
 
 // ── SLIDE 06 · Traction ────────────────────────────────────────────
 const SlideTraction = ({ s = LUMEN, n, total }) => {
-  const months = ['Nov', 'Déc', 'Jan', 'Fév', 'Mar', 'Avr'];
-  const mrr = [0, 480, 1240, 2850, 5420, 9180]; // cumulative MRR in €
-  const max = Math.max(...mrr);
+  // Build chart data from form fields, filter out empty entries
+  const chartData = [1,2,3,4,5,6].map(i => ({
+    month: V(`chart_m${i}`, ['Nov','Dec','Jan','Fev','Mar','Avr'][i-1] || ''),
+    value: parseFloat(V(`chart_v${i}`, '0')) || 0,
+  })).filter(d => d.month);
+  const max = Math.max(...chartData.map(d => d.value), 1);
+  const chartLabel = V('chart_label', 'MRR (€)');
+  const chartPeriod = V('chart_period', '');
   return (
     <div className="pdf-sheet">
       <PDFHeader startup={V('startupName') || s.name} logo={V('startup_logo')} kind="Pitch Deck" page={n} total={total}/>
@@ -329,26 +334,25 @@ const SlideTraction = ({ s = LUMEN, n, total }) => {
         { text: V('traction_title', '6 MOIS, 38 CLIENTS PAYANTS.') },
       ]}/>
 
-      {/* MRR chart */}
+      {/* Chart */}
       <Abs x={14} y={50}>
         <div style={{ width: 140 * MM, height: 72 * MM, background: PDF_COLORS.card, border: `1px solid ${PDF_COLORS.line}`, borderRadius: 6, padding: 4 * MM, position: 'relative' }}>
-          <div style={{ fontFamily: 'Geist Mono', fontSize: 8, letterSpacing: '0.16em', textTransform: 'uppercase', color: PDF_COLORS.muted, fontWeight: 600 }}>MRR (€) · Nov 2025 → Avr 2026</div>
+          <div style={{ fontFamily: 'Geist Mono', fontSize: 8, letterSpacing: '0.16em', textTransform: 'uppercase', color: PDF_COLORS.muted, fontWeight: 600 }}>{chartLabel}{chartPeriod ? ` · ${chartPeriod}` : ''}</div>
           <svg viewBox="0 0 400 180" style={{ width: '100%', height: '82%', marginTop: 2 * MM, display: 'block' }}>
-            {/* grid lines */}
             {[0, 0.25, 0.5, 0.75, 1].map(p => (
               <line key={p} x1="30" y1={20 + p * 140} x2="400" y2={20 + p * 140} stroke={PDF_COLORS.line} strokeWidth={0.5}/>
             ))}
-            {/* bars */}
-            {mrr.map((v, i) => {
-              const bw = 40, gap = 16;
+            {chartData.map((d, i) => {
+              const bw = Math.min(50, Math.max(30, 300 / chartData.length));
+              const gap = (360 - chartData.length * bw) / Math.max(chartData.length - 1, 1);
               const x = 40 + i * (bw + gap);
-              const h = (v / max) * 140;
+              const h = (d.value / max) * 140;
               const y = 160 - h;
               return (
                 <g key={i}>
-                  <rect x={x} y={y} width={bw} height={h} fill={i === 5 ? PDF_COLORS.orange : PDF_COLORS.ink}/>
-                  <text x={x + bw / 2} y={175} fontFamily="Geist Mono" fontSize="9" fill={PDF_COLORS.muted} textAnchor="middle" letterSpacing="0.1em">{months[i]}</text>
-                  {v > 0 && <text x={x + bw / 2} y={y - 4} fontFamily="Anton" fontSize="13" fill={PDF_COLORS.ink} textAnchor="middle">{v}€</text>}
+                  <rect x={x} y={y} width={bw} height={h} fill={i === chartData.length - 1 ? PDF_COLORS.orange : PDF_COLORS.ink}/>
+                  <text x={x + bw / 2} y={175} fontFamily="Geist Mono" fontSize="9" fill={PDF_COLORS.muted} textAnchor="middle" letterSpacing="0.1em">{d.month}</text>
+                  {d.value > 0 && <text x={x + bw / 2} y={y - 4} fontFamily="Anton" fontSize="13" fill={PDF_COLORS.ink} textAnchor="middle">{d.value}</text>}
                 </g>
               );
             })}
