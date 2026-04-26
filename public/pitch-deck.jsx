@@ -364,12 +364,16 @@ const SlideBusiness = ({ s = LUMEN, n, total }) => (
 
     {/* Pricing tiers */}
     <Abs x={14} y={62}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 3 * MM, width: 252 * MM }}>
-        {[
-          { t: V('plan1_name', 'Solo'), p: V('plan1_price', '39 €'), bg: PDF_COLORS.card, ink: PDF_COLORS.ink, cap: V('plan1_desc', 'Description') },
-          { t: V('plan2_name', 'Growth'), p: V('plan2_price', '99 €'), bg: PDF_COLORS.ink, ink: PDF_COLORS.paper, cap: V('plan2_desc', 'Description'), featured: true },
-          { t: V('plan3_name', 'Groupe'), p: V('plan3_price', '249 €'), bg: PDF_COLORS.card, ink: PDF_COLORS.ink, cap: V('plan3_desc', 'Description') },
-        ].map(plan => (
+      {(() => {
+        const plans = [
+          { t: V('plan1_name', 'Offre 1'), p: V('plan1_price', ''), bg: PDF_COLORS.card, ink: PDF_COLORS.ink, cap: V('plan1_desc', '') },
+          { t: V('plan2_name', 'Offre 2'), p: V('plan2_price', ''), bg: PDF_COLORS.ink, ink: PDF_COLORS.paper, cap: V('plan2_desc', ''), featured: true },
+          V('plan3_name') && { t: V('plan3_name'), p: V('plan3_price', ''), bg: PDF_COLORS.card, ink: PDF_COLORS.ink, cap: V('plan3_desc', '') },
+          V('plan4_name') && { t: V('plan4_name'), p: V('plan4_price', ''), bg: PDF_COLORS.card, ink: PDF_COLORS.ink, cap: V('plan4_desc', '') },
+        ].filter(Boolean);
+        const cols = plans.length;
+        return <div style={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: 3 * MM, width: 252 * MM }}>
+        {plans.map(plan => (
           <div key={plan.t} style={{
             padding: `${4 * MM}px ${4 * MM}px`,
             background: plan.bg, color: plan.ink,
@@ -385,12 +389,10 @@ const SlideBusiness = ({ s = LUMEN, n, total }) => (
               <div style={{ fontFamily: 'Anton', fontSize: 44, lineHeight: 0.9 }}>{plan.p}</div>
               <div style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic', fontSize: 13, opacity: 0.7 }}>/ mois · HT</div>
             </div>
-            <div style={{ fontSize: 9.5, marginTop: 3 * MM, lineHeight: 1.55, opacity: 0.85 }}>
-              + 15% de la première année d'économies négociées, facturé une fois.
-            </div>
           </div>
         ))}
-      </div>
+      </div>;
+      })()}
     </Abs>
 
     {/* CAC/LTV inline metrics */}
