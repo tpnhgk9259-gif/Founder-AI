@@ -522,9 +522,7 @@ const SlideFunds = ({ s = LUMEN, n, total }) => (
   <div className="pdf-sheet">
     <PDFHeader kind="Pitch Deck" page={n} total={total}/>
     <Eyebrow x={14} y={22} accent={PDF_COLORS.orange}>09 — Usage des fonds</Eyebrow>
-    <TitleBlock x={14} y={30} size={autoSize(V('funds_title', 'USAGE DES FONDS'))} lines={[
-      { text: V('funds_title', 'USAGE DES FONDS') },
-    ]}/>
+    <Title x={14} y={30} size={36}>{V('funds_title', 'USAGE DES FONDS')}</Title>
 
     {/* Donut chart (CSS conic) */}
     <Abs x={14} y={52}>
