@@ -129,8 +129,9 @@
   // Segmentation
   const scored = segments.filter(s => s.name && s.urgency > 0);
   if (scored.length > 0) {
-    const sorted = [...scored].sort((a, b) => (b.urgency + b.accessibility + b.potential) - (a.urgency + a.accessibility + a.potential));
-    const topScore = sorted[0].urgency + sorted[0].accessibility + sorted[0].potential;
+    const scoreOf = s => (s.urgency||0) + (s.accessibility||0) + (s.potential||0) + (s.competition||0);
+    const sorted = [...scored].sort((a, b) => scoreOf(b) - scoreOf(a));
+    const topScore = scoreOf(sorted[0]);
 
     html += `<div class="section" style="border-left-color: #0DB4A0">
       <div><span class="num" style="background: #0DB4A0">06</span><span class="label">Segmentation & Marché d'ancrage</span></div>
@@ -140,12 +141,13 @@
           <th style="color: #E8358E">Urgence</th>
           <th style="color: #6E4BE8">Accessibilité</th>
           <th style="color: #FF6A1F">Potentiel</th>
+          <th style="color: #0DB4A0">Concurrence</th>
           <th style="color: #0F0E0B">Score</th>
         </tr></thead>
         <tbody>`;
 
     sorted.forEach(seg => {
-      const score = seg.urgency + seg.accessibility + seg.potential;
+      const score = scoreOf(seg);
       const isBest = score === topScore;
       const dotsFn = (val, color) => Array.from({length: 5}, (_, i) =>
         `<div class="dot" style="background: ${i < val ? color : '#E0D9C7'}"></div>`
@@ -156,7 +158,8 @@
         <td><div class="dots">${dotsFn(seg.urgency, '#E8358E')}</div></td>
         <td><div class="dots">${dotsFn(seg.accessibility, '#6E4BE8')}</div></td>
         <td><div class="dots">${dotsFn(seg.potential, '#FF6A1F')}</div></td>
-        <td class="score" style="color: ${isBest ? '#0DB4A0' : '#0F0E0B'}">${score}/15</td>
+        <td><div class="dots">${dotsFn(seg.competition || 0, '#0DB4A0')}</div></td>
+        <td class="score" style="color: ${isBest ? '#0DB4A0' : '#0F0E0B'}">${score}/20</td>
       </tr>`;
     });
 

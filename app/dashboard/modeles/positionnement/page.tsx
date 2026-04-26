@@ -63,17 +63,18 @@ const MAX_SEGMENTS = 8;
 
 type Segment = {
   name: string;
-  urgency: number;    // 1-5
+  urgency: number;       // 1-5
   accessibility: number; // 1-5
-  potential: number;  // 1-5
+  potential: number;     // 1-5
+  competition: number;   // 1-5 (1 = très concurrentiel, 5 = océan bleu)
 };
 
 function emptySegment(): Segment {
-  return { name: "", urgency: 0, accessibility: 0, potential: 0 };
+  return { name: "", urgency: 0, accessibility: 0, potential: 0, competition: 0 };
 }
 
 function segmentScore(s: Segment): number {
-  return s.urgency + s.accessibility + s.potential;
+  return s.urgency + s.accessibility + s.potential + s.competition;
 }
 
 export default function PositionnementPage() {
@@ -309,6 +310,7 @@ export default function PositionnementPage() {
                   <th className="text-center px-2 py-2 text-[10px] font-medium tracking-[0.12em] uppercase" style={{ fontFamily: "var(--uf-mono)", color: "#E8358E", borderBottom: "2px solid var(--uf-ink)" }}>Urgence</th>
                   <th className="text-center px-2 py-2 text-[10px] font-medium tracking-[0.12em] uppercase" style={{ fontFamily: "var(--uf-mono)", color: "#6E4BE8", borderBottom: "2px solid var(--uf-ink)" }}>Accessibilit{"\u00E9"}</th>
                   <th className="text-center px-2 py-2 text-[10px] font-medium tracking-[0.12em] uppercase" style={{ fontFamily: "var(--uf-mono)", color: "#FF6A1F", borderBottom: "2px solid var(--uf-ink)" }}>Potentiel</th>
+                  <th className="text-center px-2 py-2 text-[10px] font-medium tracking-[0.12em] uppercase" style={{ fontFamily: "var(--uf-mono)", color: "#0DB4A0", borderBottom: "2px solid var(--uf-ink)" }}>Concurrence</th>
                   <th className="text-center px-2 py-2 text-[10px] font-medium tracking-[0.12em] uppercase" style={{ fontFamily: "var(--uf-mono)", color: "var(--uf-ink)", borderBottom: "2px solid var(--uf-ink)" }}>Score</th>
                   <th className="w-8" style={{ borderBottom: "2px solid var(--uf-ink)" }} />
                 </tr>
@@ -329,7 +331,7 @@ export default function PositionnementPage() {
                           style={{ border: "1px solid var(--uf-line)", borderRadius: "var(--uf-r-sm)", color: "var(--uf-ink)", background: "var(--uf-paper)" }}
                         />
                       </td>
-                      {(["urgency", "accessibility", "potential"] as const).map((key) => (
+                      {(["urgency", "accessibility", "potential", "competition"] as const).map((key) => (
                         <td key={key} className="text-center px-2 py-2">
                           <div className="flex justify-center gap-0.5">
                             {[1, 2, 3, 4, 5].map((n) => (
@@ -340,7 +342,7 @@ export default function PositionnementPage() {
                                 className="w-6 h-6 rounded text-[10px] font-bold transition-all"
                                 style={{
                                   background: seg[key] >= n
-                                    ? (key === "urgency" ? "#E8358E" : key === "accessibility" ? "#6E4BE8" : "#FF6A1F")
+                                    ? (key === "urgency" ? "#E8358E" : key === "accessibility" ? "#6E4BE8" : key === "potential" ? "#FF6A1F" : "#0DB4A0")
                                     : "var(--uf-paper-2)",
                                   color: seg[key] >= n ? "#fff" : "var(--uf-muted)",
                                   border: "none",
@@ -355,7 +357,7 @@ export default function PositionnementPage() {
                       ))}
                       <td className="text-center px-2 py-2">
                         <span className="text-sm font-bold" style={{ fontFamily: "var(--uf-mono)", color: isBest ? "#0DB4A0" : "var(--uf-ink)" }}>
-                          {score > 0 ? `${score}/15` : "-"}
+                          {score > 0 ? `${score}/20` : "-"}
                         </span>
                       </td>
                       <td className="px-1 py-2">
@@ -388,7 +390,7 @@ export default function PositionnementPage() {
             <div className="mt-4 p-4" style={{ background: "#0DB4A014", border: "1.5px solid #0DB4A040", borderRadius: "var(--uf-r-lg)" }}>
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-sm font-bold" style={{ color: "#0DB4A0", fontFamily: "var(--uf-display)" }}>{"MARCH\u00C9 D'ANCRAGE"}</span>
-                <span className="text-xs px-2 py-0.5 rounded-full font-bold" style={{ background: "#0DB4A0", color: "#fff", fontFamily: "var(--uf-mono)" }}>{segmentScore(bestSegment)}/15</span>
+                <span className="text-xs px-2 py-0.5 rounded-full font-bold" style={{ background: "#0DB4A0", color: "#fff", fontFamily: "var(--uf-mono)" }}>{segmentScore(bestSegment)}/20</span>
               </div>
               <div className="text-sm font-semibold mb-2" style={{ color: "var(--uf-ink)" }}>{bestSegment.name}</div>
               <p className="text-xs mb-2" style={{ color: "var(--uf-muted)", fontStyle: "italic" }}>

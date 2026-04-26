@@ -40,16 +40,17 @@ Remplis ces champs dans un objet JSON :
   - urgency : note de 1 à 5 (urgence du besoin pour ce segment)
   - accessibility : note de 1 à 5 (facilité d'acquisition, réseaux existants)
   - potential : note de 1 à 5 (taille du gain, revenus, stratégie)
+  - competition : note de 1 à 5 (1 = très concurrentiel, 5 = océan bleu, peu de concurrents)
 
-Le segment avec le score le plus élevé devrait être le beachhead market.
+Le segment avec le score le plus élevé (/20) devrait être le marché d'ancrage.
 
 Exemple de format :
 {
   "target_market": "...",
   "beachhead_plan": "1. ...\n2. ...",
   "segments": [
-    {"name": "PME industrie", "urgency": 5, "accessibility": 4, "potential": 3},
-    {"name": "Grands comptes pharma", "urgency": 3, "accessibility": 2, "potential": 5}
+    {"name": "PME industrie", "urgency": 5, "accessibility": 4, "potential": 3, "competition": 4},
+    {"name": "Grands comptes pharma", "urgency": 3, "accessibility": 2, "potential": 5, "competition": 2}
   ]
 }
 
