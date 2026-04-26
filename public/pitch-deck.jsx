@@ -244,26 +244,18 @@ const SlideProduct = ({ s = LUMEN, n, total }) => (
     <div style={{
       position: 'absolute', left: 14 * MM, top: 62 * MM,
       width: 82 * MM, height: 74 * MM,
-      background: PDF_COLORS.ink, borderRadius: 12, padding: 4 * MM,
-      color: PDF_COLORS.paper, fontFamily: 'Geist, sans-serif',
+      borderRadius: 12, overflow: 'hidden',
+      border: `1px solid ${PDF_COLORS.line}`, background: PDF_COLORS.paper2,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
     }}>
-      <div style={{ fontFamily: 'Geist Mono', fontSize: 7.5, letterSpacing: '0.14em', textTransform: 'uppercase', color: PDF_COLORS.lime, fontWeight: 600 }}>Scan juillet 2026</div>
-      <div style={{ fontFamily: 'Anton', fontSize: 28, lineHeight: 0.95, marginTop: 3 * MM }}>VOUS PAYEZ</div>
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: 2 * MM, flexWrap: 'nowrap' }}>
-        <div style={{ fontFamily: 'Anton', fontSize: 44, lineHeight: 0.9, color: PDF_COLORS.lime, whiteSpace: 'nowrap' }}>{V('product_headline', '2 148€')}</div>
-      </div>
-      <div style={{ fontSize: 9, marginTop: 4 * MM, lineHeight: 1.5, opacity: 0.85 }}>
-        ▸ Contrat surdimensionné de 6 kVA (−840€/an)<br/>
-        ▸ Heures pleines mal optimisées (−720€/an)<br/>
-        ▸ Fournisseur sous-compétitif depuis 14 mois
-      </div>
-      <div style={{
-        marginTop: 4 * MM, padding: `${2 * MM}px ${3 * MM}px`, background: PDF_COLORS.lime, color: PDF_COLORS.ink,
-        fontFamily: 'Geist Mono', fontSize: 8, letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 700,
-        borderRadius: 999, display: 'inline-block',
-      }}>
-        Plan d'action →
-      </div>
+      {V('product_image') ? (
+        <img src={V('product_image')} style={{ width: '100%', height: '100%', objectFit: 'cover' }}/>
+      ) : (
+        <div style={{ textAlign: 'center', color: PDF_COLORS.muted }}>
+          <div style={{ fontSize: 28 }}>🖼️</div>
+          <div style={{ fontFamily: 'Geist Mono', fontSize: 8, letterSpacing: '0.14em', textTransform: 'uppercase', marginTop: 2 * MM }}>Image produit</div>
+        </div>
+      )}
     </div>
 
     {/* Right : 3 capabilities */}

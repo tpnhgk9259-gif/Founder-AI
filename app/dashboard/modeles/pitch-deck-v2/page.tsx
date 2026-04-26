@@ -62,7 +62,7 @@ const FIELDS: Record<SlideKey, Field[]> = {
   ],
   product: [
     { key: "product_title", label: "Titre", placeholder: "3 minutes pour savoir quoi faire." },
-    { key: "product_headline", label: "Chiffre accroche", placeholder: "2 148€ trop, ce mois-ci." },
+    { key: "product_image", label: "Image produit (screenshot, mockup, photo)", type: "image" },
     { key: "feature1_title", label: "Feature 1 — Titre", placeholder: "OCR factures", half: true },
     { key: "feature1_desc", label: "Feature 1 — Description", placeholder: "Lit EDF, Engie, TotalEnergies — PDF et scannées" },
     { key: "feature2_title", label: "Feature 2 — Titre", placeholder: "Alertes temps réel", half: true },
