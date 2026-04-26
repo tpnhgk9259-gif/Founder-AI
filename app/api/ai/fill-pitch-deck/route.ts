@@ -1,130 +1,305 @@
 import { NextRequest } from "next/server";
 import { claude, MODELS } from "@/lib/claude";
-import { createServerClient } from "@/lib/supabase";
 import { getAuthenticatedUserId, userOwnsStartup } from "@/lib/auth";
 import { getStartupDescription } from "@/lib/orchestrator";
+import { buildCodirAgentPrompt } from "@/lib/prompts";
+import { retrieveRelevantChunks } from "@/lib/rag";
 import { logUsage } from "@/lib/usage";
 import { jsonrepair } from "jsonrepair";
+import type { AgentKey } from "@/lib/supabase";
 import type Anthropic from "@anthropic-ai/sdk";
+
+// ── Template-specific field assignments per agent ───────────────────────
+
+type Template = "standard" | "deeptech" | "medtech";
+
+const AGENT_FIELDS: Record<Template, Record<string, { agent: AgentKey; fields: string }>> = {
+  standard: {
+    strategie: {
+      agent: "strategie",
+      fields: `Remplis ces champs (stratégie, positionnement, concurrence) :
+- problem_title, stat1_value, stat1_label, stat2_value, stat2_label, quote_text, quote_source
+- solution_title, pillar1_title, pillar1_desc, pillar2_title, pillar2_desc, pillar3_title, pillar3_desc
+- comp_title, criteria1..criteria5, comp1_name, comp1_scores, comp2_name, comp2_scores, comp3_name, comp3_scores, our_scores
+- advantage1, advantage1_desc, advantage2, advantage2_desc, advantage3, advantage3_desc`,
+    },
+    vente: {
+      agent: "vente",
+      fields: `Remplis ces champs (marché, traction, go-to-market) :
+- tam_value, tam_label, sam_value, sam_label, som_value, som_label
+- market_metric1_label, market_metric1_value, market_metric2_label, market_metric2_value
+- traction_title, chart_label, chart_period, chart_m1..chart_m6, chart_v1..chart_v6
+- kpi1_value, kpi1_label, kpi2_value, kpi2_label, kpi3_value, kpi3_label, kpi4_value, kpi4_label`,
+    },
+    finance: {
+      agent: "finance",
+      fields: `Remplis ces champs (business model, unit economics, financement) :
+- bm_title, plan1_name, plan1_price, plan1_desc, plan2_name, plan2_price, plan2_desc
+- plan3_name, plan3_price, plan3_desc, plan4_name, plan4_price, plan4_desc
+- cac_value, ltv_value, ltv_cac_ratio, cogs_value
+- funds_title, fund1_pct, fund1_amount, fund1_label, fund2_pct, fund2_amount, fund2_label
+- fund3_pct, fund3_amount, fund3_label, fund4_pct, fund4_amount, fund4_label`,
+    },
+    technique: {
+      agent: "technique",
+      fields: `Remplis ces champs (produit, features, roadmap technique) :
+- product_title, feature1_title, feature1_desc, feature2_title, feature2_desc
+- feature3_title, feature3_desc, feature4_title, feature4_desc, feature5_title, feature5_desc
+- ms1_quarter, ms1_title, ms1_note, ms2_quarter, ms2_title, ms2_note
+- ms3_quarter, ms3_title, ms3_note, ms4_quarter, ms4_title, ms4_note
+- ms5_quarter, ms5_title, ms5_note, ms6_quarter, ms6_title, ms6_note`,
+    },
+    operations: {
+      agent: "operations",
+      fields: `Remplis ces champs (équipe, identité, contact) :
+- startupName, tagline, stage
+- member1_name, member1_role, member2_name, member2_role, member3_name, member3_role
+- advisor1, advisor2
+- contact_name, contact_role, contact_email, contact_phone, contact_location
+- contact_cta, contact_subtitle, closing_date, min_ticket`,
+    },
+  },
+  deeptech: {
+    strategie: {
+      agent: "strategie",
+      fields: `Remplis ces champs (stratégie deeptech, positionnement, concurrence) :
+- problem_title, stat1_value, stat1_label, stat2_value, stat2_label, quote_text, quote_source
+- solution_title, pillar1_title, pillar1_desc, pillar2_title, pillar2_desc, pillar3_title, pillar3_desc
+- comp_title, criteria1..criteria5 (critères techniques pertinents pour la deeptech), comp1_name, comp1_scores, comp2_name, comp2_scores, comp3_name, comp3_scores, our_scores
+- advantage1, advantage1_desc, advantage2, advantage2_desc, advantage3, advantage3_desc`,
+    },
+    vente: {
+      agent: "vente",
+      fields: `Remplis ces champs (marché deeptech, adoption) :
+- tam_value, tam_label, sam_value, sam_label, som_value, som_label
+- market_metric1_label, market_metric1_value, market_metric2_label, market_metric2_value`,
+    },
+    finance: {
+      agent: "finance",
+      fields: `Remplis ces champs (business model deeptech : licence, vente directe, co-développement ; financement dont grants) :
+- bm_title, plan1_name, plan1_price, plan1_desc, plan2_name, plan2_price, plan2_desc
+- plan3_name, plan3_price, plan3_desc, plan4_name, plan4_price, plan4_desc
+- cac_value, ltv_value, ltv_cac_ratio, cogs_value
+- funds_title, fund1_pct, fund1_amount, fund1_label, fund2_pct, fund2_amount, fund2_label
+- fund3_pct, fund3_amount, fund3_label, fund4_pct, fund4_amount, fund4_label`,
+    },
+    technique: {
+      agent: "technique",
+      fields: `Remplis ces champs (technologie, IP, produit, validation scientifique, roadmap R&D) :
+- tech_title, trl_current, trl_target, tech_desc, patent1, patent2, patent3, pub1, pub2
+- tech_diff1, tech_diff2, tech_diff3
+- validation_title, val_kpi1_value, val_kpi1_label, val_kpi2_value, val_kpi2_label
+- val_kpi3_value, val_kpi3_label, val_kpi4_value, val_kpi4_label
+- partner_acad1, partner_acad2, partner_indus1, partner_indus2
+- product_title, feature1_title, feature1_desc, feature2_title, feature2_desc, feature3_title, feature3_desc
+- roadmap_rd_title, rd1_quarter, rd1_title, rd1_note, rd1_trl, rd2_quarter, rd2_title, rd2_note, rd2_trl
+- rd3_quarter, rd3_title, rd3_note, rd3_trl, rd4_quarter, rd4_title, rd4_note, rd4_trl
+- grant1, grant2, grant3`,
+    },
+    operations: {
+      agent: "operations",
+      fields: `Remplis ces champs (équipe deeptech, identité, contact) :
+- startupName, tagline (axée technologie de rupture), stage
+- member1_name, member1_role (profils PhD/recherche), member2_name, member2_role, member3_name, member3_role
+- advisor1 (académique), advisor2 (industriel)
+- contact_name, contact_role, contact_email, contact_phone, contact_location
+- contact_cta (orienté fonds deeptech), contact_subtitle, closing_date, min_ticket`,
+    },
+  },
+  medtech: {
+    strategie: {
+      agent: "strategie",
+      fields: `Remplis ces champs (stratégie medtech, positionnement, concurrence) :
+- problem_title (problème clinique), stat1_value, stat1_label (données épidémiologiques), stat2_value, stat2_label
+- quote_text (citation d'un clinicien/KOL), quote_source
+- solution_title, pillar1_title, pillar1_desc, pillar2_title, pillar2_desc, pillar3_title, pillar3_desc
+- comp_title, criteria1..criteria5 (critères cliniques/réglementaires), comp1_name, comp1_scores, comp2_name, comp2_scores, comp3_name, comp3_scores, our_scores
+- advantage1, advantage1_desc, advantage2, advantage2_desc, advantage3, advantage3_desc`,
+    },
+    vente: {
+      agent: "vente",
+      fields: `Remplis ces champs (marché medtech, accès au marché hospitalier) :
+- tam_value, tam_label, sam_value, sam_label, som_value, som_label
+- market_metric1_label, market_metric1_value, market_metric2_label, market_metric2_value`,
+    },
+    finance: {
+      agent: "finance",
+      fields: `Remplis ces champs (business model medtech : vente DM + consommables + maintenance ; financement) :
+- bm_title, plan1_name, plan1_price, plan1_desc, plan2_name, plan2_price, plan2_desc
+- plan3_name, plan3_price, plan3_desc, plan4_name, plan4_price, plan4_desc
+- cac_value, ltv_value, ltv_cac_ratio, cogs_value
+- funds_title, fund1_pct, fund1_amount, fund1_label, fund2_pct, fund2_amount, fund2_label
+- fund3_pct, fund3_amount, fund3_label, fund4_pct, fund4_amount, fund4_label`,
+    },
+    technique: {
+      agent: "technique",
+      fields: `Remplis ces champs (dispositif médical, validation clinique, réglementaire, produit, roadmap) :
+- pma_title, dm_class, dm_type, feature1_title, feature1_desc, feature2_title, feature2_desc, feature3_title, feature3_desc
+- remb_strategy, price_hospital, price_remb
+- clin_title, clin_phase, clin_design, clin_kpi1_value, clin_kpi1_label, clin_kpi2_value, clin_kpi2_label
+- clin_kpi3_value, clin_kpi3_label, kol1, kol2, kol3
+- reg_title, reg_pathway, reg_class_eu, reg_class_us
+- reg_step1_date, reg_step1_label, reg_step1_status, reg_step2_date, reg_step2_label, reg_step2_status
+- reg_step3_date, reg_step3_label, reg_step3_status, reg_step4_date, reg_step4_label, reg_step4_status
+- reg_notified_body, reg_cro
+- product_title, feature1_title, feature1_desc, feature2_title, feature2_desc, feature3_title, feature3_desc
+- rr1_quarter, rr1_title, rr1_note, rr2_quarter, rr2_title, rr2_note
+- rr3_quarter, rr3_title, rr3_note, rr4_quarter, rr4_title, rr4_note
+- rr5_quarter, rr5_title, rr5_note, rr6_quarter, rr6_title, rr6_note`,
+    },
+    operations: {
+      agent: "operations",
+      fields: `Remplis ces champs (équipe medtech, identité, contact) :
+- startupName, tagline (axée impact patient), stage
+- member1_name, member1_role (profil clinicien/chirurgien), member2_name, member2_role (ingénieur DM), member3_name, member3_role
+- advisor1 (KOL médical), advisor2 (expert réglementaire)
+- contact_name, contact_role, contact_email, contact_phone, contact_location
+- contact_cta (orienté fonds medtech/healthtech), contact_subtitle, closing_date, min_ticket`,
+    },
+  },
+};
+
+// ── Template detection from business_model ──────────────────────────────
+
+function detectTemplate(businessModel: string | null | undefined, explicit?: string): Template {
+  if (explicit === "deeptech" || explicit === "medtech") return explicit;
+  if (!businessModel) return (explicit as Template) || "standard";
+  const bm = businessModel.toLowerCase();
+  if (bm.includes("medtech") || bm.includes("médical") || bm.includes("medical") || bm.includes("dispositif") || bm.includes("dm ") || bm.includes("healthtech") || bm.includes("biotech clinique")) return "medtech";
+  if (bm.includes("deeptech") || bm.includes("deep tech") || bm.includes("hardware") || bm.includes("biotech") || bm.includes("matéri") || bm.includes("énergie") || bm.includes("quantique") || bm.includes("semi-conducteur") || bm.includes("spatial")) return "deeptech";
+  return (explicit as Template) || "standard";
+}
+
+// ── Agent call ──────────────────────────────────────────────────────────
+
+const AGENT_TIMEOUT_MS = 30_000;
+
+async function runAgentFill(
+  agentKey: AgentKey,
+  fieldsInstruction: string,
+  template: Template,
+  startupDescription: string | null,
+  startupId: string,
+): Promise<{ values: Record<string, string>; inputTokens: number; outputTokens: number; model: string }> {
+  const chunks = await retrieveRelevantChunks(agentKey, `pitch deck ${template}`).catch(() => null);
+  const extraKnowledge = chunks?.join("\n\n") ?? null;
+  const systemPrompt = buildCodirAgentPrompt(agentKey, startupDescription, extraKnowledge);
+
+  const templateLabel = template === "deeptech" ? "Deeptech" : template === "medtech" ? "Dispositif médical" : "Standard";
+
+  const userPrompt = `Tu participes au remplissage automatique d'un Pitch Deck "${templateLabel}" pour cette startup.
+
+${fieldsInstruction}
+
+Réponds UNIQUEMENT avec un objet JSON valide (sans markdown, sans backticks).
+Chaque clé = un champ du formulaire. Chaque valeur = texte concret, chiffré, adapté au contexte réel de la startup.
+Ne laisse AUCUN placeholder générique si tu as des informations.
+Pour les scores de concurrence (comp1_scores, etc.), utilise le format "2,1,3,2,1" (notes de 1 à 3 séparées par virgules, une par critère).
+Sois concret, percutant et chiffré. Les titres doivent être courts et impactants (max 60-80 caractères).`;
+
+  const timeout = new Promise<never>((_, reject) =>
+    setTimeout(() => reject(new Error(`Timeout agent ${agentKey}`)), AGENT_TIMEOUT_MS)
+  );
+
+  const call = claude.messages.create({
+    model: MODELS.CHAT,
+    max_tokens: 2048,
+    system: systemPrompt,
+    messages: [{ role: "user", content: userPrompt }],
+  });
+
+  const response = await Promise.race([call, timeout]);
+  const rawText = response.content
+    .filter((b): b is Anthropic.TextBlock => b.type === "text")
+    .map((b) => b.text)
+    .join("");
+
+  const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) return { values: {}, inputTokens: response.usage?.input_tokens ?? 0, outputTokens: response.usage?.output_tokens ?? 0, model: response.model };
+
+  let values: Record<string, string>;
+  try {
+    values = JSON.parse(jsonrepair(jsonMatch[0]));
+  } catch {
+    try { values = JSON.parse(jsonMatch[0]); }
+    catch { values = {}; }
+  }
+
+  return {
+    values,
+    inputTokens: response.usage?.input_tokens ?? 0,
+    outputTokens: response.usage?.output_tokens ?? 0,
+    model: response.model,
+  };
+}
+
+// ── Main route ──────────────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
   const userId = await getAuthenticatedUserId();
   if (!userId) return Response.json({ error: "Non authentifié" }, { status: 401 });
 
-  const { startupId } = await req.json();
+  const { startupId, template: explicitTemplate } = await req.json();
   if (!startupId) return Response.json({ error: "startupId requis" }, { status: 400 });
 
   const allowed = await userOwnsStartup(userId, startupId);
   if (!allowed) return Response.json({ error: "Accès refusé" }, { status: 403 });
 
+  // Fetch startup context + detect template
   const context = await getStartupDescription(startupId).catch(() => null);
 
-  const prompt = `Tu es un expert en pitch deck pour startups early-stage. À partir du contexte ci-dessous, génère le contenu complet d'un Pitch Deck Seed de 12 slides.
+  // Detect template from business_model if not explicitly provided
+  let template: Template = explicitTemplate || "standard";
+  try {
+    const { createServerClient } = await import("@/lib/supabase");
+    const supabase = createServerClient();
+    const { data } = await supabase.from("startups").select("business_model").eq("id", startupId).single();
+    if (data?.business_model) {
+      template = detectTemplate(data.business_model, explicitTemplate);
+    }
+  } catch { /* keep explicit template */ }
 
-${context ? `Contexte startup :\n${context}` : "Aucun contexte disponible — génère un exemple réaliste."}
-
-Réponds UNIQUEMENT avec un objet JSON valide (sans markdown, sans backticks). Les clés correspondent aux 12 slides :
-
-{
-  "startupName": "Nom de la startup",
-  "tagline": "Accroche percutante en 1-2 phrases",
-  "stage": "Stade et montant recherché (ex: Seed · 800 k€)",
-
-  "problem_title": "Titre du problème (question ou affirmation forte, max 80 chars)",
-  "stat1_value": "Valeur stat 1 (ex: 73%)",
-  "stat1_label": "Description stat 1 (max 15 mots)",
-  "stat2_value": "Valeur stat 2",
-  "stat2_label": "Description stat 2",
-  "quote_text": "Citation d'un utilisateur ou prospect entre guillemets",
-  "quote_source": "Nom, titre de la personne citée",
-
-  "solution_title": "Titre de la solution (max 60 chars)",
-  "pillar1_title": "Étape 1 (1-2 mots)", "pillar1_desc": "Description étape 1 (2 phrases)",
-  "pillar2_title": "Étape 2", "pillar2_desc": "Description étape 2",
-  "pillar3_title": "Étape 3", "pillar3_desc": "Description étape 3",
-
-  "tam_value": "X Md€ ou M€", "tam_label": "Description TAM",
-  "sam_value": "X M€", "sam_label": "Description SAM",
-  "som_value": "X M€", "som_label": "Description SOM (objectif 3 ans)",
-  "market_metric1_label": "Métrique marché 1 label", "market_metric1_value": "Valeur",
-  "market_metric2_label": "Métrique marché 2 label", "market_metric2_value": "Valeur",
-
-  "product_title": "Titre slide produit (max 60 chars)",
-  "product_headline": "Chiffre accroche du produit",
-  "feature1_title": "Feature 1 titre", "feature1_desc": "Feature 1 desc",
-  "feature2_title": "Feature 2 titre", "feature2_desc": "Feature 2 desc",
-  "feature3_title": "Feature 3 titre", "feature3_desc": "Feature 3 desc",
-
-  "traction_title": "Titre traction (résultat concret, max 60 chars)",
-  "kpi1_value": "KPI 1 valeur", "kpi1_label": "KPI 1 label",
-  "kpi2_value": "KPI 2 valeur", "kpi2_label": "KPI 2 label",
-  "kpi3_value": "KPI 3 valeur", "kpi3_label": "KPI 3 label",
-  "kpi4_value": "KPI 4 valeur", "kpi4_label": "KPI 4 label",
-
-  "bm_title": "Titre business model (max 50 chars)",
-  "plan1_name": "Offre 1 nom", "plan1_price": "Prix 1", "plan1_desc": "Description courte",
-  "plan2_name": "Offre 2 nom", "plan2_price": "Prix 2", "plan2_desc": "Description courte",
-  "plan3_name": "Offre 3 nom", "plan3_price": "Prix 3", "plan3_desc": "Description courte",
-  "cac_value": "CAC en €", "ltv_value": "LTV en €", "ltv_cac_ratio": "Ratio X:1", "cogs_value": "COGS en %",
-
-  "comp_title": "Titre concurrence (max 50 chars)",
-  "comp1_name": "Concurrent 1", "comp1_position": "Faiblesse",
-  "comp2_name": "Concurrent 2", "comp2_position": "Faiblesse",
-  "comp3_name": "Concurrent 3", "comp3_position": "Faiblesse",
-  "advantage1": "Avantage 1 titre", "advantage1_desc": "Description courte",
-  "advantage2": "Avantage 2 titre", "advantage2_desc": "Description courte",
-
-  "member1_name": "Fondateur 1 nom", "member1_role": "Rôle + background",
-  "member2_name": "Fondateur 2 nom", "member2_role": "Rôle + background",
-  "member3_name": "Fondateur 3 nom", "member3_role": "Rôle + background",
-  "advisor1": "Advisor 1 (nom + org)", "advisor2": "Advisor 2 (nom + org)",
-
-  "funds_title": "Montant + durée runway (ex: 800 k€ pour 18 mois)",
-  "fund1_pct": "X %", "fund1_amount": "X k€", "fund1_label": "Poste 1",
-  "fund2_pct": "X %", "fund2_amount": "X k€", "fund2_label": "Poste 2",
-  "fund3_pct": "X %", "fund3_amount": "X k€", "fund3_label": "Poste 3",
-  "fund4_pct": "X %", "fund4_amount": "X k€", "fund4_label": "Poste 4",
-
-  "ms1_quarter": "T1 26", "ms1_title": "Milestone 1", "ms1_note": "Détail",
-  "ms2_quarter": "T2 26", "ms2_title": "Milestone 2", "ms2_note": "Détail",
-  "ms3_quarter": "T3 26", "ms3_title": "Milestone 3", "ms3_note": "Détail",
-  "ms4_quarter": "T4 26", "ms4_title": "Milestone 4", "ms4_note": "Détail",
-
-  "contact_name": "Nom du CEO", "contact_role": "CEO",
-  "contact_email": "email@startup.com", "contact_phone": "+33 6 XX XX XX XX",
-  "contact_location": "Adresse",
-  "contact_cta": "Message pour les investisseurs (ce qu'on cherche)",
-  "closing_date": "Date de closing visée", "min_ticket": "Ticket minimum"
-}
-
-Adapte TOUTES les valeurs au contexte réel de la startup. Ne laisse aucun placeholder générique si tu as des informations. Sois concret et chiffré.`;
+  const agentAssignments = AGENT_FIELDS[template];
 
   try {
-    const response = await claude.messages.create({
-      model: MODELS.CHAT,
-      max_tokens: 4000,
-      messages: [{ role: "user", content: prompt }],
+    // Phase 1: Dispatch parallèle aux 5 agents (mode CODIR)
+    const agentKeys = Object.keys(agentAssignments) as AgentKey[];
+    const results = await Promise.allSettled(
+      agentKeys.map((key) =>
+        runAgentFill(key, agentAssignments[key].fields, template, context, startupId)
+      )
+    );
+
+    // Merge all agent results
+    const mergedValues: Record<string, string> = {};
+    let totalInput = 0;
+    let totalOutput = 0;
+
+    results.forEach((result, i) => {
+      if (result.status === "fulfilled") {
+        Object.assign(mergedValues, result.value.values);
+        totalInput += result.value.inputTokens;
+        totalOutput += result.value.outputTokens;
+      } else {
+        console.error(`Agent ${agentKeys[i]} failed:`, result.reason);
+      }
     });
 
-    const rawText = response.content
-      .filter((b): b is Anthropic.TextBlock => b.type === "text")
-      .map((b) => b.text)
-      .join("");
+    // Log total usage
+    logUsage({
+      startupId,
+      userId,
+      model: MODELS.CHAT,
+      endpoint: "fill-pitch-deck-codir",
+      inputTokens: totalInput,
+      outputTokens: totalOutput,
+    });
 
-    logUsage({ startupId, userId, model: response.model, endpoint: "fill-pitch-deck", inputTokens: response.usage?.input_tokens ?? 0, outputTokens: response.usage?.output_tokens ?? 0 });
-
-    const jsonMatch = rawText.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) return Response.json({ error: "Réponse IA invalide" }, { status: 500 });
-
-    let values: Record<string, string>;
-    try {
-      values = JSON.parse(jsonrepair(jsonMatch[0]));
-    } catch {
-      try { values = JSON.parse(jsonMatch[0]); }
-      catch { return Response.json({ error: "Impossible de parser la réponse IA" }, { status: 500 }); }
+    if (Object.keys(mergedValues).length === 0) {
+      return Response.json({ error: "Aucun agent n'a pu générer de contenu" }, { status: 500 });
     }
 
-    return Response.json({ values });
+    return Response.json({ values: mergedValues });
   } catch (err) {
     return Response.json({ error: String(err) }, { status: 500 });
   }
