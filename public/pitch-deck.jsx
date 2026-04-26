@@ -52,7 +52,9 @@ const SlideCover = ({ s = LUMEN }) => (
     {/* Color slab right */}
     <div style={{ position: 'absolute', right: 0, top: 0, width: 108 * MM, height: '100%', background: PDF_COLORS.orange }}/>
     <Slab x={172} y={100} w={90} h={50} color="rgba(255,255,255,0.08)"/>
-    <div style={{ position: 'absolute', right: 20 * MM, top: 20 * MM, width: 72 * MM, height: 110 * MM, border: '1px solid rgba(255,255,255,0.28)' }}/>
+    <div style={{ position: 'absolute', right: 20 * MM, top: 20 * MM, width: 72 * MM, height: 110 * MM, border: '1px solid rgba(255,255,255,0.28)', overflow: 'hidden' }}>
+      {V('cover_image') && <img src={V('cover_image')} style={{ width: '100%', height: '100%', objectFit: 'cover' }}/>}
+    </div>
 
     {/* Decorative huge rounded shape */}
     <div style={{ position: 'absolute', left: -30 * MM, bottom: -40 * MM, width: 120 * MM, height: 120 * MM, borderRadius: '50%', background: PDF_COLORS.lime, opacity: 0.25 }}/>

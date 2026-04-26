@@ -21,15 +21,14 @@ const SLIDES: { key: SlideKey; num: string; label: string; color: string }[] = [
   { key: "contact", num: "12", label: "Contact", color: "var(--uf-ink)" },
 ];
 
-type Field = { key: string; label: string; placeholder?: string; type?: "text" | "textarea"; half?: boolean };
+type Field = { key: string; label: string; placeholder?: string; type?: "text" | "textarea" | "image"; half?: boolean };
 
 const FIELDS: Record<SlideKey, Field[]> = {
   cover: [
     { key: "startupName", label: "Nom de la startup", placeholder: "Lumen" },
     { key: "tagline", label: "Tagline", placeholder: "Le copilote énergie des restaurateurs indépendants." },
     { key: "stage", label: "Stade & levée", placeholder: "Pré-seed · Recherche 800 k€" },
-    { key: "investor_name", label: "Destinataire (investisseur)", placeholder: "Xavier N.", half: true },
-    { key: "investor_fund", label: "Fonds", placeholder: "Serena Capital", half: true },
+    { key: "cover_image", label: "Image de couverture (produit, app, photo)", type: "image" },
   ],
   problem: [
     { key: "problem_title", label: "Titre du problème", placeholder: "L'énergie, 2e poste de charges — ignoré." },
@@ -307,7 +306,53 @@ export default function PitchDeckV2Page() {
                 <label className="text-[11px] font-medium tracking-[0.1em] uppercase block mb-1" style={{ fontFamily: "var(--uf-mono)", color: "var(--uf-muted)" }}>
                   {f.label}
                 </label>
-                {f.type === "textarea" ? (
+                {f.type === "image" ? (
+                  <div className="flex items-center gap-4">
+                    <div
+                      className="w-24 h-24 flex items-center justify-center overflow-hidden cursor-pointer"
+                      style={{ border: "2px dashed var(--uf-line)", borderRadius: "var(--uf-r-md)", background: "var(--uf-paper-2)" }}
+                      onClick={() => document.getElementById(`img-${f.key}`)?.click()}
+                    >
+                      {values[f.key] ? (
+                        <img src={values[f.key]} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-2xl">🖼️</span>
+                      )}
+                    </div>
+                    <input
+                      id={`img-${f.key}`}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        const reader = new FileReader();
+                        reader.onload = () => updateField(f.key, reader.result as string);
+                        reader.readAsDataURL(file);
+                      }}
+                    />
+                    <div className="flex flex-col gap-1">
+                      <button
+                        type="button"
+                        onClick={() => document.getElementById(`img-${f.key}`)?.click()}
+                        className="text-xs font-medium px-3 py-1.5 rounded-full"
+                        style={{ border: "1px solid var(--uf-line)", color: "var(--uf-ink)" }}
+                      >
+                        {values[f.key] ? "Changer" : "Choisir une image"}
+                      </button>
+                      {values[f.key] && (
+                        <button
+                          type="button"
+                          onClick={() => updateField(f.key, "")}
+                          className="text-xs" style={{ color: "var(--uf-muted)" }}
+                        >
+                          Supprimer
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ) : f.type === "textarea" ? (
                   <textarea
                     value={values[f.key] ?? ""}
                     onChange={(e) => updateField(f.key, e.target.value)}
