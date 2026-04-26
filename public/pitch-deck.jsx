@@ -541,7 +541,7 @@ const SlideFunds = ({ s = LUMEN, n, total }) => (
     ]}/>
 
     {/* Donut chart (CSS conic) */}
-    <Abs x={14} y={74}>
+    <Abs x={14} y={52}>
       <div style={{ position: 'relative', width: 60 * MM, height: 60 * MM }}>
         <div style={{
           width: '100%', height: '100%', borderRadius: '50%',
@@ -559,7 +559,7 @@ const SlideFunds = ({ s = LUMEN, n, total }) => (
     </Abs>
 
     {/* Breakdown */}
-    <Abs x={84} y={72}>
+    <Abs x={84} y={50}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 2 * MM, width: 180 * MM }}>
         {[
           [V('fund1_pct', '45 %'), V('fund1_amount', '360 k€'), V('fund1_label', 'Poste 1'), PDF_COLORS.orange, ''],
