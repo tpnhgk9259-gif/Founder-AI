@@ -2,28 +2,76 @@
 
 import { useState, useEffect } from "react";
 
-// ─── Types & structure par slide ────────────────────────────────────────────
+// ─── Types ──────────────────────────────────────────────────────────────────
 
-type SlideKey = "cover" | "problem" | "solution" | "market" | "product" | "traction" | "business" | "competition" | "team" | "funds" | "roadmap" | "contact";
+type TemplateType = "standard" | "deeptech" | "medtech";
 
-const SLIDES: { key: SlideKey; num: string; label: string; color: string }[] = [
-  { key: "cover", num: "01", label: "Couverture", color: "var(--uf-orange)" },
-  { key: "problem", num: "02", label: "Problème", color: "var(--uf-magenta)" },
-  { key: "solution", num: "03", label: "Solution", color: "var(--uf-teal)" },
-  { key: "market", num: "04", label: "Marché", color: "var(--uf-violet)" },
-  { key: "product", num: "05", label: "Produit", color: "var(--uf-orange)" },
-  { key: "traction", num: "06", label: "Traction", color: "var(--uf-lime)" },
-  { key: "business", num: "07", label: "Business model", color: "var(--uf-yellow)" },
-  { key: "competition", num: "08", label: "Concurrence", color: "var(--uf-magenta)" },
-  { key: "team", num: "09", label: "Équipe", color: "var(--uf-teal)" },
-  { key: "funds", num: "10", label: "Usage des fonds", color: "var(--uf-orange)" },
-  { key: "roadmap", num: "11", label: "Roadmap", color: "var(--uf-violet)" },
-  { key: "contact", num: "12", label: "Contact", color: "var(--uf-ink)" },
+type SlideKey =
+  | "cover" | "problem" | "solution" | "market" | "product" | "traction"
+  | "business" | "competition" | "team" | "funds" | "roadmap" | "contact"
+  // Deeptech
+  | "technology" | "validation_sci"  | "roadmap_rd"
+  // Medtech
+  | "regulatory" | "validation_clin" | "product_market_access" | "roadmap_reg";
+
+type SlideInfo = { key: SlideKey; num: string; label: string; color: string };
+
+const SLIDES_STANDARD: SlideInfo[] = [
+  { key: "cover",       num: "01", label: "Couverture",       color: "var(--uf-orange)" },
+  { key: "problem",     num: "02", label: "Problème",         color: "var(--uf-magenta)" },
+  { key: "solution",    num: "03", label: "Solution",         color: "var(--uf-teal)" },
+  { key: "market",      num: "04", label: "Marché",           color: "var(--uf-violet)" },
+  { key: "product",     num: "05", label: "Produit",          color: "var(--uf-orange)" },
+  { key: "traction",    num: "06", label: "Traction",         color: "var(--uf-lime)" },
+  { key: "business",    num: "07", label: "Business model",   color: "var(--uf-yellow)" },
+  { key: "competition", num: "08", label: "Concurrence",      color: "var(--uf-magenta)" },
+  { key: "team",        num: "09", label: "Équipe",           color: "var(--uf-teal)" },
+  { key: "funds",       num: "10", label: "Usage des fonds",  color: "var(--uf-orange)" },
+  { key: "roadmap",     num: "11", label: "Roadmap",          color: "var(--uf-violet)" },
+  { key: "contact",     num: "12", label: "Contact",          color: "var(--uf-ink)" },
 ];
+
+const SLIDES_DEEPTECH: SlideInfo[] = [
+  { key: "cover",          num: "01", label: "Couverture",           color: "var(--uf-orange)" },
+  { key: "problem",        num: "02", label: "Problème",             color: "var(--uf-magenta)" },
+  { key: "solution",       num: "03", label: "Solution",             color: "var(--uf-teal)" },
+  { key: "market",         num: "04", label: "Marché",               color: "var(--uf-violet)" },
+  { key: "technology",     num: "05", label: "Technologie & IP",     color: "var(--uf-orange)" },
+  { key: "validation_sci", num: "06", label: "Validation scientifique", color: "var(--uf-lime)" },
+  { key: "business",       num: "07", label: "Business model",       color: "var(--uf-yellow)" },
+  { key: "competition",    num: "08", label: "Concurrence",          color: "var(--uf-magenta)" },
+  { key: "team",           num: "09", label: "Équipe",               color: "var(--uf-teal)" },
+  { key: "funds",          num: "10", label: "Usage des fonds",      color: "var(--uf-orange)" },
+  { key: "roadmap_rd",     num: "11", label: "Roadmap R&D",          color: "var(--uf-violet)" },
+  { key: "contact",        num: "12", label: "Contact",              color: "var(--uf-ink)" },
+];
+
+const SLIDES_MEDTECH: SlideInfo[] = [
+  { key: "cover",                num: "01", label: "Couverture",             color: "var(--uf-orange)" },
+  { key: "problem",              num: "02", label: "Problème clinique",      color: "var(--uf-magenta)" },
+  { key: "solution",             num: "03", label: "Solution",               color: "var(--uf-teal)" },
+  { key: "market",               num: "04", label: "Marché",                 color: "var(--uf-violet)" },
+  { key: "product_market_access",num: "05", label: "Produit & Remboursement",color: "var(--uf-orange)" },
+  { key: "validation_clin",      num: "06", label: "Validation clinique",    color: "var(--uf-lime)" },
+  { key: "regulatory",           num: "07", label: "Parcours réglementaire", color: "var(--uf-yellow)" },
+  { key: "competition",          num: "08", label: "Concurrence",            color: "var(--uf-magenta)" },
+  { key: "team",                 num: "09", label: "Équipe",                 color: "var(--uf-teal)" },
+  { key: "funds",                num: "10", label: "Usage des fonds",        color: "var(--uf-orange)" },
+  { key: "roadmap_reg",          num: "11", label: "Roadmap réglementaire",  color: "var(--uf-violet)" },
+  { key: "contact",              num: "12", label: "Contact",                color: "var(--uf-ink)" },
+];
+
+const TEMPLATE_SLIDES: Record<TemplateType, SlideInfo[]> = {
+  standard: SLIDES_STANDARD,
+  deeptech: SLIDES_DEEPTECH,
+  medtech: SLIDES_MEDTECH,
+};
 
 type Field = { key: string; label: string; placeholder?: string; type?: "text" | "textarea" | "image" | "color" | "toggle"; half?: boolean };
 
-const FIELDS: Record<SlideKey, Field[]> = {
+// ─── Champs communs ─────────────────────────────────────────────────────────
+
+const FIELDS_COMMON: Partial<Record<SlideKey, Field[]>> = {
   cover: [
     { key: "startupName", label: "Nom de la startup", placeholder: "Lumen" },
     { key: "tagline", label: "Tagline", placeholder: "Le copilote énergie des restaurateurs indépendants." },
@@ -39,7 +87,7 @@ const FIELDS: Record<SlideKey, Field[]> = {
     { key: "stat1_label", label: "Stat 1 — Description", placeholder: "du CA moyen en facture d'énergie" },
     { key: "stat2_value", label: "Stat 2 — Valeur", placeholder: "28 h", half: true },
     { key: "stat2_label", label: "Stat 2 — Description", placeholder: "par mois perdues à analyser les factures" },
-    { key: "quote_text", label: "Citation client", placeholder: "« Ma facture double entre janvier et juillet. »", type: "textarea" },
+    { key: "quote_text", label: "Citation client / expert", placeholder: "« Ma facture double entre janvier et juillet. »", type: "textarea" },
     { key: "quote_source", label: "Source de la citation", placeholder: "Marc L., Bistrot des Batignolles" },
   ],
   solution: [
@@ -62,45 +110,6 @@ const FIELDS: Record<SlideKey, Field[]> = {
     { key: "market_metric1_value", label: "Métrique 1 — Valeur", placeholder: "+12 %/an", half: true },
     { key: "market_metric2_label", label: "Métrique 2 — Label", placeholder: "Pénétration visée", half: true },
     { key: "market_metric2_value", label: "Métrique 2 — Valeur", placeholder: "6,7 %", half: true },
-  ],
-  product: [
-    { key: "product_title", label: "Titre", placeholder: "3 minutes pour savoir quoi faire." },
-    { key: "product_image", label: "Image produit (screenshot, mockup, photo)", type: "image" },
-    { key: "feature1_title", label: "Feature 1 — Titre", placeholder: "OCR factures", half: true },
-    { key: "feature1_desc", label: "Feature 1 — Description", placeholder: "Lit EDF, Engie, TotalEnergies — PDF et scannées" },
-    { key: "feature2_title", label: "Feature 2 — Titre", placeholder: "Alertes temps réel", half: true },
-    { key: "feature2_desc", label: "Feature 2 — Description", placeholder: "Détecte 14 anomalies dès réception de la facture" },
-    { key: "feature3_title", label: "Feature 3 — Titre", placeholder: "Comparateur", half: true },
-    { key: "feature3_desc", label: "Feature 3 — Description", placeholder: "Négocie en direct avec 8 fournisseurs" },
-    { key: "feature4_title", label: "Feature 4 — Titre", placeholder: "Export PDF", half: true },
-    { key: "feature4_desc", label: "Feature 4 — Description", placeholder: "Export PDF conforme aux décrets" },
-    { key: "feature5_title", label: "Feature 5 — Titre", placeholder: "Mode multi-sites", half: true },
-    { key: "feature5_desc", label: "Feature 5 — Description", placeholder: "Pour les groupes de 2 à 30 établissements" },
-  ],
-  traction: [
-    { key: "traction_title", label: "Titre", placeholder: "6 mois d'existence, 38 restos payants." },
-    { key: "chart_label", label: "Nom de la métrique du graphique", placeholder: "MRR (€)", half: true },
-    { key: "chart_period", label: "Période affichée", placeholder: "Nov 2025 → Avr 2026", half: true },
-    { key: "chart_m1", label: "Mois 1 — Date", placeholder: "Nov", half: true },
-    { key: "chart_v1", label: "Mois 1 — Valeur", placeholder: "0", half: true },
-    { key: "chart_m2", label: "Mois 2 — Date", placeholder: "Déc", half: true },
-    { key: "chart_v2", label: "Mois 2 — Valeur", placeholder: "480", half: true },
-    { key: "chart_m3", label: "Mois 3 — Date", placeholder: "Jan", half: true },
-    { key: "chart_v3", label: "Mois 3 — Valeur", placeholder: "1240", half: true },
-    { key: "chart_m4", label: "Mois 4 — Date", placeholder: "Fév", half: true },
-    { key: "chart_v4", label: "Mois 4 — Valeur", placeholder: "2850", half: true },
-    { key: "chart_m5", label: "Mois 5 — Date", placeholder: "Mar", half: true },
-    { key: "chart_v5", label: "Mois 5 — Valeur", placeholder: "5420", half: true },
-    { key: "chart_m6", label: "Mois 6 — Date", placeholder: "Avr", half: true },
-    { key: "chart_v6", label: "Mois 6 — Valeur", placeholder: "9180", half: true },
-    { key: "kpi1_value", label: "KPI 1 — Valeur", placeholder: "+87 %", half: true },
-    { key: "kpi1_label", label: "KPI 1 — Label", placeholder: "croissance MRR mois sur mois", half: true },
-    { key: "kpi2_value", label: "KPI 2 — Valeur", placeholder: "9 180€", half: true },
-    { key: "kpi2_label", label: "KPI 2 — Label", placeholder: "MRR avril 2026", half: true },
-    { key: "kpi3_value", label: "KPI 3 — Valeur", placeholder: "38 / 45", half: true },
-    { key: "kpi3_label", label: "KPI 3 — Label", placeholder: "payants sur comptes activés (84%)", half: true },
-    { key: "kpi4_value", label: "KPI 4 — Valeur", placeholder: "94 %", half: true },
-    { key: "kpi4_label", label: "KPI 4 — Label", placeholder: "rétention 90 jours", half: true },
   ],
   business: [
     { key: "bm_title", label: "Titre", placeholder: "Deux leviers, zéro CAC variable." },
@@ -167,6 +176,61 @@ const FIELDS: Record<SlideKey, Field[]> = {
     { key: "fund4_amount", label: "Poste 4 — Montant", placeholder: "96 k€", half: true },
     { key: "fund4_label", label: "Poste 4 — Label", placeholder: "Pilotage (légal, compta, ops)" },
   ],
+  contact: [
+    { key: "contact_subtitle", label: "Sous-titre (sous « Rencontrons nous »)", placeholder: "Rdv par téléphone ou visio, 45 min. On vient avec les chiffres." },
+    { key: "contact_name", label: "Nom du contact", placeholder: "Juliette Moreau" },
+    { key: "contact_role", label: "Rôle", placeholder: "CEO", half: true },
+    { key: "contact_email", label: "Email", placeholder: "juliette@lumen.earth", half: true },
+    { key: "contact_phone", label: "Téléphone", placeholder: "+33 6 71 42 19 08", half: true },
+    { key: "contact_location", label: "Adresse", placeholder: "Station F · 5 parvis Alan Turing · 75013 Paris" },
+    { key: "contact_cta", label: "Message d'accroche", placeholder: "Des fonds qui connaissent la restauration, le SaaS vertical, l'impact.", type: "textarea" },
+    { key: "closing_date", label: "Date de closing", placeholder: "Juillet 2026", half: true },
+    { key: "min_ticket", label: "Ticket minimum", placeholder: "50 k€ · jusqu'à 250 k€", half: true },
+  ],
+};
+
+// ─── Champs spécifiques Standard ────────────────────────────────────────────
+
+const FIELDS_STANDARD: Partial<Record<SlideKey, Field[]>> = {
+  product: [
+    { key: "product_title", label: "Titre", placeholder: "3 minutes pour savoir quoi faire." },
+    { key: "product_image", label: "Image produit (screenshot, mockup, photo)", type: "image" },
+    { key: "feature1_title", label: "Feature 1 — Titre", placeholder: "OCR factures", half: true },
+    { key: "feature1_desc", label: "Feature 1 — Description", placeholder: "Lit EDF, Engie, TotalEnergies — PDF et scannées" },
+    { key: "feature2_title", label: "Feature 2 — Titre", placeholder: "Alertes temps réel", half: true },
+    { key: "feature2_desc", label: "Feature 2 — Description", placeholder: "Détecte 14 anomalies dès réception de la facture" },
+    { key: "feature3_title", label: "Feature 3 — Titre", placeholder: "Comparateur", half: true },
+    { key: "feature3_desc", label: "Feature 3 — Description", placeholder: "Négocie en direct avec 8 fournisseurs" },
+    { key: "feature4_title", label: "Feature 4 — Titre (optionnel)", placeholder: "Export PDF", half: true },
+    { key: "feature4_desc", label: "Feature 4 — Description", placeholder: "Export PDF conforme aux décrets" },
+    { key: "feature5_title", label: "Feature 5 — Titre (optionnel)", placeholder: "Mode multi-sites", half: true },
+    { key: "feature5_desc", label: "Feature 5 — Description", placeholder: "Pour les groupes de 2 à 30 établissements" },
+  ],
+  traction: [
+    { key: "traction_title", label: "Titre", placeholder: "6 mois d'existence, 38 restos payants." },
+    { key: "chart_label", label: "Nom de la métrique du graphique", placeholder: "MRR (€)", half: true },
+    { key: "chart_period", label: "Période affichée", placeholder: "Nov 2025 → Avr 2026", half: true },
+    { key: "chart_m1", label: "Mois 1 — Date", placeholder: "Nov", half: true },
+    { key: "chart_v1", label: "Mois 1 — Valeur", placeholder: "0", half: true },
+    { key: "chart_m2", label: "Mois 2 — Date", placeholder: "Déc", half: true },
+    { key: "chart_v2", label: "Mois 2 — Valeur", placeholder: "480", half: true },
+    { key: "chart_m3", label: "Mois 3 — Date", placeholder: "Jan", half: true },
+    { key: "chart_v3", label: "Mois 3 — Valeur", placeholder: "1240", half: true },
+    { key: "chart_m4", label: "Mois 4 — Date", placeholder: "Fév", half: true },
+    { key: "chart_v4", label: "Mois 4 — Valeur", placeholder: "2850", half: true },
+    { key: "chart_m5", label: "Mois 5 — Date", placeholder: "Mar", half: true },
+    { key: "chart_v5", label: "Mois 5 — Valeur", placeholder: "5420", half: true },
+    { key: "chart_m6", label: "Mois 6 — Date", placeholder: "Avr", half: true },
+    { key: "chart_v6", label: "Mois 6 — Valeur", placeholder: "9180", half: true },
+    { key: "kpi1_value", label: "KPI 1 — Valeur", placeholder: "+87 %", half: true },
+    { key: "kpi1_label", label: "KPI 1 — Label", placeholder: "croissance MRR mois sur mois", half: true },
+    { key: "kpi2_value", label: "KPI 2 — Valeur", placeholder: "9 180€", half: true },
+    { key: "kpi2_label", label: "KPI 2 — Label", placeholder: "MRR avril 2026", half: true },
+    { key: "kpi3_value", label: "KPI 3 — Valeur", placeholder: "38 / 45", half: true },
+    { key: "kpi3_label", label: "KPI 3 — Label", placeholder: "payants sur comptes activés (84%)", half: true },
+    { key: "kpi4_value", label: "KPI 4 — Valeur", placeholder: "94 %", half: true },
+    { key: "kpi4_label", label: "KPI 4 — Label", placeholder: "rétention 90 jours", half: true },
+  ],
   roadmap: [
     { key: "ms1_quarter", label: "Milestone 1 — Trimestre", placeholder: "T2 26", half: true },
     { key: "ms1_title", label: "Milestone 1 — Titre", placeholder: "Seed", half: true },
@@ -187,26 +251,177 @@ const FIELDS: Record<SlideKey, Field[]> = {
     { key: "ms6_title", label: "Milestone 6 — Titre", placeholder: "2 000 clients", half: true },
     { key: "ms6_note", label: "Milestone 6 — Note", placeholder: "Équipe 14 ETP, 2 pays" },
   ],
-  contact: [
-    { key: "contact_subtitle", label: "Sous-titre (sous « Rencontrons nous »)", placeholder: "Rdv par téléphone ou visio, 45 min. On vient avec les chiffres." },
-    { key: "contact_name", label: "Nom du contact", placeholder: "Juliette Moreau" },
-    { key: "contact_role", label: "Rôle", placeholder: "CEO", half: true },
-    { key: "contact_email", label: "Email", placeholder: "juliette@lumen.earth", half: true },
-    { key: "contact_phone", label: "Téléphone", placeholder: "+33 6 71 42 19 08", half: true },
-    { key: "contact_location", label: "Adresse", placeholder: "Station F · 5 parvis Alan Turing · 75013 Paris" },
-    { key: "contact_cta", label: "Message d'accroche", placeholder: "Des fonds qui connaissent la restauration, le SaaS vertical, l'impact.", type: "textarea" },
-    { key: "closing_date", label: "Date de closing", placeholder: "Juillet 2026", half: true },
-    { key: "min_ticket", label: "Ticket minimum", placeholder: "50 k€ · jusqu'à 250 k€", half: true },
+};
+
+// ─── Champs spécifiques Deeptech ────────────────────────────────────────────
+
+const FIELDS_DEEPTECH: Partial<Record<SlideKey, Field[]>> = {
+  technology: [
+    { key: "tech_title", label: "Titre", placeholder: "Une rupture dans le stockage d'énergie solide." },
+    { key: "trl_current", label: "TRL actuel", placeholder: "TRL 4", half: true },
+    { key: "trl_target", label: "TRL cible (18 mois)", placeholder: "TRL 7", half: true },
+    { key: "tech_desc", label: "Description de la technologie", placeholder: "Électrolyte solide sulfure à base de Li₆PS₅Cl, synthèse brevetée à froid.", type: "textarea" },
+    { key: "patent1", label: "Brevet / IP 1", placeholder: "FR2301234 — Synthèse à froid d'électrolyte sulfure", half: true },
+    { key: "patent2", label: "Brevet / IP 2 (optionnel)", placeholder: "PCT/FR2024/000567 — Architecture cellule tout-solide", half: true },
+    { key: "patent3", label: "Brevet / IP 3 (optionnel)", placeholder: "Licence exclusive CEA-Liten", half: true },
+    { key: "pub1", label: "Publication 1 (optionnel)", placeholder: "Nature Energy, 2025 — 'Cold-pressed sulfide electrolytes'", half: true },
+    { key: "pub2", label: "Publication 2 (optionnel)", placeholder: "Advanced Materials, 2024", half: true },
+    { key: "tech_image", label: "Schéma / illustration technique", type: "image" },
+    { key: "tech_diff1", label: "Différenciation 1", placeholder: "10x plus rapide que le frittage classique", half: true },
+    { key: "tech_diff2", label: "Différenciation 2", placeholder: "Coût matière -60% vs concurrents", half: true },
+    { key: "tech_diff3", label: "Différenciation 3 (optionnel)", placeholder: "Compatible lignes de production Li-ion existantes", half: true },
+  ],
+  validation_sci: [
+    { key: "validation_title", label: "Titre", placeholder: "Du labo au prototype fonctionnel." },
+    { key: "val_kpi1_value", label: "Résultat clé 1 — Valeur", placeholder: "450 Wh/kg", half: true },
+    { key: "val_kpi1_label", label: "Résultat clé 1 — Label", placeholder: "Densité énergétique atteinte (vs 250 Wh/kg Li-ion)", half: true },
+    { key: "val_kpi2_value", label: "Résultat clé 2 — Valeur", placeholder: "1 200", half: true },
+    { key: "val_kpi2_label", label: "Résultat clé 2 — Label", placeholder: "Cycles charge/décharge sans dégradation", half: true },
+    { key: "val_kpi3_value", label: "Résultat clé 3 — Valeur", placeholder: "3", half: true },
+    { key: "val_kpi3_label", label: "Résultat clé 3 — Label", placeholder: "POC industriels en cours avec partenaires", half: true },
+    { key: "val_kpi4_value", label: "Résultat clé 4 — Valeur (optionnel)", placeholder: "2", half: true },
+    { key: "val_kpi4_label", label: "Résultat clé 4 — Label", placeholder: "Publications peer-reviewed", half: true },
+    { key: "partner_acad1", label: "Partenaire académique 1", placeholder: "CEA-Liten (Grenoble)", half: true },
+    { key: "partner_acad2", label: "Partenaire académique 2 (optionnel)", placeholder: "CNRS-IMN (Nantes)", half: true },
+    { key: "partner_indus1", label: "Partenaire industriel 1", placeholder: "Saft (TotalEnergies)", half: true },
+    { key: "partner_indus2", label: "Partenaire industriel 2 (optionnel)", placeholder: "Verkor", half: true },
+  ],
+  roadmap_rd: [
+    { key: "rd1_quarter", label: "Jalon R&D 1 — Période", placeholder: "T2 26", half: true },
+    { key: "rd1_title", label: "Jalon R&D 1 — Titre", placeholder: "Seed + bourse EIC", half: true },
+    { key: "rd1_note", label: "Jalon R&D 1 — Détail", placeholder: "1,5 M€ equity + 2 M€ grant EIC Accelerator" },
+    { key: "rd1_trl", label: "Jalon R&D 1 — TRL", placeholder: "TRL 4", half: true },
+    { key: "rd2_quarter", label: "Jalon R&D 2 — Période", placeholder: "T4 26", half: true },
+    { key: "rd2_title", label: "Jalon R&D 2 — Titre", placeholder: "Prototype cellule 10 Ah", half: true },
+    { key: "rd2_note", label: "Jalon R&D 2 — Détail", placeholder: "Validation densité 450 Wh/kg en format pouch" },
+    { key: "rd2_trl", label: "Jalon R&D 2 — TRL", placeholder: "TRL 5", half: true },
+    { key: "rd3_quarter", label: "Jalon R&D 3 — Période", placeholder: "T2 27", half: true },
+    { key: "rd3_title", label: "Jalon R&D 3 — Titre", placeholder: "Pilote pré-industriel", half: true },
+    { key: "rd3_note", label: "Jalon R&D 3 — Détail", placeholder: "Ligne pilote 100 cellules/jour chez Saft" },
+    { key: "rd3_trl", label: "Jalon R&D 3 — TRL", placeholder: "TRL 6", half: true },
+    { key: "rd4_quarter", label: "Jalon R&D 4 — Période (optionnel)", placeholder: "T4 27", half: true },
+    { key: "rd4_title", label: "Jalon R&D 4 — Titre", placeholder: "Série A", half: true },
+    { key: "rd4_note", label: "Jalon R&D 4 — Détail", placeholder: "10-15 M€, scale-up ligne de production" },
+    { key: "rd4_trl", label: "Jalon R&D 4 — TRL", placeholder: "TRL 7", half: true },
+    { key: "grant1", label: "Financement public 1", placeholder: "BPI i-Nov : 600 k€ (obtenu)", half: true },
+    { key: "grant2", label: "Financement public 2 (optionnel)", placeholder: "EIC Accelerator : 2 M€ (en cours)", half: true },
+    { key: "grant3", label: "Financement public 3 (optionnel)", placeholder: "France 2030 : candidature T3 26", half: true },
   ],
 };
 
-// ─── Page ────────────────────────────────────────────────────────────────────
+// ─── Champs spécifiques Medtech ─────────────────────────────────────────────
+
+const FIELDS_MEDTECH: Partial<Record<SlideKey, Field[]>> = {
+  product_market_access: [
+    { key: "pma_title", label: "Titre", placeholder: "Un cathéter intelligent, remboursé." },
+    { key: "product_image", label: "Image produit / dispositif", type: "image" },
+    { key: "dm_class", label: "Classe du DM", placeholder: "Classe IIb", half: true },
+    { key: "dm_type", label: "Type de dispositif", placeholder: "Cathéter à capteur intégré", half: true },
+    { key: "feature1_title", label: "Fonctionnalité 1 — Titre", placeholder: "Mesure en temps réel", half: true },
+    { key: "feature1_desc", label: "Fonctionnalité 1 — Description", placeholder: "Capteur piézo intégré, données envoyées en continu" },
+    { key: "feature2_title", label: "Fonctionnalité 2 — Titre", placeholder: "Biocompatibilité avancée", half: true },
+    { key: "feature2_desc", label: "Fonctionnalité 2 — Description", placeholder: "Revêtement hydrophile breveté, durée d'implantation 2x" },
+    { key: "feature3_title", label: "Fonctionnalité 3 — Titre (optionnel)", placeholder: "App clinicien", half: true },
+    { key: "feature3_desc", label: "Fonctionnalité 3 — Description", placeholder: "Dashboard temps réel pour le suivi patient" },
+    { key: "remb_strategy", label: "Stratégie de remboursement", placeholder: "LPPR Titre III, dépôt CNEDiMTS prévu T1 27", type: "textarea" },
+    { key: "price_hospital", label: "Prix hospitalier cible", placeholder: "350 € / unité", half: true },
+    { key: "price_remb", label: "Tarif remboursement visé", placeholder: "280 € (base LPPR)", half: true },
+  ],
+  validation_clin: [
+    { key: "clin_title", label: "Titre", placeholder: "Preuves cliniques solides." },
+    { key: "clin_phase", label: "Phase actuelle", placeholder: "Étude pivot en cours (n=120)", half: true },
+    { key: "clin_design", label: "Design de l'étude", placeholder: "Randomisée, multicentrique, en double aveugle", half: true },
+    { key: "clin_kpi1_value", label: "Résultat clé 1 — Valeur", placeholder: "-42 %", half: true },
+    { key: "clin_kpi1_label", label: "Résultat clé 1 — Label", placeholder: "Réduction des complications post-op (étude pilote, n=45)", half: true },
+    { key: "clin_kpi2_value", label: "Résultat clé 2 — Valeur", placeholder: "98 %", half: true },
+    { key: "clin_kpi2_label", label: "Résultat clé 2 — Label", placeholder: "Taux de succès d'implantation (first-time-right)", half: true },
+    { key: "clin_kpi3_value", label: "Résultat clé 3 — Valeur (optionnel)", placeholder: "3", half: true },
+    { key: "clin_kpi3_label", label: "Résultat clé 3 — Label", placeholder: "CHU investigateurs (Necker, Pitié-Salpêtrière, Lyon HCL)", half: true },
+    { key: "kol1", label: "KOL 1 (Key Opinion Leader)", placeholder: "Pr. Dupont — Chef de service cardiologie, Necker", half: true },
+    { key: "kol2", label: "KOL 2 (optionnel)", placeholder: "Pr. Martin — Directrice recherche clinique, HCL Lyon", half: true },
+    { key: "kol3", label: "KOL 3 (optionnel)", placeholder: "Dr. Lefèvre — Chirurgien vasculaire, Pitié-Salpêtrière", half: true },
+  ],
+  regulatory: [
+    { key: "reg_title", label: "Titre", placeholder: "Parcours réglementaire maîtrisé." },
+    { key: "reg_pathway", label: "Voie réglementaire", placeholder: "Marquage CE (MDR 2017/745) + 510(k) FDA", type: "textarea" },
+    { key: "reg_class_eu", label: "Classe EU", placeholder: "IIb", half: true },
+    { key: "reg_class_us", label: "Classe FDA (optionnel)", placeholder: "Class II", half: true },
+    { key: "reg_step1_date", label: "Étape 1 — Date", placeholder: "T3 26", half: true },
+    { key: "reg_step1_label", label: "Étape 1 — Intitulé", placeholder: "Dossier technique CE complet", half: true },
+    { key: "reg_step1_status", label: "Étape 1 — Statut", placeholder: "En cours", half: true },
+    { key: "reg_step2_date", label: "Étape 2 — Date", placeholder: "T1 27", half: true },
+    { key: "reg_step2_label", label: "Étape 2 — Intitulé", placeholder: "Audit organisme notifié (BSI)", half: true },
+    { key: "reg_step2_status", label: "Étape 2 — Statut", placeholder: "Planifié", half: true },
+    { key: "reg_step3_date", label: "Étape 3 — Date", placeholder: "T3 27", half: true },
+    { key: "reg_step3_label", label: "Étape 3 — Intitulé", placeholder: "Marquage CE obtenu", half: true },
+    { key: "reg_step3_status", label: "Étape 3 — Statut", placeholder: "Objectif", half: true },
+    { key: "reg_step4_date", label: "Étape 4 — Date (optionnel)", placeholder: "T1 28", half: true },
+    { key: "reg_step4_label", label: "Étape 4 — Intitulé", placeholder: "Clearance 510(k) FDA", half: true },
+    { key: "reg_step4_status", label: "Étape 4 — Statut", placeholder: "Objectif", half: true },
+    { key: "reg_notified_body", label: "Organisme notifié", placeholder: "BSI (UK)", half: true },
+    { key: "reg_cro", label: "CRO / consultant réglementaire", placeholder: "Qualitiso (Paris)", half: true },
+  ],
+  roadmap_reg: [
+    { key: "rr1_quarter", label: "Jalon 1 — Période", placeholder: "T2 26", half: true },
+    { key: "rr1_title", label: "Jalon 1 — Titre", placeholder: "Fin étude pivot", half: true },
+    { key: "rr1_note", label: "Jalon 1 — Détail", placeholder: "n=120 patients, résultats primaires" },
+    { key: "rr2_quarter", label: "Jalon 2 — Période", placeholder: "T3 26", half: true },
+    { key: "rr2_title", label: "Jalon 2 — Titre", placeholder: "Soumission CE", half: true },
+    { key: "rr2_note", label: "Jalon 2 — Détail", placeholder: "Dossier technique complet à BSI" },
+    { key: "rr3_quarter", label: "Jalon 3 — Période", placeholder: "T1 27", half: true },
+    { key: "rr3_title", label: "Jalon 3 — Titre", placeholder: "Marquage CE", half: true },
+    { key: "rr3_note", label: "Jalon 3 — Détail", placeholder: "Lancement commercial EU" },
+    { key: "rr4_quarter", label: "Jalon 4 — Période", placeholder: "T2 27", half: true },
+    { key: "rr4_title", label: "Jalon 4 — Titre", placeholder: "Dépôt CNEDiMTS", half: true },
+    { key: "rr4_note", label: "Jalon 4 — Détail", placeholder: "Demande inscription LPPR Titre III" },
+    { key: "rr5_quarter", label: "Jalon 5 — Période (optionnel)", placeholder: "T4 27", half: true },
+    { key: "rr5_title", label: "Jalon 5 — Titre", placeholder: "Soumission 510(k)", half: true },
+    { key: "rr5_note", label: "Jalon 5 — Détail", placeholder: "Entrée marché US" },
+    { key: "rr6_quarter", label: "Jalon 6 — Période (optionnel)", placeholder: "T2 28", half: true },
+    { key: "rr6_title", label: "Jalon 6 — Titre", placeholder: "Remboursement obtenu", half: true },
+    { key: "rr6_note", label: "Jalon 6 — Détail", placeholder: "LPPR + premiers marchés hospitaliers" },
+  ],
+};
+
+// ─── Merge fields par template ──────────────────────────────────────────────
+
+function getFields(template: TemplateType): Record<string, Field[]> {
+  const variant =
+    template === "deeptech" ? FIELDS_DEEPTECH :
+    template === "medtech"  ? FIELDS_MEDTECH :
+    FIELDS_STANDARD;
+  const all: Record<string, Field[]> = {};
+  const slides = TEMPLATE_SLIDES[template];
+  for (const s of slides) {
+    all[s.key] = variant[s.key] ?? FIELDS_COMMON[s.key] ?? [];
+  }
+  return all;
+}
+
+// ─── Page ───────────────────────────────────────────────────────────────────
+
+const TEMPLATE_LABELS: Record<TemplateType, { label: string; desc: string }> = {
+  standard: { label: "Standard", desc: "SaaS, marketplace, app mobile" },
+  deeptech: { label: "Deeptech", desc: "Biotech, hardware, énergie, matériaux" },
+  medtech:  { label: "Dispositif médical", desc: "DM classe I à III, diagnostic in vitro" },
+};
 
 export default function PitchDeckV2Page() {
+  const [template, setTemplate] = useState<TemplateType>("standard");
   const [values, setValues] = useState<Record<string, string>>({});
-  const [activeSlide, setActiveSlide] = useState<SlideKey>("cover");
+  const [activeSlide, setActiveSlide] = useState<string>("cover");
   const [startupId, setStartupId] = useState<string | null>(null);
   const [filling, setFilling] = useState(false);
+
+  const slides = TEMPLATE_SLIDES[template];
+  const allFields = getFields(template);
+
+  // Reset active slide si elle n'existe plus dans le template
+  useEffect(() => {
+    if (!slides.find((s) => s.key === activeSlide)) {
+      setActiveSlide(slides[0].key);
+    }
+  }, [template]);
 
   // Pré-remplir depuis le profil startup
   useEffect(() => {
@@ -236,7 +451,7 @@ export default function PitchDeckV2Page() {
       const res = await fetch("/api/ai/fill-pitch-deck", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ startupId }),
+        body: JSON.stringify({ startupId, template }),
       });
       if (res.ok) {
         const data = await res.json();
@@ -249,13 +464,13 @@ export default function PitchDeckV2Page() {
   }
 
   function openPreview() {
-    sessionStorage.setItem("founderai_pitch_deck_v2", JSON.stringify(values));
+    sessionStorage.setItem("founderai_pitch_deck_v2", JSON.stringify({ ...values, _template: template }));
     window.open("/pitch-deck-v2-preview.html", "_blank");
   }
 
-  const fields = FIELDS[activeSlide];
+  const fields = allFields[activeSlide] ?? [];
   const filledCount = Object.values(values).filter(Boolean).length;
-  const totalFields = Object.values(FIELDS).flat().length;
+  const totalFields = Object.values(allFields).flat().length;
 
   return (
     <div className="min-h-screen" style={{ background: "var(--uf-paper)" }}>
@@ -281,25 +496,46 @@ export default function PitchDeckV2Page() {
               className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-full disabled:opacity-40 hover:-translate-y-px transition-transform"
               style={{ background: "var(--uf-orange)", color: "#fff" }}
             >
-              {filling ? "Génération…" : "✨ Auto-fill IA"}
+              {filling ? "Génération…" : "Auto-fill IA"}
             </button>
             <button
               onClick={openPreview}
               className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-full hover:-translate-y-px transition-transform"
               style={{ background: "var(--uf-ink)", color: "var(--uf-paper)" }}
             >
-              Preview & Export PDF →
+              Preview & Export PDF
             </button>
           </div>
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-6 py-6 flex gap-6">
+      {/* Template selector */}
+      <div className="max-w-5xl mx-auto px-6 pt-5 pb-1">
+        <div className="flex gap-3">
+          {(Object.entries(TEMPLATE_LABELS) as [TemplateType, { label: string; desc: string }][]).map(([key, { label, desc }]) => (
+            <button
+              key={key}
+              onClick={() => setTemplate(key)}
+              className="flex-1 text-left px-4 py-3 transition-all"
+              style={{
+                background: template === key ? "var(--uf-card)" : "transparent",
+                border: template === key ? "1.5px solid var(--uf-orange)" : "1.5px solid var(--uf-line)",
+                borderRadius: "var(--uf-r-lg)",
+              }}
+            >
+              <div className="text-sm font-semibold" style={{ color: template === key ? "var(--uf-orange)" : "var(--uf-ink)" }}>{label}</div>
+              <div className="text-[11px] mt-0.5" style={{ color: "var(--uf-muted)" }}>{desc}</div>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="max-w-5xl mx-auto px-6 py-4 flex gap-6">
         {/* Nav slides */}
         <nav className="w-48 shrink-0 space-y-1">
-          {SLIDES.map((s) => {
+          {slides.map((s) => {
             const isActive = activeSlide === s.key;
-            const slideFields = FIELDS[s.key];
+            const slideFields = allFields[s.key] ?? [];
             const filled = slideFields.filter((f) => values[f.key]).length;
             return (
               <button
@@ -331,11 +567,11 @@ export default function PitchDeckV2Page() {
         {/* Formulaire */}
         <div className="flex-1 p-6" style={{ background: "var(--uf-card)", border: "1px solid var(--uf-line)", borderRadius: "var(--uf-r-xl)" }}>
           <div className="flex items-center gap-3 mb-5">
-            <span className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold" style={{ background: SLIDES.find((s) => s.key === activeSlide)!.color, color: "#fff", fontFamily: "var(--uf-mono)" }}>
-              {SLIDES.find((s) => s.key === activeSlide)!.num}
+            <span className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold" style={{ background: slides.find((s) => s.key === activeSlide)?.color ?? "var(--uf-ink)", color: "#fff", fontFamily: "var(--uf-mono)" }}>
+              {slides.find((s) => s.key === activeSlide)?.num ?? "?"}
             </span>
             <h2 className="uppercase tracking-normal" style={{ fontFamily: "var(--uf-display)", fontSize: 22, color: "var(--uf-ink)" }}>
-              {SLIDES.find((s) => s.key === activeSlide)!.label}
+              {slides.find((s) => s.key === activeSlide)?.label ?? ""}
             </h2>
           </div>
 
@@ -374,7 +610,7 @@ export default function PitchDeckV2Page() {
                       {values[f.key] ? (
                         <img src={values[f.key]} alt="" className="w-full h-full object-cover" />
                       ) : (
-                        <span className="text-2xl">🖼️</span>
+                        <span className="text-2xl" role="img" aria-label="image">&#128444;</span>
                       )}
                     </div>
                     <input
@@ -455,25 +691,25 @@ export default function PitchDeckV2Page() {
           <div className="flex justify-between mt-6">
             <button
               onClick={() => {
-                const idx = SLIDES.findIndex((s) => s.key === activeSlide);
-                if (idx > 0) setActiveSlide(SLIDES[idx - 1].key);
+                const idx = slides.findIndex((s) => s.key === activeSlide);
+                if (idx > 0) setActiveSlide(slides[idx - 1].key);
               }}
-              disabled={activeSlide === "cover"}
+              disabled={activeSlide === slides[0]?.key}
               className="text-sm font-medium disabled:opacity-30"
               style={{ color: "var(--uf-muted)" }}
             >
-              ← Slide précédente
+              Slide precedente
             </button>
             <button
               onClick={() => {
-                const idx = SLIDES.findIndex((s) => s.key === activeSlide);
-                if (idx < SLIDES.length - 1) setActiveSlide(SLIDES[idx + 1].key);
+                const idx = slides.findIndex((s) => s.key === activeSlide);
+                if (idx < slides.length - 1) setActiveSlide(slides[idx + 1].key);
               }}
-              disabled={activeSlide === "contact"}
+              disabled={activeSlide === slides[slides.length - 1]?.key}
               className="text-sm font-medium disabled:opacity-30"
               style={{ color: "var(--uf-orange)" }}
             >
-              Slide suivante →
+              Slide suivante
             </button>
           </div>
         </div>

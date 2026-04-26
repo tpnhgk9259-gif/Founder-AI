@@ -724,21 +724,57 @@ const SlideContact = ({ s = LUMEN, n, total }) => (
   </div>
 );
 
+const SLIDE_MAP_STANDARD = [
+  { C: SlideCover,     label: '01 · Couverture' },
+  { C: SlideProblem,   label: '02 · Problème' },
+  { C: SlideSolution,  label: '03 · Solution' },
+  { C: SlideMarket,    label: '04 · Marché' },
+  { C: SlideProduct,   label: '05 · Produit' },
+  { C: SlideTraction,  label: '06 · Traction' },
+  { C: SlideBusiness,  label: '07 · Business model' },
+  { C: SlideCompet,    label: '08 · Concurrence' },
+  { C: SlideTeam,      label: '09 · Équipe' },
+  { C: SlideFunds,     label: '10 · Usage des fonds' },
+  { C: SlideRoadmap,   label: '11 · Roadmap' },
+  { C: SlideContact,   label: '12 · Contact' },
+];
+
 const PitchDeckMock = ({ s = LUMEN }) => {
-  const slides = [
-    { C: SlideCover,     label: '01 · Couverture' },
-    { C: SlideProblem,   label: '02 · Problème' },
-    { C: SlideSolution,  label: '03 · Solution' },
-    { C: SlideMarket,    label: '04 · Marché' },
-    { C: SlideProduct,   label: '05 · Produit' },
-    { C: SlideTraction,  label: '06 · Traction' },
-    { C: SlideBusiness,  label: '07 · Business model' },
-    { C: SlideCompet,    label: '08 · Concurrence' },
-    { C: SlideTeam,      label: '09 · Équipe' },
-    { C: SlideFunds,     label: '10 · Usage des fonds' },
-    { C: SlideRoadmap,   label: '11 · Roadmap' },
-    { C: SlideContact,   label: '12 · Contact' },
-  ];
+  const tmpl = (window.FORM_VALUES || {})._template || 'standard';
+
+  const slidesMap = {
+    standard: SLIDE_MAP_STANDARD,
+    deeptech: [
+      { C: SlideCover,         label: '01 · Couverture' },
+      { C: SlideProblem,       label: '02 · Problème' },
+      { C: SlideSolution,      label: '03 · Solution' },
+      { C: SlideMarket,        label: '04 · Marché' },
+      { C: window.SlideTechnology || SlideProduct,     label: '05 · Technologie & IP' },
+      { C: window.SlideValidationSci || SlideTraction,  label: '06 · Validation scientifique' },
+      { C: SlideBusiness,      label: '07 · Business model' },
+      { C: SlideCompet,        label: '08 · Concurrence' },
+      { C: SlideTeam,          label: '09 · Équipe' },
+      { C: SlideFunds,         label: '10 · Usage des fonds' },
+      { C: window.SlideRoadmapRD || SlideRoadmap,      label: '11 · Roadmap R&D' },
+      { C: SlideContact,       label: '12 · Contact' },
+    ],
+    medtech: [
+      { C: SlideCover,         label: '01 · Couverture' },
+      { C: SlideProblem,       label: '02 · Problème clinique' },
+      { C: SlideSolution,      label: '03 · Solution' },
+      { C: SlideMarket,        label: '04 · Marché' },
+      { C: window.SlideProductMarketAccess || SlideProduct, label: '05 · Produit & Remboursement' },
+      { C: window.SlideValidationClin || SlideTraction,     label: '06 · Validation clinique' },
+      { C: window.SlideRegulatory || SlideBusiness,         label: '07 · Parcours réglementaire' },
+      { C: SlideCompet,        label: '08 · Concurrence' },
+      { C: SlideTeam,          label: '09 · Équipe' },
+      { C: SlideFunds,         label: '10 · Usage des fonds' },
+      { C: window.SlideRoadmapReg || SlideRoadmap,          label: '11 · Roadmap réglementaire' },
+      { C: SlideContact,       label: '12 · Contact' },
+    ],
+  };
+
+  const slides = slidesMap[tmpl] || SLIDE_MAP_STANDARD;
   const total = slides.length;
   return (
     <div>
