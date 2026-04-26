@@ -265,7 +265,9 @@ const SlideProduct = ({ s = LUMEN, n, total }) => (
           [V('feature1_title', 'Feature 1'), V('feature1_desc', 'Description de la feature 1'), PDF_COLORS.orange],
           [V('feature2_title', 'Feature 2'), V('feature2_desc', 'Description de la feature 2'), PDF_COLORS.magenta],
           [V('feature3_title', 'Feature 3'), V('feature3_desc', 'Description de la feature 3'), PDF_COLORS.teal],
-        ].map(([t, d, c]) => (
+          V('feature4_title') && [V('feature4_title'), V('feature4_desc', ''), PDF_COLORS.violet],
+          V('feature5_title') && [V('feature5_title'), V('feature5_desc', ''), PDF_COLORS.yellow],
+        ].filter(Boolean).map(([t, d, c]) => (
           <div key={t} style={{
             padding: `${2.5 * MM}px ${3 * MM}px`, background: PDF_COLORS.card,
             border: `1px solid ${PDF_COLORS.line}`, borderRadius: 6,

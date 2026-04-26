@@ -69,6 +69,10 @@ const FIELDS: Record<SlideKey, Field[]> = {
     { key: "feature2_desc", label: "Feature 2 — Description", placeholder: "Détecte 14 anomalies dès réception de la facture" },
     { key: "feature3_title", label: "Feature 3 — Titre", placeholder: "Comparateur", half: true },
     { key: "feature3_desc", label: "Feature 3 — Description", placeholder: "Négocie en direct avec 8 fournisseurs" },
+    { key: "feature4_title", label: "Feature 4 — Titre", placeholder: "Export PDF", half: true },
+    { key: "feature4_desc", label: "Feature 4 — Description", placeholder: "Export PDF conforme aux décrets" },
+    { key: "feature5_title", label: "Feature 5 — Titre", placeholder: "Mode multi-sites", half: true },
+    { key: "feature5_desc", label: "Feature 5 — Description", placeholder: "Pour les groupes de 2 à 30 établissements" },
   ],
   traction: [
     { key: "traction_title", label: "Titre", placeholder: "6 mois d'existence, 38 restos payants." },
