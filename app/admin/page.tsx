@@ -754,7 +754,36 @@ export default function AdminPage() {
             rows={usersF.map((u) => [
               u.email,
               `${u.first_name} ${u.last_name}`,
-              u.plan,
+              <select
+                key={u.id}
+                value={u.plan}
+                onChange={async (e) => {
+                  const newPlan = e.target.value;
+                  const res = await fetch("/api/admin/update-plan", {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ targetUserId: u.id, plan: newPlan }),
+                  });
+                  if (res.ok) {
+                    setData((prev) =>
+                      prev
+                        ? { ...prev, users: prev.users.map((x) => (x.id === u.id ? { ...x, plan: newPlan } : x)) }
+                        : prev
+                    );
+                  }
+                }}
+                onClick={(e) => e.stopPropagation()}
+                className="text-xs font-bold px-2 py-1 rounded cursor-pointer focus:outline-none"
+                style={{
+                  background: u.plan === "scale" ? "#0DB4A030" : u.plan === "growth" ? "#FF6A1F30" : "#6C676020",
+                  color: u.plan === "scale" ? "#0DB4A0" : u.plan === "growth" ? "#FF6A1F" : "#A09A8E",
+                  border: "1px solid transparent",
+                }}
+              >
+                <option value="starter">Starter</option>
+                <option value="growth">Growth</option>
+                <option value="scale">Scale</option>
+              </select>,
               formatDate(u.created_at),
               u.id,
             ])}
@@ -1434,7 +1463,7 @@ function DataTable({
   onDelete,
 }: {
   columns: string[];
-  rows: string[][];
+  rows: (string | ReactNode)[][];
   empty: string;
   onRowClick?: (index: number) => void;
   onDelete?: (index: number) => void;
@@ -1471,7 +1500,7 @@ function DataTable({
                 <td
                   key={j}
                   className={`px-4 py-2.5 text-slate-300 max-w-[14rem] truncate ${j === 0 ? "font-medium text-white" : ""}`}
-                  title={cell}
+                  title={typeof cell === "string" ? cell : undefined}
                 >
                   {cell}
                 </td>
