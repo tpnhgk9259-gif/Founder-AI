@@ -82,12 +82,6 @@ const SlideCover = ({ s = LUMEN }) => (
       </div>
     </Abs>
 
-    <Abs x={178} y={28} w={88}>
-      <div style={{ color: '#fff', fontFamily: 'Geist Mono', fontSize: 8.5, letterSpacing: '0.18em', textTransform: 'uppercase', opacity: 0.9 }}>Vu par</div>
-      <div style={{ color: '#fff', fontFamily: 'Anton, sans-serif', fontSize: 30, marginTop: 6, lineHeight: 0.9, whiteSpace: 'nowrap' }}>{V('investor_name', 'XAVIER N.').toUpperCase()}</div>
-      <div style={{ color: '#fff', fontFamily: 'Georgia, serif', fontStyle: 'italic', fontSize: 14, marginTop: 6, opacity: 0.85 }}>{V('investor_fund', 'Serena Capital')}</div>
-    </Abs>
-
     <Abs x={178} y={132}>
       <div style={{ color: 'rgba(255,255,255,0.7)', fontFamily: 'Geist Mono', fontSize: 8, letterSpacing: '0.14em', textTransform: 'uppercase' }}>contact</div>
       <div style={{ color: '#fff', fontSize: 10.5, marginTop: 3, fontWeight: 500 }}>{V('contact_email', 'email@startup.com')}{V('contact_phone') ? ` · ${V('contact_phone')}` : ''}</div>
