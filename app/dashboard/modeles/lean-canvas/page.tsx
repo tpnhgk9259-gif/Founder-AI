@@ -155,28 +155,69 @@ export default function LeanCanvasPage() {
       const CW = PW - 2 * M;
 
       // Charte FounderAI — design tokens mapped to RGB
-      const RED: [number, number, number] = [255, 106, 31];   // orange #FF6A1F
-      const DARK: [number, number, number] = [15, 14, 11];    // ink #0F0E0B
-      const CONTENT_COLOR: [number, number, number] = [108, 103, 96]; // muted #6C6760
+      const ORANGE: [number, number, number] = [255, 106, 31];
+      const INK: [number, number, number] = [15, 14, 11];
+      const MUTED: [number, number, number] = [108, 103, 96];
+      const LINE: [number, number, number] = [224, 217, 199];
+      const PAPER: [number, number, number] = [251, 248, 240];
+      const CARD: [number, number, number] = [255, 255, 255];
 
-      // ── Logo / nom startup ────────────────────────────────────────────────────
+      // ── Fond papier ─────────────────────────────────────────────────────────
+      doc.setFillColor(...PAPER);
+      doc.rect(0, 0, PW, PH, "F");
+
+      // ── Header ──────────────────────────────────────────────────────────────
+      // Pastille logo
+      doc.setFillColor(...ORANGE);
+      doc.circle(M + 3.5, M + 3.5, 3.5, "F");
+      doc.setFontSize(5);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(255, 255, 255);
+      doc.text("f", M + 2.3, M + 5);
+
+      // Nom startup ou logo
       if (startupLogo) {
         const fmt = startupLogo.startsWith("data:image/png") ? "PNG" : "JPEG";
-        doc.addImage(startupLogo, fmt, M, M, 30, 10);
+        doc.addImage(startupLogo, fmt, M + 10, M - 1, 24, 9);
       } else {
-        doc.setFontSize(11);
-        doc.setFont("helvetica", "normal");
-        doc.setTextColor(...DARK);
-        doc.text(startupName || "Company Logo", M, M + 6);
+        doc.setFontSize(9);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(...INK);
+        doc.text((startupName || "Startup").toUpperCase(), M + 10, M + 5);
       }
 
-      const lineY = M + 10;
-      doc.setDrawColor(...RED);
-      doc.setLineWidth(0.5);
+      // Label
+      doc.setFontSize(7);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(...MUTED);
+      doc.text("LEAN CANVAS", M + 10 + (startupLogo ? 26 : doc.getTextWidth((startupName || "Startup").toUpperCase()) + 4), M + 5);
+
+      // Date
+      const dateHeader = new Date().toLocaleDateString("fr-FR");
+      doc.setFontSize(7);
+      doc.text(dateHeader, PW - M, M + 5, { align: "right" });
+
+      // Ligne de séparation
+      const lineY = M + 9;
+      doc.setDrawColor(...LINE);
+      doc.setLineWidth(0.3);
       doc.line(M, lineY, PW - M, lineY);
 
+      // ── Titre ───────────────────────────────────────────────────────────────
+      doc.setFontSize(18);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(...INK);
+      doc.text("LEAN CANVAS", M, lineY + 8);
+
+      if (startupName) {
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "italic");
+        doc.setTextColor(...MUTED);
+        doc.text(startupName, M + doc.getTextWidth("LEAN CANVAS  ") + 2, lineY + 8);
+      }
+
       // ── Dimensions de la grille ───────────────────────────────────────────────
-      const gridTop = lineY + 2;
+      const gridTop = lineY + 13;
       const footerH = 36;
       const gridH = PH - M - gridTop - footerH;
       const footerTop = gridTop + gridH;
@@ -188,12 +229,16 @@ export default function LeanCanvasPage() {
       const topH = splitY - gridTop;
       const botH = gridH - topH;
 
+      // ── Fond carte blanche ────────────────────────────────────────────────────
+      doc.setFillColor(...CARD);
+      doc.roundedRect(M, gridTop, CW, gridH + footerH, 2, 2, "F");
+
       // ── Bordures ──────────────────────────────────────────────────────────────
-      doc.setDrawColor(...RED);
-      doc.setLineWidth(0.4);
+      doc.setDrawColor(...LINE);
+      doc.setLineWidth(0.3);
 
       // Contour global
-      doc.rect(M, gridTop, CW, gridH + footerH);
+      doc.roundedRect(M, gridTop, CW, gridH + footerH, 2, 2);
 
       // Séparateurs verticaux (grille principale uniquement, s'arrêtent au footer)
       for (let i = 1; i <= 4; i++) {
@@ -220,27 +265,32 @@ export default function LeanCanvasPage() {
         x: number, y: number, w: number, h: number,
         label: string, content: string
       ) {
-        // Titre orange bold
+        // Titre orange bold uppercase
         doc.setFontSize(LABEL_FS);
         doc.setFont("helvetica", "bold");
-        doc.setTextColor(...RED);
-        doc.text(label, x + PAD, y + PAD + 3);
+        doc.setTextColor(...ORANGE);
+        doc.text(label.toUpperCase(), x + PAD, y + PAD + 3);
+
+        // Petit trait accent sous le titre
+        doc.setDrawColor(...ORANGE);
+        doc.setLineWidth(0.5);
+        doc.line(x + PAD, y + PAD + 4.5, x + PAD + 12, y + PAD + 4.5);
 
         // Contenu
         if (content?.trim()) {
           doc.setFontSize(CONTENT_FS);
           doc.setFont("helvetica", "normal");
-          doc.setTextColor(...CONTENT_COLOR);
-          const maxLines = Math.floor((h - 10) / (CONTENT_FS * 0.42));
+          doc.setTextColor(...INK);
+          const maxLines = Math.floor((h - 12) / (CONTENT_FS * 0.42));
           const lines = doc.splitTextToSize(content, w - PAD * 2);
-          doc.text(lines.slice(0, maxLines), x + PAD, y + PAD + 9);
+          doc.text(lines.slice(0, maxLines), x + PAD, y + PAD + 10);
         }
       }
 
       function drawSubLabel(x: number, label: string) {
         doc.setFontSize(SUBLABEL_FS);
-        doc.setFont("helvetica", "normal");
-        doc.setTextColor(...RED);
+        doc.setFont("helvetica", "italic");
+        doc.setTextColor(...MUTED);
         doc.text(label, x + PAD, splitY + PAD + 3);
       }
 
@@ -270,6 +320,16 @@ export default function LeanCanvasPage() {
 
       // Footer droite — Lignes de revenus
       drawCell(M + CW / 2, footerTop, CW / 2, footerH, "Lignes de revenus",  values.sources_revenus);
+
+      // ── Footer page ─────────────────────────────────────────────────────────
+      doc.setDrawColor(...LINE);
+      doc.setLineWidth(0.2);
+      doc.line(M, PH - M - 4, PW - M, PH - M - 4);
+      doc.setFontSize(6.5);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(...MUTED);
+      doc.text(`${(startupName || "").toUpperCase()}  \u00B7  Lean Canvas  \u00B7  ${new Date().toLocaleDateString("fr-FR")}`, M, PH - M - 1);
+      doc.text("Confidentiel", PW - M, PH - M - 1, { align: "right" });
 
       // ── Export & upload ───────────────────────────────────────────────────────
       const dateStr = new Date().toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric" });

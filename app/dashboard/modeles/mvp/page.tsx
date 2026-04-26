@@ -189,41 +189,80 @@ export default function MvpPage() {
         return curY;
       }
 
+      const ORANGE: [number, number, number] = [255, 106, 31];
+      const INK: [number, number, number] = [15, 14, 11];
+      const MUTED: [number, number, number] = [108, 103, 96];
+      const LINE: [number, number, number] = [224, 217, 199];
+      const PAPER: [number, number, number] = [251, 248, 240];
+
+      // Fond papier
+      doc.setFillColor(...PAPER);
+      doc.rect(0, 0, PAGE_W, PAGE_H, "F");
+
       function headerBand(y: number) {
-        doc.setFillColor(255, 106, 31); // #FF6A1F orange
-        doc.rect(M, y, W, 12, "F");
-        doc.setTextColor(255, 255, 255);
-        doc.setFontSize(13);
+        // Pastille FounderAI
+        doc.setFillColor(...ORANGE);
+        doc.circle(M + 3.5, y + 4, 3.5, "F");
+        doc.setFontSize(5);
         doc.setFont("helvetica", "bold");
-        doc.text("RAPPORT DE PRESENTATION MVP", PAGE_W / 2, y + 8, { align: "center" });
-        if (startupLogo) {
-          const fmt = startupLogo.startsWith("data:image/png") ? "PNG" : "JPEG";
-          doc.addImage(startupLogo, fmt, M + 1, y + 1, 24, 10);
-        } else if (startupName) {
-          doc.setFontSize(9);
-          doc.setFont("helvetica", "normal");
-          doc.text(startupName, M + 3, y + 8);
-        }
-        const dateStr = new Date().toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric" });
+        doc.setTextColor(255, 255, 255);
+        doc.text("f", M + 2.3, y + 5.5);
+
+        // Nom startup
         doc.setFontSize(8);
-        doc.text(dateStr, PAGE_W - M - 3, y + 8, { align: "right" });
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(...INK);
+        doc.text((startupName || "Startup").toUpperCase(), M + 10, y + 5.5);
+
+        // Label
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(...MUTED);
+        doc.setFontSize(7);
+        const nameW = doc.getTextWidth((startupName || "Startup").toUpperCase());
+        doc.text("\u00B7  Rapport MVP", M + 10 + nameW + 3, y + 5.5);
+
+        // Date
+        const dateStr = new Date().toLocaleDateString("fr-FR");
+        doc.text(dateStr, PAGE_W - M, y + 5.5, { align: "right" });
+
+        // Ligne
+        doc.setDrawColor(...LINE);
+        doc.setLineWidth(0.3);
+        doc.line(M, y + 9, PAGE_W - M, y + 9);
       }
 
       headerBand(M);
-      let y = M + 18;
+
+      // Titre
+      doc.setFontSize(20);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(...INK);
+      doc.text("RAPPORT MVP", M, M + 18);
+
+      let y = M + 24;
+
+      // Helper: section title bar
+      function sectionBar(label: string, atY: number) {
+        doc.setDrawColor(...ORANGE);
+        doc.setLineWidth(0.8);
+        doc.line(M, atY, M + 14, atY);
+        doc.setFontSize(8);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(...ORANGE);
+        doc.text(label.toUpperCase(), M + 17, atY + 0.5);
+        doc.setDrawColor(...LINE);
+        doc.setLineWidth(0.2);
+        const labelW = doc.getTextWidth(label.toUpperCase());
+        doc.line(M + 18 + labelW, atY, PAGE_W - M, atY);
+      }
 
       // -- Synthese ---------------------------------------------------------------
-      doc.setFillColor(255, 237, 220); // light orange bg
-      doc.rect(M, y, W, 7, "F");
-      doc.setFontSize(9);
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(255, 106, 31);
-      doc.text("SYNTHESE EXECUTIVE", M + 3, y + 5);
-      y += 9;
+      sectionBar("Synthèse exécutive", y);
+      y += 6;
 
       doc.setFontSize(8.5);
       doc.setFont("helvetica", "normal");
-      doc.setTextColor(40, 40, 60);
+      doc.setTextColor(...INK);
       const syntheseLines = doc.splitTextToSize(report.synthese, W - 4);
       y = checkPage(y, syntheseLines.length * 4.5 + 4);
       doc.text(syntheseLines, M + 4, y + 1);
@@ -231,35 +270,35 @@ export default function MvpPage() {
 
       // -- Resume budget + effort --------------------------------------------------
       y = checkPage(y, 18);
-      doc.setFillColor(255, 245, 235); // very light orange
-      doc.rect(M, y, W, 14, "F");
+      doc.setFillColor(255, 255, 255);
+      doc.roundedRect(M, y, W, 14, 1.5, 1.5, "F");
+      doc.setDrawColor(...LINE);
+      doc.roundedRect(M, y, W, 14, 1.5, 1.5);
 
-      doc.setFontSize(8);
+      doc.setFontSize(7);
       doc.setFont("helvetica", "bold");
-      doc.setTextColor(255, 106, 31);
-      doc.text("BUDGET ESTIME", M + 4, y + 5);
-      doc.setFont("helvetica", "normal");
-      doc.setTextColor(40, 40, 60);
-      doc.text(`${fmtEur(report.budget_total_min)} -- ${fmtEur(report.budget_total_max)}`, M + 4, y + 11);
+      doc.setTextColor(...MUTED);
+      doc.text("BUDGET", M + 4, y + 4.5);
+      doc.setFontSize(11);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(...INK);
+      doc.text(`${fmtEur(report.budget_total_min)} \u2013 ${fmtEur(report.budget_total_max)}`, M + 4, y + 11);
 
+      doc.setFontSize(7);
       doc.setFont("helvetica", "bold");
-      doc.setTextColor(255, 106, 31);
-      doc.text("EFFORT TOTAL", M + W / 2 + 4, y + 5);
+      doc.setTextColor(...MUTED);
+      doc.text("EFFORT", M + W / 2 + 4, y + 4.5);
+      doc.setFontSize(9);
       doc.setFont("helvetica", "normal");
-      doc.setTextColor(40, 40, 60);
+      doc.setTextColor(...INK);
       const effortLines = doc.splitTextToSize(report.effort_total, W / 2 - 8);
       doc.text(effortLines.slice(0, 2), M + W / 2 + 4, y + 11);
       y += 20;
 
       // -- Lots fonctionnels -------------------------------------------------------
       y = checkPage(y, 10);
-      doc.setFillColor(255, 237, 220);
-      doc.rect(M, y, W, 7, "F");
-      doc.setFontSize(9);
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(255, 106, 31);
-      doc.text(`LOTS FONCTIONNELS (${report.lots.length})`, M + 3, y + 5);
-      y += 9;
+      sectionBar(`Lots fonctionnels (${report.lots.length})`, y);
+      y += 6;
 
       report.lots.forEach((lot: MvpLot, idx: number) => {
         const fonctLines = doc.splitTextToSize(lot.fonctionnalites.map((f) => `\u2022 ${f}`).join("\n"), W - 8);
@@ -272,89 +311,89 @@ export default function MvpPage() {
         y = checkPage(y, blockH);
 
         // Bandeau titre lot
-        const bgR = idx % 2 === 0 ? 255 : 250;
-        const bgG = idx % 2 === 0 ? 245 : 240;
-        doc.setFillColor(bgR, bgG, 235);
-        doc.rect(M, y, W, 8, "F");
+        doc.setFillColor(255, 255, 255);
+        doc.roundedRect(M, y, W, 8, 1.5, 1.5, "F");
+        doc.setDrawColor(...ORANGE);
+        doc.setLineWidth(0.6);
+        doc.line(M, y, M, y + 8);
 
         doc.setFontSize(9);
         doc.setFont("helvetica", "bold");
-        doc.setTextColor(200, 80, 15);
-        doc.text(`Lot ${idx + 1} -- ${lot.titre}`, M + 3, y + 5.5);
+        doc.setTextColor(...INK);
+        doc.text(`LOT ${idx + 1}  \u00B7  ${lot.titre.toUpperCase()}`, M + 3, y + 5.5);
 
-        // Badges
-        const badgeX = PAGE_W - M - 3;
+        // Badge priorité
         doc.setFontSize(7);
-        doc.setFont("helvetica", "normal");
-        doc.setTextColor(255, 106, 31);
-        doc.text(lot.priorite, badgeX, y + 5.5, { align: "right" });
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(...ORANGE);
+        doc.text(lot.priorite.toUpperCase(), PAGE_W - M - 3, y + 5.5, { align: "right" });
         y += 10;
 
         // Description
         doc.setFontSize(8);
         doc.setFont("helvetica", "italic");
-        doc.setTextColor(80, 80, 100);
+        doc.setTextColor(...MUTED);
         const descLines = doc.splitTextToSize(lot.description, W - 4);
         doc.text(descLines, M + 3, y + 1);
         y += descLines.length * 4 + 3;
 
         // Fonctionnalites
-        doc.setFontSize(7.5);
+        doc.setFontSize(7);
         doc.setFont("helvetica", "bold");
-        doc.setTextColor(60, 60, 80);
-        doc.text("Fonctionnalites :", M + 3, y);
+        doc.setTextColor(...MUTED);
+        doc.text("FONCTIONNALITES", M + 3, y);
         y += 4;
         doc.setFont("helvetica", "normal");
-        doc.setTextColor(40, 40, 60);
+        doc.setTextColor(...INK);
+        doc.setFontSize(8);
         doc.text(fonctLines, M + 5, y);
         y += fonctLines.length * 4 + 3;
 
         // Impact client / autres (2 colonnes)
         const colW = (W - 4) / 2;
         doc.setFont("helvetica", "bold");
-        doc.setTextColor(60, 60, 80);
-        doc.setFontSize(7.5);
-        doc.text("Impact client ideal :", M + 3, y);
-        doc.text("Impact autres utilisateurs :", M + 3 + colW + 2, y);
+        doc.setTextColor(...MUTED);
+        doc.setFontSize(7);
+        doc.text("IMPACT CLIENT", M + 3, y);
+        doc.text("IMPACT AUTRES UTILISATEURS", M + 3 + colW + 2, y);
         y += 4;
         doc.setFont("helvetica", "normal");
-        doc.setTextColor(40, 40, 60);
+        doc.setTextColor(...INK);
+        doc.setFontSize(8);
         doc.text(impactClientLines, M + 3, y);
         doc.text(impactAutresLines, M + 3 + colW + 2, y);
         y += impactRows * 4 + 3;
 
         // Effort + Budget
+        doc.setFontSize(7);
         doc.setFont("helvetica", "bold");
-        doc.setFontSize(7.5);
-        doc.setTextColor(60, 60, 80);
-        doc.text(`Effort : `, M + 3, y);
+        doc.setTextColor(...MUTED);
+        doc.text("EFFORT", M + 3, y);
         doc.setFont("helvetica", "normal");
-        doc.setTextColor(40, 40, 60);
-        doc.text(`${lot.effort} -- ${lot.effort_detail}`, M + 16, y);
+        doc.setTextColor(...INK);
+        doc.setFontSize(8);
+        doc.text(`${lot.effort} \u2013 ${lot.effort_detail}`, M + 18, y);
         y += 5;
 
+        doc.setFontSize(7);
         doc.setFont("helvetica", "bold");
-        doc.setTextColor(60, 60, 80);
-        doc.text(`Budget : `, M + 3, y);
+        doc.setTextColor(...MUTED);
+        doc.text("BUDGET", M + 3, y);
         doc.setFont("helvetica", "normal");
-        doc.setTextColor(40, 40, 60);
-        doc.text(`${fmtEur(lot.budget_min)} -- ${fmtEur(lot.budget_max)}`, M + 17, y);
+        doc.setTextColor(...INK);
+        doc.setFontSize(8);
+        doc.text(`${fmtEur(lot.budget_min)} \u2013 ${fmtEur(lot.budget_max)}`, M + 18, y);
         y += 8;
       });
 
       // -- Recommandation ----------------------------------------------------------
       y = checkPage(y, 14);
-      doc.setFillColor(255, 237, 220);
-      doc.rect(M, y, W, 7, "F");
-      doc.setFontSize(9);
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(255, 106, 31);
-      doc.text("RECOMMANDATION", M + 3, y + 5);
-      y += 9;
+      sectionBar("Recommandation", y);
+      y += 6;
 
       doc.setFontSize(8.5);
       doc.setFont("helvetica", "normal");
-      doc.setTextColor(40, 40, 60);
+      doc.setTextColor(...INK);
       const recoLines = doc.splitTextToSize(report.recommandation, W - 4);
       y = checkPage(y, recoLines.length * 4.5 + 4);
       doc.text(recoLines, M + 4, y + 1);
@@ -364,11 +403,19 @@ export default function MvpPage() {
       const totalPages = (doc as unknown as { internal: { getNumberOfPages: () => number } }).internal.getNumberOfPages();
       for (let p = 1; p <= totalPages; p++) {
         doc.setPage(p);
-        doc.setFontSize(7);
-        doc.setTextColor(160, 160, 180);
-        doc.setFont("helvetica", "italic");
-        doc.text("Genere par FounderAI", PAGE_W / 2, PAGE_H - M / 2, { align: "center" });
-        doc.text(`${p} / ${totalPages}`, PAGE_W - M - 3, PAGE_H - M / 2, { align: "right" });
+        // Fond papier sur chaque page
+        if (p > 1) {
+          doc.setFillColor(...PAPER);
+          doc.rect(0, 0, PAGE_W, PAGE_H, "F");
+        }
+        doc.setDrawColor(...LINE);
+        doc.setLineWidth(0.2);
+        doc.line(M, PAGE_H - M - 2, PAGE_W - M, PAGE_H - M - 2);
+        doc.setFontSize(6.5);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(...MUTED);
+        doc.text(`${(startupName || "").toUpperCase()}  \u00B7  Rapport MVP  \u00B7  ${new Date().toLocaleDateString("fr-FR")}`, M, PAGE_H - M + 1);
+        doc.text(`${p} / ${totalPages}`, PAGE_W - M, PAGE_H - M + 1, { align: "right" });
       }
 
       // -- Upload ------------------------------------------------------------------
