@@ -59,12 +59,25 @@ const SlideCover = ({ s = LUMEN }) => (
     {/* Decorative huge rounded shape */}
     <div style={{ position: 'absolute', left: -30 * MM, bottom: -40 * MM, width: 120 * MM, height: 120 * MM, borderRadius: '50%', background: PDF_COLORS.lime, opacity: 0.25 }}/>
 
-    <PDFLogo size={5.5 * MM} x={14} y={14}/>
-    <Abs x={24} y={14}>
+    {V('startup_logo') ? (
+      <Abs x={14} y={12.5}>
+        <img src={V('startup_logo')} style={{ height: 6 * MM, maxWidth: 20 * MM, objectFit: 'contain' }}/>
+      </Abs>
+    ) : (
+      <Abs x={14} y={13}>
+        <div style={{
+          width: 5.5 * MM, height: 5.5 * MM, borderRadius: '50%',
+          background: PDF_COLORS.orange, color: '#fff',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontFamily: 'Anton, sans-serif', fontSize: 5.5 * MM * 0.55,
+        }}>{((V('startupName') || s.name)[0] || 'S').toUpperCase()}</div>
+      </Abs>
+    )}
+    <Abs x={V('startup_logo') ? 36 : 24} y={14}>
       <div style={{ fontFamily: 'Geist Mono, monospace', fontSize: 8.5, letterSpacing: '0.14em', textTransform: 'uppercase', color: PDF_COLORS.muted, paddingTop: 2 }}>
-        <span style={{ color: PDF_COLORS.ink, fontWeight: 700 }}>FounderAI</span>
+        <span style={{ color: PDF_COLORS.ink, fontWeight: 700 }}>{V('startupName') || s.name}</span>
         <span style={{ margin: '0 8px', color: PDF_COLORS.muted2 }}>·</span>
-        Pitch deck · V1 · Avril 2026
+        Pitch Deck
       </div>
     </Abs>
 
