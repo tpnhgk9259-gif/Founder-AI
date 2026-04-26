@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 
 // ── Obviously Awesome — April Dunford ───────────────────────────────────────
-// 5 composantes + statement de positionnement
+// 5 composantes + positionnement
 
 type Section = {
   key: string;
@@ -405,7 +405,7 @@ export default function PositionnementPage() {
         y += 4;
       }
 
-      // Statement de positionnement
+      // Positionnement
       const statement = values[STATEMENT_KEY]?.trim();
       if (statement) {
         y = checkPage(y, 30);
@@ -416,7 +416,7 @@ export default function PositionnementPage() {
         doc.setFontSize(8);
         doc.setFont("helvetica", "bold");
         doc.setTextColor(...ORANGE);
-        doc.text("STATEMENT DE POSITIONNEMENT", M + 17, y + 0.5);
+        doc.text("POSITIONNEMENT", M + 17, y + 0.5);
 
         y += 6;
         doc.setFillColor(255, 255, 255);
@@ -465,7 +465,7 @@ export default function PositionnementPage() {
       // Upload
       const file = new File([pdfBlob], fileName, { type: "application/pdf" });
       const textContent = SECTIONS.map((s) => `${s.label}\n${values[s.key] || "\u2014"}`).join("\n\n")
-        + (statement ? `\n\nStatement de positionnement\n${statement}` : "");
+        + (statement ? `\n\nPositionnement\n${statement}` : "");
 
       const formData = new FormData();
       formData.append("startupId", startupId!);
@@ -723,7 +723,7 @@ export default function PositionnementPage() {
           )}
         </div>
 
-        {/* Statement de positionnement */}
+        {/* Positionnement */}
         <div
           className="p-5"
           style={{
@@ -733,7 +733,7 @@ export default function PositionnementPage() {
           }}
         >
           <h2 className="text-sm font-bold uppercase tracking-wide mb-1" style={{ color: "var(--uf-orange)", fontFamily: "var(--uf-display)", fontSize: 16 }}>
-            Statement de positionnement
+            Positionnement
           </h2>
           <p className="text-xs mb-3" style={{ color: "var(--uf-muted)", fontStyle: "italic" }}>
             Synthétisez votre positionnement en 2-3 phrases percutantes. Format suggéré : Pour [cible] qui [besoin], [produit] est [catégorie] qui [valeur unique]. Contrairement à [alternatives], nous [différenciation].
