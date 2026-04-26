@@ -181,7 +181,7 @@ export default function PositionnementPage() {
     window.open("/positionnement-preview.html", "_blank");
   }
 
-  const hasContent = Object.values(values).some((v) => v.trim().length > 0) || segments.some((s) => s.name.trim());
+  const hasContent = Object.values(values).some((v) => typeof v === "string" && v.trim().length > 0) || segments.some((s) => s.name.trim());
   const filledSegments = segments.filter((s) => s.name.trim() && s.urgency > 0);
   const bestSegment = filledSegments.length > 0
     ? filledSegments.reduce((a, b) => segmentScore(a) > segmentScore(b) ? a : b)
