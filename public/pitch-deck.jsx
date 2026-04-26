@@ -471,6 +471,41 @@ const SlideCompet = ({ s = LUMEN, n, total }) => {
       </div>
     </Abs>
 
+    {/* Tuiles "Pourquoi on gagne ?" */}
+    {(() => {
+      const advs = [
+        V('advantage1') && { title: V('advantage1'), desc: V('advantage1_desc','') },
+        V('advantage2') && { title: V('advantage2'), desc: V('advantage2_desc','') },
+        V('advantage3') && { title: V('advantage3'), desc: V('advantage3_desc','') },
+      ].filter(Boolean);
+      if (!advs.length) return null;
+      const tileW = (252 - (advs.length - 1) * 4) / advs.length;
+      return (
+        <Abs x={14} y={118}>
+          <div style={{ display: 'flex', gap: 4 * MM, alignItems: 'stretch' }}>
+            {advs.map((a, i) => (
+              <div key={i} style={{
+                width: tileW * MM,
+                background: PDF_COLORS.card,
+                border: `1.5px solid ${PDF_COLORS.orange}`,
+                borderRadius: 6,
+                padding: `${2.5 * MM}px ${3 * MM}px`,
+              }}>
+                <div style={{
+                  fontFamily: 'Anton, sans-serif', fontSize: 11, textTransform: 'uppercase',
+                  color: PDF_COLORS.orange, letterSpacing: '0.02em', marginBottom: 2 * MM,
+                }}>{a.title}</div>
+                {a.desc && <div style={{
+                  fontFamily: 'Geist, sans-serif', fontSize: 8.5, color: PDF_COLORS.ink,
+                  lineHeight: 1.4,
+                }}>{a.desc}</div>}
+              </div>
+            ))}
+          </div>
+        </Abs>
+      );
+    })()}
+
     <PDFFooter startup={s.name} page={n} total={total}/>
   </div>
 );

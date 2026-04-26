@@ -118,6 +118,12 @@ const FIELDS: Record<SlideKey, Field[]> = {
     { key: "comp3_name", label: "Concurrent 3 (optionnel)", placeholder: "Alternative indirecte", half: true },
     { key: "comp3_scores", label: "Scores concurrent 3", placeholder: "1,1,2,1,0" },
     { key: "our_scores", label: "Nos scores (vos forces !)", placeholder: "3,3,3,2,3" },
+    { key: "advantage1", label: "Avantage 1", placeholder: "Technologie propriétaire", half: true },
+    { key: "advantage1_desc", label: "Détail avantage 1", placeholder: "Algorithme breveté 3x plus rapide", half: true },
+    { key: "advantage2", label: "Avantage 2", placeholder: "Time-to-market", half: true },
+    { key: "advantage2_desc", label: "Détail avantage 2", placeholder: "Déjà en production depuis 6 mois", half: true },
+    { key: "advantage3", label: "Avantage 3 (optionnel)", placeholder: "Réseau distribution", half: true },
+    { key: "advantage3_desc", label: "Détail avantage 3", placeholder: "Partenariat exclusif avec 3 distributeurs", half: true },
   ],
   team: [
     { key: "member1_name", label: "Fondateur 1 — Nom", placeholder: "Juliette Moreau", half: true },
