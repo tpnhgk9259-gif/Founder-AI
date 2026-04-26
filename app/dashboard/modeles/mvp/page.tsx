@@ -436,7 +436,7 @@ export default function MvpPage() {
             className="text-sm hover:underline flex items-center gap-1 mb-4"
             style={{ color: "var(--uf-orange)" }}
           >
-            \u2190 Retour aux documents
+            {"\u2190"} Retour aux documents
           </a>
           <div className="flex items-start justify-between gap-4 flex-wrap">
             <div>
@@ -444,7 +444,7 @@ export default function MvpPage() {
                 className="text-2xl font-black"
                 style={{ color: "var(--uf-ink)", fontFamily: "var(--uf-display)" }}
               >
-                \u26A1 MVP
+                MVP
               </h1>
               <p className="text-sm mt-1" style={{ color: "var(--uf-muted)" }}>
                 Cadrez et scopez votre produit minimum viable.
