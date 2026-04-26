@@ -802,25 +802,11 @@ export default function PitchDeckV2Page() {
                 <span className="text-xs font-medium truncate" style={{ color: isActive ? "var(--uf-ink)" : "var(--uf-muted)" }}>
                   {s.label}
                 </span>
-                <span className="ml-auto flex items-center gap-1">
-                  {agent && (
-                    <span
-                      title={`${agent.name} remplit cette slide`}
-                      style={{
-                        width: 14, height: 14, background: agent.color,
-                        borderRadius: agent.shape,
-                        display: "inline-flex", alignItems: "center", justifyContent: "center",
-                        color: agentKey === "marc" ? "#0F0E0B" : "#fff",
-                        fontFamily: "var(--uf-display)", fontSize: 7, flexShrink: 0,
-                      }}
-                    >{agent.name[0]}</span>
-                  )}
-                  {filled > 0 && (
-                    <span className="text-[9px] font-medium" style={{ color: filled === slideFields.length ? "var(--uf-teal)" : "var(--uf-muted-2)" }}>
-                      {filled}/{slideFields.length}
-                    </span>
-                  )}
-                </span>
+                {filled > 0 && (
+                  <span className="ml-auto text-[9px] font-medium" style={{ color: filled === slideFields.length ? "var(--uf-teal)" : "var(--uf-muted-2)" }}>
+                    {filled}/{slideFields.length}
+                  </span>
+                )}
               </button>
             );
           })}
