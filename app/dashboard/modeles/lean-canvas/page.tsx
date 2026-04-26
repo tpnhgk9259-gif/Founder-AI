@@ -7,7 +7,7 @@ type LeanCanvasSection = {
   label: string;
   description: string;
   emoji: string;
-  color: string;
+  tokenColor: string; // CSS custom property name
 };
 
 const SECTIONS: LeanCanvasSection[] = [
@@ -16,63 +16,63 @@ const SECTIONS: LeanCanvasSection[] = [
     label: "Problème",
     description: "Les 3 principaux problèmes de vos clients",
     emoji: "⚡",
-    color: "border-red-200 bg-red-50",
+    tokenColor: "var(--uf-magenta)",
   },
   {
     key: "solution",
     label: "Solution",
     description: "Les 3 fonctionnalités ou approches clés",
     emoji: "💡",
-    color: "border-yellow-200 bg-yellow-50",
+    tokenColor: "var(--uf-yellow)",
   },
   {
     key: "proposition_valeur",
     label: "Proposition de valeur unique",
     description: "Message clair et distinctif qui explique pourquoi vous êtes différent",
     emoji: "🎯",
-    color: "border-violet-200 bg-violet-50",
+    tokenColor: "var(--uf-orange)",
   },
   {
     key: "avantage_concurrentiel",
     label: "Avantage déloyal",
     description: "Ce que vous avez que les autres ne peuvent pas facilement copier",
     emoji: "🏆",
-    color: "border-orange-200 bg-orange-50",
+    tokenColor: "var(--uf-violet)",
   },
   {
     key: "segments_clients",
     label: "Segments de clients",
     description: "Clients cibles, early adopters",
     emoji: "👥",
-    color: "border-blue-200 bg-blue-50",
+    tokenColor: "var(--uf-teal)",
   },
   {
     key: "metriques_cles",
     label: "Métriques clés",
     description: "Indicateurs qui mesurent la santé de votre business",
     emoji: "📊",
-    color: "border-emerald-200 bg-emerald-50",
+    tokenColor: "var(--uf-lime)",
   },
   {
     key: "canaux",
     label: "Canaux",
     description: "Chemins pour atteindre vos clients",
     emoji: "📣",
-    color: "border-pink-200 bg-pink-50",
+    tokenColor: "var(--uf-magenta)",
   },
   {
     key: "structure_couts",
     label: "Structure de coûts",
     description: "Coûts fixes et variables principaux",
     emoji: "💸",
-    color: "border-gray-200 bg-gray-50",
+    tokenColor: "var(--uf-muted)",
   },
   {
     key: "sources_revenus",
     label: "Sources de revenus",
     description: "Comment vous générez de l'argent",
     emoji: "💰",
-    color: "border-teal-200 bg-teal-50",
+    tokenColor: "var(--uf-teal)",
   },
 ];
 
@@ -154,10 +154,10 @@ export default function LeanCanvasPage() {
       const M = 12;
       const CW = PW - 2 * M;
 
-      // Charte FounderAI
-      const RED: [number, number, number] = [124, 58, 237];   // violet-600
-      const DARK: [number, number, number] = [17, 24, 39];    // gray-900
-      const CONTENT_COLOR: [number, number, number] = [55, 65, 81]; // gray-700
+      // Charte FounderAI — design tokens mapped to RGB
+      const RED: [number, number, number] = [255, 106, 31];   // orange #FF6A1F
+      const DARK: [number, number, number] = [15, 14, 11];    // ink #0F0E0B
+      const CONTENT_COLOR: [number, number, number] = [108, 103, 96]; // muted #6C6760
 
       // ── Logo / nom startup ────────────────────────────────────────────────────
       if (startupLogo) {
@@ -220,7 +220,7 @@ export default function LeanCanvasPage() {
         x: number, y: number, w: number, h: number,
         label: string, content: string
       ) {
-        // Titre violet bold
+        // Titre orange bold
         doc.setFontSize(LABEL_FS);
         doc.setFont("helvetica", "bold");
         doc.setTextColor(...RED);
@@ -315,81 +315,106 @@ export default function LeanCanvasPage() {
   }
 
   const hasContent = Object.values(values).some((v) => v.trim().length > 0);
+  const filledCount = Object.values(values).filter((v) => v.trim().length > 0).length;
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-violet-50 to-indigo-50 px-6 py-10">
-      <div className="max-w-5xl mx-auto">
-        {/* En-tête */}
-        <div className="mb-8">
-          <a href="/dashboard?tab=documents" className="text-sm text-violet-600 hover:underline flex items-center gap-1 mb-4">
-            ← Retour aux documents
-          </a>
-          <div className="flex items-start justify-between gap-4 flex-wrap">
-            <div>
-              <h1 className="text-2xl font-black text-gray-900">🎨 Lean Canvas</h1>
-              <p className="text-gray-500 text-sm mt-1">Modélisez votre business model en une page.</p>
-            </div>
-            <div className="flex items-center gap-3 flex-wrap">
-              <button
-                onClick={handleFillWithCodir}
-                disabled={filling || !startupId}
-                className="flex items-center gap-2 bg-white border-2 border-violet-200 text-violet-700 font-bold text-sm px-4 py-2.5 rounded-xl hover:border-violet-400 hover:bg-violet-50 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
+    <div className="min-h-screen" style={{ background: "var(--uf-paper)" }}>
+      {/* Header */}
+      <div style={{ background: "var(--uf-card)", borderBottom: "1px solid var(--uf-line)" }}>
+        <div className="max-w-5xl mx-auto px-6 py-5 flex items-center justify-between">
+          <div>
+            <a href="/dashboard?tab=documents" className="inline-flex items-center gap-2.5 text-lg font-semibold">
+              <div
+                className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-normal"
+                style={{ background: "var(--uf-orange)", fontFamily: "var(--uf-display)" }}
               >
-                {filling ? (
-                  <>
-                    <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                    </svg>
-                    Génération en cours…
-                  </>
-                ) : (
-                  <>🏛️ Demander à mes agents de remplir</>
-                )}
-              </button>
-              <button
-                onClick={() => {
-                  const empty = Object.fromEntries(SECTIONS.map((s) => [s.key, ""]));
-                  setValues(empty);
-                  if (startupId) localStorage.removeItem(`founderai_lean_canvas_${startupId}`);
-                  setSaveSuccess(false);
-                  setError("");
-                }}
-                className="flex items-center gap-2 bg-white border-2 border-gray-200 text-gray-500 font-bold text-sm px-4 py-2.5 rounded-xl hover:border-red-200 hover:text-red-500 hover:bg-red-50 transition-all shadow-sm"
-              >
-                🗑️ Vider
-              </button>
-              <button
-                onClick={handleGeneratePdf}
-                disabled={generating || !startupId || !hasContent}
-                className="flex items-center gap-2 bg-violet-600 hover:bg-violet-700 text-white font-bold text-sm px-4 py-2.5 rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-violet-200"
-              >
-                {generating ? (
-                  <>
-                    <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                    </svg>
-                    Génération du PDF…
-                  </>
-                ) : (
-                  <>📄 Générer le document</>
-                )}
-              </button>
-            </div>
+                f
+              </div>
+              <span>FOUNDER<span style={{ color: "var(--uf-muted)" }}>AI</span></span>
+            </a>
+            <h1
+              className="mt-2 uppercase tracking-[-0.015em]"
+              style={{ fontFamily: "var(--uf-display)", fontSize: 24, lineHeight: 0.82, color: "var(--uf-ink)" }}
+            >
+              Lean Canvas
+            </h1>
+          </div>
+          <div className="flex items-center gap-3">
+            <span
+              className="text-[11px] font-medium"
+              style={{ fontFamily: "var(--uf-mono)", color: "var(--uf-muted)" }}
+            >
+              {filledCount} / {SECTIONS.length} sections
+            </span>
+            <button
+              onClick={handleFillWithCodir}
+              disabled={filling || !startupId}
+              className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium disabled:opacity-40 hover:-translate-y-px transition-transform focus:outline-none"
+              style={{ background: "var(--uf-orange)", color: "#fff", borderRadius: "var(--uf-r-md)" }}
+            >
+              {filling ? (
+                <>
+                  <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  Génération…
+                </>
+              ) : (
+                "Demander à mes agents"
+              )}
+            </button>
+            <button
+              onClick={() => {
+                const empty = Object.fromEntries(SECTIONS.map((s) => [s.key, ""]));
+                setValues(empty);
+                if (startupId) localStorage.removeItem(`founderai_lean_canvas_${startupId}`);
+                setSaveSuccess(false);
+                setError("");
+              }}
+              className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium hover:-translate-y-px transition-transform focus:outline-none"
+              style={{ background: "var(--uf-card)", color: "var(--uf-muted)", border: "1.5px solid var(--uf-line)", borderRadius: "var(--uf-r-md)" }}
+            >
+              Vider
+            </button>
+            <button
+              onClick={handleGeneratePdf}
+              disabled={generating || !startupId || !hasContent}
+              className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium disabled:opacity-40 hover:-translate-y-px transition-transform focus:outline-none"
+              style={{ background: "var(--uf-ink)", color: "var(--uf-paper)", borderRadius: "var(--uf-r-md)" }}
+            >
+              {generating ? (
+                <>
+                  <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  Génération du PDF…
+                </>
+              ) : (
+                "Générer le document"
+              )}
+            </button>
           </div>
         </div>
+      </div>
 
+      <div className="max-w-5xl mx-auto px-6 py-8">
         {error && (
-          <div className="mb-6 text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+          <div
+            className="mb-6 text-sm px-4 py-3 flex items-center gap-2"
+            style={{ color: "#c53030", background: "#c5303014", border: "1px solid #c5303030", borderRadius: "var(--uf-r-lg)" }}
+          >
             {error}
           </div>
         )}
 
         {saveSuccess && (
-          <div className="mb-6 text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 flex items-center gap-2">
-            <span>✅</span>
-            <span>PDF généré et ajouté à vos documents avec succès !</span>
+          <div
+            className="mb-6 text-sm px-4 py-3 flex items-center gap-2"
+            style={{ color: "var(--uf-teal)", background: "var(--uf-teal)14", border: "1px solid var(--uf-teal)30" , borderRadius: "var(--uf-r-lg)" }}
+          >
+            PDF généré et ajouté à vos documents avec succès !
           </div>
         )}
 
@@ -398,13 +423,25 @@ export default function LeanCanvasPage() {
           {SECTIONS.map((section) => (
             <div
               key={section.key}
-              className={`rounded-2xl border-2 p-4 ${section.color} flex flex-col gap-2`}
+              className="flex flex-col gap-2 p-4"
+              style={{
+                background: `${section.tokenColor}14`,
+                border: `1.5px solid ${section.tokenColor}`,
+                borderRadius: "var(--uf-r-xl)",
+              }}
             >
               <div className="flex items-center gap-2">
                 <span className="text-xl">{section.emoji}</span>
                 <div>
-                  <p className="text-sm font-black text-gray-900">{section.label}</p>
-                  <p className="text-xs text-gray-500">{section.description}</p>
+                  <p
+                    className="text-sm font-black"
+                    style={{ color: "var(--uf-ink)", fontFamily: "var(--uf-display)" }}
+                  >
+                    {section.label}
+                  </p>
+                  <p className="text-xs" style={{ color: "var(--uf-muted)" }}>
+                    {section.description}
+                  </p>
                 </div>
               </div>
               <textarea
@@ -416,16 +453,25 @@ export default function LeanCanvasPage() {
                 }}
                 placeholder={`Décrivez votre ${section.label.toLowerCase()}…`}
                 rows={5}
-                className="w-full mt-1 text-sm text-gray-800 bg-white/70 border border-white/80 rounded-xl px-3 py-2.5 resize-none focus:outline-none focus:ring-2 focus:ring-violet-300 placeholder-gray-400"
+                className="w-full mt-1 text-sm px-3 py-2.5 resize-none focus:outline-none"
+                style={{
+                  color: "var(--uf-ink)",
+                  background: "var(--uf-card)",
+                  border: "1px solid var(--uf-line)",
+                  borderRadius: "var(--uf-r-lg)",
+                }}
               />
             </div>
           ))}
         </div>
 
-        <p className="text-center text-xs text-gray-400 mt-8">
-          Remplissez les sections manuellement ou utilisez le bouton &quot;Demander à mes agents de remplir&quot; pour générer automatiquement le contenu.
+        <p
+          className="text-center text-xs mt-8"
+          style={{ color: "var(--uf-muted)", fontFamily: "var(--uf-mono)" }}
+        >
+          Remplissez les sections manuellement ou utilisez le bouton &quot;Demander à mes agents&quot; pour générer automatiquement le contenu.
         </p>
       </div>
-    </main>
+    </div>
   );
 }
