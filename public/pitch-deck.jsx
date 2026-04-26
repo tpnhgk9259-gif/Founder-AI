@@ -677,11 +677,11 @@ const SlideContact = ({ s = LUMEN, n, total }) => (
     <Eyebrow x={14} y={22} accent={PDF_COLORS.ink}>11 — Contact</Eyebrow>
 
     <TitleBlock x={14} y={34} size={56} lines={[
-      { text: 'PARLONS' },
-      { text: 'CE MOIS-CI.' },
+      { text: 'RENCONTRONS' },
+      { text: 'NOUS.' },
     ]}/>
     <SerifAccent x={14} y={80} size={20} color={PDF_COLORS.muted} w={130}>
-      Rdv par téléphone ou à Station F, 45 min. Pas de deck 2.0 à préparer — on vient avec les chiffres.
+      {V('contact_subtitle', 'Rdv par telephone ou visio, 45 min. On vient avec les chiffres.')}
     </SerifAccent>
 
     <Abs x={14} y={108}>

@@ -174,6 +174,7 @@ const FIELDS: Record<SlideKey, Field[]> = {
     { key: "ms6_note", label: "Milestone 6 — Note", placeholder: "Équipe 14 ETP, 2 pays" },
   ],
   contact: [
+    { key: "contact_subtitle", label: "Sous-titre (sous « Rencontrons nous »)", placeholder: "Rdv par téléphone ou visio, 45 min. On vient avec les chiffres." },
     { key: "contact_name", label: "Nom du contact", placeholder: "Juliette Moreau" },
     { key: "contact_role", label: "Rôle", placeholder: "CEO", half: true },
     { key: "contact_email", label: "Email", placeholder: "juliette@lumen.earth", half: true },
