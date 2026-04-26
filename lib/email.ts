@@ -154,3 +154,14 @@ export async function sendNewAgentEmail(to: string, agentName: string, agentRole
   );
   await getResend().emails.send({ from: getFrom(), to, subject: `FounderAI — Nouvel agent : ${agentName}`, html });
 }
+
+export async function sendInviteEmail(to: string, startupName: string, invitedBy: string, role: string, link: string) {
+  const roleLabel = role === "editor" ? "Éditeur" : "Lecteur";
+  const html = wrapTemplate(
+    heading(`Vous êtes invité à rejoindre ${startupName}`) +
+    paragraph(`<strong>${invitedBy}</strong> vous invite à rejoindre l'équipe de <strong>${startupName}</strong> sur FounderAI en tant que <strong>${roleLabel}</strong>.`) +
+    paragraph("Vous aurez accès aux conversations avec les agents IA, aux documents et aux livrables de la startup.") +
+    button("Rejoindre l'équipe →", link)
+  );
+  await getResend().emails.send({ from: getFrom(), to, subject: `FounderAI — Invitation à rejoindre ${startupName}`, html });
+}

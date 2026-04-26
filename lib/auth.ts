@@ -30,17 +30,66 @@ export async function getAuthenticatedUserId(): Promise<string | null> {
   return user.id;
 }
 
-export async function userOwnsStartup(
+/**
+ * Vérifie si l'utilisateur a accès à la startup (via startup_members ou legacy user_id).
+ * Retourne le rôle si accès, null sinon.
+ */
+export async function getStartupRole(
   userId: string,
   startupId: string
-): Promise<boolean> {
+): Promise<"owner" | "editor" | "viewer" | null> {
   const supabase = createServerClient();
-  const { data } = await supabase
+
+  // Checker startup_members d'abord
+  const { data: member } = await supabase
+    .from("startup_members")
+    .select("role")
+    .eq("startup_id", startupId)
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (member) return member.role as "owner" | "editor" | "viewer";
+
+  // Fallback legacy : startups.user_id (pour la transition)
+  const { data: legacy } = await supabase
     .from("startups")
     .select("id")
     .eq("id", startupId)
     .eq("user_id", userId)
     .maybeSingle();
 
-  return Boolean(data);
+  return legacy ? "owner" : null;
+}
+
+/**
+ * Backward-compatible : vérifie si l'utilisateur a au moins un accès (tout rôle).
+ */
+export async function userOwnsStartup(
+  userId: string,
+  startupId: string
+): Promise<boolean> {
+  const role = await getStartupRole(userId, startupId);
+  return role !== null;
+}
+
+/**
+ * Vérifie que l'utilisateur est owner de la startup.
+ */
+export async function userIsStartupOwner(
+  userId: string,
+  startupId: string
+): Promise<boolean> {
+  const role = await getStartupRole(userId, startupId);
+  return role === "owner";
+}
+
+/**
+ * Vérifie que l'utilisateur peut éditer (owner ou editor).
+ */
+export async function userCanEditStartup(
+  userId: string,
+  startupId: string
+): Promise<boolean> {
+  const role = await getStartupRole(userId, startupId);
+  return role === "owner" || role === "editor";
 }

@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import HelpBubble from "../components/HelpBubble";
 import GlossaryText from "../components/GlossaryText";
 import TableauDeBord from "../components/TableauDeBord";
+import TeamSection from "../components/TeamSection";
 import { createBrowserClient } from "@/lib/supabase";
 
 type Tab = "agents" | "tableau" | "documents";
@@ -1078,6 +1079,7 @@ export default function Dashboard() {
   const [activeView, setActiveView] = useState<ActiveView>("strategie");
   const [allMessages, setAllMessages] = useState<Record<string, Message[]>>({});
   const [startupId, setStartupId] = useState<string | null>(null);
+  const [myStartups, setMyStartups] = useState<{ id: string; name: string; role: string }[]>([]);
   const [partnerName, setPartnerName] = useState<string | null>(null);
   const [description, setDescription] = useState("");
   const [descSaving, setDescSaving] = useState(false);
@@ -1091,14 +1093,29 @@ export default function Dashboard() {
   const [customAgents, setCustomAgents] = useState<{ id: string; name: string; role: string; emoji: string }[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  function selectStartup(id: string) {
+    localStorage.setItem("founderai_startup_id", id);
+    setStartupId(id);
+    loadDescription(id);
+  }
+
   useEffect(() => {
+    // Charger la liste des startups de l'utilisateur
+    fetch("/api/startup/my-startups")
+      .then((r) => r.json())
+      .then(({ startups }) => {
+        if (startups?.length) setMyStartups(startups);
+      })
+      .catch(() => {});
+
     fetch("/api/auth/me")
       .then((r) => r.json())
       .then(({ startupId: id, isSuperAdmin: isAdmin, plan }) => {
         if (id) {
-          localStorage.setItem("founderai_startup_id", id);
-          setStartupId(id);
-          loadDescription(id);
+          // Vérifier si un choix est déjà en localStorage
+          const stored = localStorage.getItem("founderai_startup_id");
+          const effectiveId = stored || id;
+          selectStartup(effectiveId);
         }
         if (isAdmin) setIsSuperAdmin(true);
         if (plan) setUserPlan(plan);
@@ -1239,10 +1256,34 @@ export default function Dashboard() {
       {/* Header */}
       <header className="flex-shrink-0 z-10" style={{ background: "var(--uf-card)", borderBottom: "1px solid var(--uf-line)" }}>
         <div className="px-6 h-14 flex items-center justify-between">
-          <a href="/" className="flex items-center gap-2 text-lg font-semibold">
-            <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-normal" style={{ background: "var(--uf-orange)", fontFamily: "var(--uf-display)" }}>f</div>
-            <span>FOUNDER<span style={{ color: "var(--uf-muted)" }}>AI</span></span>
-          </a>
+          <div className="flex items-center gap-3">
+            <a href="/" className="flex items-center gap-2 text-lg font-semibold">
+              <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-normal" style={{ background: "var(--uf-orange)", fontFamily: "var(--uf-display)" }}>f</div>
+              <span>FOUNDER<span style={{ color: "var(--uf-muted)" }}>AI</span></span>
+            </a>
+            {myStartups.length > 1 && (
+              <select
+                value={startupId || ""}
+                onChange={(e) => {
+                  selectStartup(e.target.value);
+                  window.location.reload();
+                }}
+                className="text-sm font-medium px-3 py-1.5 focus:outline-none cursor-pointer"
+                style={{
+                  background: "var(--uf-paper-2)",
+                  border: "1px solid var(--uf-line)",
+                  borderRadius: "var(--uf-r-md)",
+                  color: "var(--uf-ink)",
+                  fontFamily: "var(--uf-mono)",
+                  fontSize: 12,
+                }}
+              >
+                {myStartups.map((s) => (
+                  <option key={s.id} value={s.id}>{s.name || "Startup sans nom"} ({s.role})</option>
+                ))}
+              </select>
+            )}
+          </div>
 
           <div className="flex items-center gap-1 rounded-full p-1" style={{ background: "var(--uf-paper-2)" }}>
             <button
@@ -1418,6 +1459,8 @@ export default function Dashboard() {
               <p className="mt-2 text-sm" style={{ color: "var(--uf-muted)" }}>Profil de votre startup, KPIs, décisions et problématiques en cours.</p>
             </div>
             <TableauDeBord startupId={startupId} />
+            {/* Section Équipe */}
+            {startupId && <TeamSection startupId={startupId} />}
           </div>
         </div>
       ) : (
