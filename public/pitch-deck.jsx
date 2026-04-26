@@ -100,13 +100,13 @@ const SlideCover = ({ s = LUMEN }) => (
     {/* Logo startup en grand, bas-gauche de la séparation */}
     {V('startup_logo') ? (
       <Abs x={130} y={110}>
-        <img src={V('startup_logo')} style={{ height: 30 * MM, maxWidth: 40 * MM, objectFit: 'contain', opacity: 0.15 }}/>
+        <img src={V('startup_logo')} style={{ height: 30 * MM, maxWidth: 40 * MM, objectFit: 'contain' }}/>
       </Abs>
     ) : (
       <Abs x={130} y={110}>
         <div style={{
           width: 30 * MM, height: 30 * MM, borderRadius: '50%',
-          background: PDF_COLORS.ink, opacity: 0.08,
+          background: PDF_COLORS.ink,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           fontFamily: 'Anton, sans-serif', fontSize: 30 * MM * 0.5, color: PDF_COLORS.ink,
         }}>{((V('startupName') || s.name)[0] || 'S').toUpperCase()}</div>
