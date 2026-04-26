@@ -2,6 +2,39 @@
 
 import { useState, useEffect } from "react";
 
+// ─── Agent mapping par slide ────────────────────────────────────────────────
+
+type AgentInfo = { name: string; color: string; shape: string };
+
+const AGENTS: Record<string, AgentInfo> = {
+  maya:  { name: "Maya",  color: "#FF6A1F", shape: "50%" },
+  alex:  { name: "Alex",  color: "#E8358E", shape: "36% 64% 42% 58% / 48% 36% 64% 52%" },
+  sam:   { name: "Sam",   color: "#0DB4A0", shape: "4px" },
+  leo:   { name: "Léo",   color: "#6E4BE8", shape: "50% 50% 14% 14%" },
+  marc:  { name: "Marc",  color: "#FFD12A", shape: "50%" },
+};
+
+// Quel agent remplit quelle slide, par template
+const SLIDE_AGENT: Record<string, Record<string, string>> = {
+  standard: {
+    cover: "marc", problem: "maya", solution: "maya", market: "alex",
+    product: "leo", traction: "alex", business: "sam",
+    competition: "maya", team: "marc", funds: "sam", roadmap: "leo", contact: "marc",
+  },
+  deeptech: {
+    cover: "marc", problem: "maya", solution: "maya", market: "alex",
+    technology: "leo", product: "leo", validation_sci: "leo",
+    business: "sam", competition: "maya", team: "marc", funds: "sam",
+    roadmap_rd: "leo", contact: "marc",
+  },
+  medtech: {
+    cover: "marc", problem: "maya", solution: "maya", market: "alex",
+    product_market_access: "leo", product: "leo", validation_clin: "leo",
+    regulatory: "leo", competition: "maya", team: "marc", funds: "sam",
+    roadmap_reg: "leo", contact: "marc",
+  },
+};
+
 // ─── Types ──────────────────────────────────────────────────────────────────
 
 type TemplateType = "standard" | "deeptech" | "medtech";
@@ -750,11 +783,13 @@ export default function PitchDeckV2Page() {
             const isActive = activeSlide === s.key;
             const slideFields = allFields[s.key] ?? [];
             const filled = slideFields.filter((f) => values[f.key]).length;
+            const agentKey = SLIDE_AGENT[template]?.[s.key];
+            const agent = agentKey ? AGENTS[agentKey] : null;
             return (
               <button
                 key={s.key}
                 onClick={() => setActiveSlide(s.key)}
-                className="w-full text-left flex items-center gap-2.5 px-3 py-2 transition-all"
+                className="w-full text-left flex items-center gap-2 px-3 py-2 transition-all"
                 style={{
                   background: isActive ? "var(--uf-card)" : "transparent",
                   border: isActive ? "1px solid var(--uf-line)" : "1px solid transparent",
@@ -767,11 +802,25 @@ export default function PitchDeckV2Page() {
                 <span className="text-xs font-medium truncate" style={{ color: isActive ? "var(--uf-ink)" : "var(--uf-muted)" }}>
                   {s.label}
                 </span>
-                {filled > 0 && (
-                  <span className="ml-auto text-[9px] font-medium" style={{ color: filled === slideFields.length ? "var(--uf-teal)" : "var(--uf-muted-2)" }}>
-                    {filled}/{slideFields.length}
-                  </span>
-                )}
+                <span className="ml-auto flex items-center gap-1">
+                  {agent && (
+                    <span
+                      title={`${agent.name} remplit cette slide`}
+                      style={{
+                        width: 14, height: 14, background: agent.color,
+                        borderRadius: agent.shape,
+                        display: "inline-flex", alignItems: "center", justifyContent: "center",
+                        color: agentKey === "marc" ? "#0F0E0B" : "#fff",
+                        fontFamily: "var(--uf-display)", fontSize: 7, flexShrink: 0,
+                      }}
+                    >{agent.name[0]}</span>
+                  )}
+                  {filled > 0 && (
+                    <span className="text-[9px] font-medium" style={{ color: filled === slideFields.length ? "var(--uf-teal)" : "var(--uf-muted-2)" }}>
+                      {filled}/{slideFields.length}
+                    </span>
+                  )}
+                </span>
               </button>
             );
           })}
@@ -786,6 +835,23 @@ export default function PitchDeckV2Page() {
             <h2 className="uppercase tracking-normal" style={{ fontFamily: "var(--uf-display)", fontSize: 22, color: "var(--uf-ink)" }}>
               {slides.find((s) => s.key === activeSlide)?.label ?? ""}
             </h2>
+            {(() => {
+              const agentKey = SLIDE_AGENT[template]?.[activeSlide];
+              const agent = agentKey ? AGENTS[agentKey] : null;
+              if (!agent) return null;
+              return (
+                <div className="flex items-center gap-1.5 ml-auto px-3 py-1 rounded-full" style={{ background: `${agent.color}14`, border: `1px solid ${agent.color}30` }}>
+                  <div style={{
+                    width: 18, height: 18, background: agent.color,
+                    borderRadius: agent.shape,
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    color: agentKey === "marc" ? "#0F0E0B" : "#fff",
+                    fontFamily: "var(--uf-display)", fontSize: 9,
+                  }}>{agent.name[0]}</div>
+                  <span className="text-[11px] font-medium" style={{ color: agent.color }}>{agent.name} remplit</span>
+                </div>
+              );
+            })()}
           </div>
 
           <div className="grid grid-cols-2 gap-x-4 gap-y-3">
