@@ -314,10 +314,10 @@ export default function PositionnementPage() {
         doc.setFontSize(8);
         doc.setFont("helvetica", "bold");
         doc.setTextColor(13, 180, 160);
-        doc.text("SEGMENTATION & BEACHHEAD MARKET", M + 17, y + 0.5);
+        doc.text("SEGMENTATION & MARCH\u00C9 D'ANCRAGE", M + 17, y + 0.5);
         doc.setDrawColor(...LINE);
         doc.setLineWidth(0.2);
-        doc.line(M + 17 + doc.getTextWidth("SEGMENTATION & BEACHHEAD MARKET") + 2, y, PW - M, y);
+        doc.line(M + 17 + doc.getTextWidth("SEGMENTATION & MARCH\u00C9 D'ANCRAGE") + 2, y, PW - M, y);
         y += 6;
 
         // Table header
@@ -393,7 +393,7 @@ export default function PositionnementPage() {
           doc.setFontSize(7);
           doc.setFont("helvetica", "bold");
           doc.setTextColor(13, 180, 160);
-          doc.text(`BEACHHEAD : ${sorted[0].name.toUpperCase()}`, M + 4, y + 5);
+          doc.text(`MARCH\u00C9 D'ANCRAGE : ${sorted[0].name.toUpperCase()}`, M + 4, y + 5);
 
           doc.setFontSize(8.5);
           doc.setFont("helvetica", "normal");
@@ -610,11 +610,11 @@ export default function PositionnementPage() {
           <div className="flex items-center gap-3 mb-1">
             <span className="w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-bold text-white" style={{ background: "#0DB4A0", fontFamily: "var(--uf-mono)" }}>06</span>
             <h2 className="font-bold uppercase tracking-wide" style={{ color: "var(--uf-ink)", fontFamily: "var(--uf-display)", fontSize: 16 }}>
-              Segmentation & Beachhead Market
+              Segmentation & March{"\u00E9"} d'ancrage
             </h2>
           </div>
           <p className="text-xs mb-4" style={{ color: "var(--uf-muted)", fontStyle: "italic" }}>
-            Listez vos segments potentiels et notez-les. Le segment avec le meilleur score devient votre beachhead — le march{"\u00E9"} que vous pouvez dominer en premier (Bill Aulet, MIT).
+            Listez vos segments potentiels et notez-les. Le segment avec le meilleur score devient votre march{"\u00E9"} d'ancrage — celui que vous pouvez dominer en premier (Bill Aulet, MIT).
           </p>
 
           {/* Grille de scoring */}
@@ -704,7 +704,7 @@ export default function PositionnementPage() {
           {bestSegment && (
             <div className="mt-4 p-4" style={{ background: "#0DB4A014", border: "1.5px solid #0DB4A040", borderRadius: "var(--uf-r-lg)" }}>
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-sm font-bold" style={{ color: "#0DB4A0", fontFamily: "var(--uf-display)" }}>BEACHHEAD MARKET</span>
+                <span className="text-sm font-bold" style={{ color: "#0DB4A0", fontFamily: "var(--uf-display)" }}>{"MARCH\u00C9 D'ANCRAGE"}</span>
                 <span className="text-xs px-2 py-0.5 rounded-full font-bold" style={{ background: "#0DB4A0", color: "#fff", fontFamily: "var(--uf-mono)" }}>{segmentScore(bestSegment)}/15</span>
               </div>
               <div className="text-sm font-semibold mb-2" style={{ color: "var(--uf-ink)" }}>{bestSegment.name}</div>
