@@ -521,7 +521,7 @@ export default function MvpPage() {
               borderRadius: "var(--uf-r-lg)",
             }}
           >
-            <span>\u2705</span>
+            <span>{"\u2705"}</span>
             <span>Rapport PDF sauvegarde dans vos documents !</span>
           </div>
         )}
@@ -669,7 +669,7 @@ export default function MvpPage() {
                   {fmtEur(report.budget_total_min)}
                 </p>
                 <p className="text-sm" style={{ color: "var(--uf-muted)" }}>
-                  \u2014 {fmtEur(report.budget_total_max)}
+                  {"\u2014"} {fmtEur(report.budget_total_max)}
                 </p>
               </div>
               <div
@@ -744,7 +744,7 @@ export default function MvpPage() {
                           fontFamily: "var(--uf-mono)",
                         }}
                       >
-                        {fmtEur(lot.budget_min)} \u2013 {fmtEur(lot.budget_max)}
+                        {fmtEur(lot.budget_min)} {"\u2013"} {fmtEur(lot.budget_max)}
                       </span>
                     </div>
                   </div>
@@ -767,7 +767,7 @@ export default function MvpPage() {
                             className="text-sm flex items-start gap-2"
                             style={{ color: "var(--uf-ink)" }}
                           >
-                            <span className="mt-0.5 flex-shrink-0" style={{ color: "var(--uf-orange)" }}>\u2022</span>
+                            <span className="mt-0.5 flex-shrink-0" style={{ color: "var(--uf-orange)" }}>{"\u2022"}</span>
                             {f}
                           </li>
                         ))}
