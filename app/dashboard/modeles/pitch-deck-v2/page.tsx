@@ -155,6 +155,12 @@ const FIELDS: Record<SlideKey, Field[]> = {
     { key: "ms4_quarter", label: "Milestone 4 — Trimestre", placeholder: "T1 27", half: true },
     { key: "ms4_title", label: "Milestone 4 — Titre", placeholder: "500 restos", half: true },
     { key: "ms4_note", label: "Milestone 4 — Note", placeholder: "MRR 40 k€, breakeven" },
+    { key: "ms5_quarter", label: "Milestone 5 — Trimestre (optionnel)", placeholder: "T2 27", half: true },
+    { key: "ms5_title", label: "Milestone 5 — Titre", placeholder: "Série A", half: true },
+    { key: "ms5_note", label: "Milestone 5 — Note", placeholder: "3 à 5 M€, ouverture Belgique" },
+    { key: "ms6_quarter", label: "Milestone 6 — Trimestre (optionnel)", placeholder: "T4 27", half: true },
+    { key: "ms6_title", label: "Milestone 6 — Titre", placeholder: "2 000 clients", half: true },
+    { key: "ms6_note", label: "Milestone 6 — Note", placeholder: "Équipe 14 ETP, 2 pays" },
   ],
   contact: [
     { key: "contact_name", label: "Nom du contact", placeholder: "Juliette Moreau" },

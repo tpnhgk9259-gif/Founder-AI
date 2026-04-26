@@ -587,13 +587,17 @@ const SlideRoadmap = ({ s = LUMEN, n, total }) => (
       <div style={{ position: 'relative', width: 252 * MM, paddingTop: 8 * MM }}>
         {/* axis */}
         <div style={{ position: 'absolute', left: 0, top: 8 * MM, width: '100%', height: 2, background: PDF_COLORS.ink }}/>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 3 * MM }}>
-          {[
+        {(() => {
+          const milestones = [
             { q: V('ms1_quarter', 'T2 26'), big: V('ms1_title', 'Milestone 1'), note: V('ms1_note', ''), c: PDF_COLORS.orange },
             { q: V('ms2_quarter', 'T3 26'), big: V('ms2_title', 'Milestone 2'), note: V('ms2_note', ''), c: PDF_COLORS.teal },
             { q: V('ms3_quarter', 'T4 26'), big: V('ms3_title', 'Milestone 3'), note: V('ms3_note', ''), c: PDF_COLORS.violet },
-            { q: V('ms4_quarter', 'T1 27'), big: V('ms4_title', 'Milestone 4'), note: V('ms4_note', ''), c: PDF_COLORS.magenta },
-          ].map((ms, i) => (
+            V('ms4_title') && { q: V('ms4_quarter', 'T1 27'), big: V('ms4_title'), note: V('ms4_note', ''), c: PDF_COLORS.magenta },
+            V('ms5_title') && { q: V('ms5_quarter', 'T2 27'), big: V('ms5_title'), note: V('ms5_note', ''), c: PDF_COLORS.yellow },
+            V('ms6_title') && { q: V('ms6_quarter', 'T4 27'), big: V('ms6_title'), note: V('ms6_note', ''), c: PDF_COLORS.lime },
+          ].filter(Boolean);
+          return <div style={{ display: 'grid', gridTemplateColumns: `repeat(${milestones.length}, 1fr)`, gap: 3 * MM }}>
+          {milestones.map((ms, i) => (
             <div key={ms.q} style={{ position: 'relative', paddingTop: 14 * MM, textAlign: 'center' }}>
               <div style={{ position: 'absolute', top: 4 * MM, left: '50%', transform: 'translateX(-50%)', width: 4 * MM, height: 4 * MM, borderRadius: '50%', background: ms.c, border: `2px solid ${PDF_COLORS.ink}` }}/>
               <div style={{ fontFamily: 'Geist Mono', fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: PDF_COLORS.muted, fontWeight: 600 }}>{ms.q}</div>
@@ -601,7 +605,8 @@ const SlideRoadmap = ({ s = LUMEN, n, total }) => (
               <div style={{ fontSize: 9.5, color: PDF_COLORS.muted, marginTop: 1 * MM, lineHeight: 1.4 }}>{ms.note}</div>
             </div>
           ))}
-        </div>
+        </div>;
+        })()}
       </div>
     </Abs>
 
