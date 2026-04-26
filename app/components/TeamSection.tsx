@@ -24,6 +24,7 @@ export default function TeamSection({ startupId }: { startupId: string | null })
   const [inviteRole, setInviteRole] = useState<"editor" | "viewer">("editor");
   const [inviting, setInviting] = useState(false);
   const [showInvite, setShowInvite] = useState(false);
+  const [maxMembers, setMaxMembers] = useState(1);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
@@ -32,12 +33,16 @@ export default function TeamSection({ startupId }: { startupId: string | null })
     setLoading(true);
     fetch(`/api/startup/members?startupId=${startupId}`)
       .then((r) => r.json())
-      .then((data) => setMembers(data.members ?? []))
+      .then((data) => {
+        setMembers(data.members ?? []);
+        if (data.maxMembers) setMaxMembers(data.maxMembers);
+      })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [startupId]);
 
   const isOwner = members.some((m) => m.role === "owner" && m.user_id);
+  const canInvite = isOwner && members.length < maxMembers;
 
   async function handleInvite() {
     if (!inviteEmail.trim() || !startupId) return;
@@ -94,15 +99,25 @@ export default function TeamSection({ startupId }: { startupId: string | null })
         <h2 className="uppercase tracking-[-0.01em]" style={{ fontFamily: "var(--uf-display)", fontSize: 24, color: "var(--uf-ink)" }}>
           Mon équipe
         </h2>
-        {isOwner && (
-          <button
-            onClick={() => setShowInvite(!showInvite)}
-            className="text-sm font-medium px-4 py-2 rounded-full transition-all hover:opacity-90"
-            style={{ background: "var(--uf-orange)", color: "#fff" }}
-          >
-            {showInvite ? "Annuler" : "Inviter un membre"}
-          </button>
-        )}
+        <div className="flex items-center gap-3">
+          <span className="text-[11px] font-medium" style={{ fontFamily: "var(--uf-mono)", color: "var(--uf-muted)" }}>
+            {members.length} / {maxMembers} membre{maxMembers > 1 ? "s" : ""}
+          </span>
+          {canInvite && (
+            <button
+              onClick={() => setShowInvite(!showInvite)}
+              className="text-sm font-medium px-4 py-2 rounded-full transition-all hover:opacity-90"
+              style={{ background: "var(--uf-orange)", color: "#fff" }}
+            >
+              {showInvite ? "Annuler" : "Inviter un membre"}
+            </button>
+          )}
+          {isOwner && !canInvite && members.length >= maxMembers && (
+            <span className="text-[11px]" style={{ color: "var(--uf-muted)" }}>
+              Limite atteinte — passez au plan suivant
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Formulaire d'invitation */}

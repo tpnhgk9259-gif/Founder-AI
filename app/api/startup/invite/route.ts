@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { createServerClient } from "@/lib/supabase";
 import { getAuthenticatedUserId, userIsStartupOwner } from "@/lib/auth";
+import { getEffectiveStartupLicense } from "@/lib/licenses-server";
 import { sendInviteEmail } from "@/lib/email";
 import { randomUUID } from "crypto";
 
@@ -18,6 +19,19 @@ export async function POST(req: NextRequest) {
   if (!isOwner) return Response.json({ error: "Seul l'owner peut inviter des membres" }, { status: 403 });
 
   const supabase = createServerClient();
+
+  // Vérifier le quota de membres selon le plan
+  const license = await getEffectiveStartupLicense(startupId);
+  const maxMembers = license.max_members ?? 1;
+  const { count } = await supabase
+    .from("startup_members")
+    .select("id", { count: "exact", head: true })
+    .eq("startup_id", startupId);
+
+  if ((count ?? 0) >= maxMembers) {
+    const planLabel = maxMembers === 1 ? "Starter (1 membre)" : maxMembers === 3 ? "Growth (3 membres)" : `votre plan (${maxMembers} membres)`;
+    return Response.json({ error: `Limite atteinte pour ${planLabel}. Passez au plan supérieur pour inviter plus de membres.` }, { status: 403 });
+  }
 
   // Vérifier que le membre n'est pas déjà invité
   const { data: existing } = await supabase

@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { createServerClient } from "@/lib/supabase";
 import { getAuthenticatedUserId, userOwnsStartup, userIsStartupOwner } from "@/lib/auth";
+import { getEffectiveStartupLicense } from "@/lib/licenses-server";
 
 // GET — lister les membres d'une startup
 export async function GET(req: NextRequest) {
@@ -20,7 +21,9 @@ export async function GET(req: NextRequest) {
     .eq("startup_id", startupId)
     .order("joined_at", { ascending: true, nullsFirst: false });
 
-  return Response.json({ members: members ?? [] });
+  const license = await getEffectiveStartupLicense(startupId);
+
+  return Response.json({ members: members ?? [], maxMembers: license.max_members ?? 1 });
 }
 
 // PUT — changer le rôle d'un membre (owner uniquement)

@@ -7,6 +7,7 @@ export type LicenseConfig = {
   conversational_memory_window: number;
   max_chat_messages_per_day: number;
   max_codir_sessions_per_month: number;
+  max_members: number;
   portfolio_plan_allowances: {
     starter: number;
     growth: number;
@@ -20,6 +21,7 @@ export const DEFAULT_LICENSE_CONFIG: LicenseConfig = {
   conversational_memory_window: 10,
   max_chat_messages_per_day: 200,
   max_codir_sessions_per_month: 30,
+  max_members: 5,
   portfolio_plan_allowances: {
     starter: 10,
     growth: 5,
@@ -34,6 +36,7 @@ export const PLAN_PRESETS: Record<PlanKey, LicenseConfig> = {
     conversational_memory_window: 5,
     max_chat_messages_per_day: 20,
     max_codir_sessions_per_month: 0,
+    max_members: 1,
     portfolio_plan_allowances: { starter: 10, growth: 5, scale: 2 },
   },
   growth: {
@@ -42,6 +45,7 @@ export const PLAN_PRESETS: Record<PlanKey, LicenseConfig> = {
     conversational_memory_window: 20,
     max_chat_messages_per_day: 9999,
     max_codir_sessions_per_month: 20,
+    max_members: 3,
     portfolio_plan_allowances: { starter: 10, growth: 5, scale: 2 },
   },
   scale: {
@@ -50,6 +54,7 @@ export const PLAN_PRESETS: Record<PlanKey, LicenseConfig> = {
     conversational_memory_window: 50,
     max_chat_messages_per_day: 9999,
     max_codir_sessions_per_month: 9999,
+    max_members: 5,
     portfolio_plan_allowances: { starter: 10, growth: 5, scale: 2 },
   },
 };
@@ -98,6 +103,12 @@ export function normalizeLicenseConfig(input: unknown): LicenseConfig {
       DEFAULT_LICENSE_CONFIG.max_codir_sessions_per_month,
       1,
       100000
+    ),
+    max_members: clampInt(
+      raw.max_members,
+      DEFAULT_LICENSE_CONFIG.max_members,
+      1,
+      100
     ),
     portfolio_plan_allowances: {
       starter: clampInt(allowances.starter, DEFAULT_LICENSE_CONFIG.portfolio_plan_allowances.starter, 0, 100000),
