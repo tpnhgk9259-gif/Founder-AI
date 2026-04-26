@@ -418,74 +418,63 @@ const SlideBusiness = ({ s = LUMEN, n, total }) => (
 );
 
 // ── SLIDE 08 · Concurrence ──────────────────────────────────────────
-const SlideCompet = ({ s = LUMEN, n, total }) => (
+const SlideCompet = ({ s = LUMEN, n, total }) => {
+  const criteria = [V('criteria1','Prix'), V('criteria2','Simplicite'), V('criteria3','Couverture'), V('criteria4','Support'), V('criteria5')].filter(Boolean);
+  const actors = [
+    { name: V('comp1_name', 'Concurrent 1'), scores: (V('comp1_scores','1,1,1,1,1')).split(',').map(Number), highlight: false },
+    { name: V('comp2_name', 'Concurrent 2'), scores: (V('comp2_scores','1,1,1,1,1')).split(',').map(Number), highlight: false },
+    V('comp3_name') && { name: V('comp3_name'), scores: (V('comp3_scores','1,1,1,1,1')).split(',').map(Number), highlight: false },
+    { name: V('startupName') || s.name, scores: (V('our_scores','3,3,3,3,3')).split(',').map(Number), highlight: true },
+  ].filter(Boolean);
+  const stars = (n) => { const s = Math.min(3, Math.max(0, n || 0)); return '★'.repeat(s) + '☆'.repeat(3 - s); };
+
+  return (
   <div className="pdf-sheet">
     <PDFHeader kind="Pitch Deck" page={n} total={total}/>
     <Eyebrow x={14} y={22} accent={PDF_COLORS.magenta}>07 — Concurrence</Eyebrow>
-    <TitleBlock x={14} y={30} size={autoSize(V('comp_title', 'CONCURRENCE'))} lines={[
-      { text: V('comp_title', 'CONCURRENCE') },
-    ]}/>
+    <Title x={14} y={30} size={36}>{V('comp_title', 'CONCURRENCE')}</Title>
 
-    {/* 2x2 matrix */}
-    <Abs x={14} y={62}>
-      <div style={{ position: 'relative', width: 140 * MM, height: 72 * MM, background: PDF_COLORS.card, border: `1px solid ${PDF_COLORS.line}`, borderRadius: 6 }}>
-        {/* axes */}
-        <div style={{ position: 'absolute', left: 0, top: '50%', width: '100%', height: 1, background: PDF_COLORS.line2 }}/>
-        <div style={{ position: 'absolute', left: '50%', top: 0, height: '100%', width: 1, background: PDF_COLORS.line2 }}/>
-        {/* axis labels */}
-        <div style={{ position: 'absolute', top: 2 * MM, left: '50%', transform: 'translateX(-50%)', fontFamily: 'Geist Mono', fontSize: 8, letterSpacing: '0.14em', textTransform: 'uppercase', color: PDF_COLORS.muted }}>↑ Proactif</div>
-        <div style={{ position: 'absolute', bottom: 2 * MM, left: '50%', transform: 'translateX(-50%)', fontFamily: 'Geist Mono', fontSize: 8, letterSpacing: '0.14em', textTransform: 'uppercase', color: PDF_COLORS.muted }}>Passif ↓</div>
-        <div style={{ position: 'absolute', left: 2 * MM, top: '50%', transform: 'translateY(-50%) rotate(-90deg)', fontFamily: 'Geist Mono', fontSize: 8, letterSpacing: '0.14em', textTransform: 'uppercase', color: PDF_COLORS.muted }}>← Généraliste</div>
-        <div style={{ position: 'absolute', right: 2 * MM, top: '50%', transform: 'translateY(-50%) rotate(90deg)', fontFamily: 'Geist Mono', fontSize: 8, letterSpacing: '0.14em', textTransform: 'uppercase', color: PDF_COLORS.muted }}>Métier →</div>
-        {/* dots */}
-        {[
-          { x: 20, y: 65, label: V('comp1_name', 'Concurrent 1'), c: PDF_COLORS.muted, sub: V('comp1_position', '') },
-          { x: 40, y: 40, label: V('comp2_name', 'Concurrent 2'), c: PDF_COLORS.muted, sub: V('comp2_position', '') },
-          { x: 55, y: 55, label: V('comp3_name', 'Concurrent 3'), c: PDF_COLORS.violet, sub: V('comp3_position', '') },
-          { x: 80, y: 20, label: V('startupName') || s.name, c: PDF_COLORS.orange, sub: '← nous', big: true },
-        ].map(d => (
-          <div key={d.label} style={{
-            position: 'absolute', left: `${d.x}%`, top: `${d.y}%`,
-            transform: 'translate(-50%, -50%)',
-          }}>
-            <div style={{
-              width: (d.big ? 16 : 10) * MM, height: (d.big ? 16 : 10) * MM,
-              borderRadius: '50%', background: d.c,
-              border: d.big ? `3px solid ${PDF_COLORS.ink}` : 'none',
-            }}/>
-            <div style={{
-              position: 'absolute', top: '100%', left: '50%', transform: 'translateX(-50%)',
-              whiteSpace: 'nowrap', textAlign: 'center', marginTop: 1 * MM,
-            }}>
-              <div style={{ fontFamily: d.big ? 'Anton' : 'Geist', fontSize: d.big ? 13 : 9, color: PDF_COLORS.ink, fontWeight: d.big ? 400 : 500 }}>{d.label}</div>
-              <div style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic', fontSize: 9, color: PDF_COLORS.muted }}>{d.sub}</div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </Abs>
-
-    {/* Why we win */}
-    <Abs x={162} y={62}>
-      <div style={{ width: 104 * MM }}>
-        <div style={{ fontFamily: 'Geist Mono', fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', color: PDF_COLORS.magenta, fontWeight: 700 }}>Pourquoi on gagne</div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 * MM, marginTop: 3 * MM }}>
-          {[
-            [V('advantage1', 'Avantage 1'), V('advantage1_desc', '')],
-            [V('advantage2', 'Avantage 2'), V('advantage2_desc', '')],
-          ].map(([t, d]) => (
-            <div key={t} style={{ padding: `${2 * MM}px ${2.5 * MM}px`, background: PDF_COLORS.paper2, borderLeft: `3px solid ${PDF_COLORS.magenta}` }}>
-              <div style={{ fontFamily: 'Anton', fontSize: 14, textTransform: 'uppercase', lineHeight: 1 }}>{t}</div>
-              <div style={{ fontSize: 9.5, color: PDF_COLORS.muted, marginTop: 1 * MM, lineHeight: 1.45 }}>{d}</div>
-            </div>
-          ))}
-        </div>
+    {/* Tableau comparatif avec etoiles */}
+    <Abs x={14} y={50}>
+      <div style={{ width: 252 * MM }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'Geist, sans-serif', fontSize: 10 }}>
+          <thead>
+            <tr>
+              <th style={{ textAlign: 'left', padding: `${2 * MM}px ${3 * MM}px`, fontFamily: 'Geist Mono', fontSize: 8, letterSpacing: '0.14em', textTransform: 'uppercase', color: PDF_COLORS.muted, fontWeight: 600, borderBottom: `2px solid ${PDF_COLORS.ink}` }}></th>
+              {criteria.map(c => (
+                <th key={c} style={{ textAlign: 'center', padding: `${2 * MM}px ${2 * MM}px`, fontFamily: 'Geist Mono', fontSize: 8, letterSpacing: '0.14em', textTransform: 'uppercase', color: PDF_COLORS.muted, fontWeight: 600, borderBottom: `2px solid ${PDF_COLORS.ink}` }}>{c}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {actors.map((a, i) => (
+              <tr key={a.name} style={{ background: a.highlight ? PDF_COLORS.orange : i % 2 === 0 ? PDF_COLORS.card : PDF_COLORS.paper }}>
+                <td style={{
+                  padding: `${2.5 * MM}px ${3 * MM}px`,
+                  fontFamily: 'Anton', fontSize: a.highlight ? 16 : 13, textTransform: 'uppercase',
+                  color: a.highlight ? '#fff' : PDF_COLORS.ink,
+                  borderBottom: `1px solid ${a.highlight ? 'transparent' : PDF_COLORS.line}`,
+                  whiteSpace: 'nowrap',
+                }}>{a.name}</td>
+                {criteria.map((c, ci) => (
+                  <td key={c} style={{
+                    textAlign: 'center', padding: `${2.5 * MM}px ${2 * MM}px`,
+                    fontSize: 12, letterSpacing: 1,
+                    color: a.highlight ? '#fff' : (a.scores[ci] >= 3 ? PDF_COLORS.orange : a.scores[ci] >= 2 ? PDF_COLORS.ink : PDF_COLORS.muted2),
+                    borderBottom: `1px solid ${a.highlight ? 'transparent' : PDF_COLORS.line}`,
+                  }}>{stars(a.scores[ci])}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </Abs>
 
     <PDFFooter startup={s.name} page={n} total={total}/>
   </div>
 );
+};
 
 // ── SLIDE 09 · Équipe ──────────────────────────────────────────────
 const SlideTeam = ({ s = LUMEN, n, total }) => (
