@@ -1646,6 +1646,7 @@ const TEMPLATE_ROUTES: Record<string, string> = {
   "MVP": "/dashboard/modeles/mvp",
   "Pitch Deck Seed": "/dashboard/modeles/pitch-deck-v2",
   "BP Seed": "/dashboard/modeles/bp-seed",
+  "Positionnement et compétition": "/dashboard/modeles/positionnement",
 };
 
 function TemplateSection({
