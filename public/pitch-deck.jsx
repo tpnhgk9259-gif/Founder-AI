@@ -498,32 +498,18 @@ const SlideTeam = ({ s = LUMEN, n, total }) => (
         {s.founders.map((f, i) => {
           const colorMap = { magenta: PDF_COLORS.magenta, violet: PDF_COLORS.violet, teal: PDF_COLORS.teal };
           return (
-            <div key={f.name} style={{ padding: `${4 * MM}px ${4 * MM}px`, background: PDF_COLORS.card, border: `1px solid ${PDF_COLORS.line}`, borderRadius: 8 }}>
+            <div key={f.name} style={{ padding: `${3 * MM}px ${3 * MM}px`, background: PDF_COLORS.card, border: `1px solid ${PDF_COLORS.line}`, borderRadius: 8 }}>
               <div style={{
-                width: 22 * MM, height: 22 * MM, borderRadius: '50%',
+                width: 16 * MM, height: 16 * MM, borderRadius: '50%',
                 background: colorMap[f.photo],
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontFamily: 'Anton', fontSize: 28, color: '#fff',
+                fontFamily: 'Anton', fontSize: 22, color: '#fff',
               }}>{f.name.split(' ').map(p => p[0]).join('')}</div>
-              <div style={{ fontFamily: 'Anton', fontSize: 22, marginTop: 3 * MM, textTransform: 'uppercase', lineHeight: 1 }}>{f.name}</div>
-              <div style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic', fontSize: 12, color: PDF_COLORS.muted, marginTop: 1 * MM }}>{f.role}</div>
-              <div style={{ display: 'flex', gap: 2 * MM, marginTop: 3 * MM, flexWrap: 'wrap' }}>
-                {[`0${i + 1}`, (f.role || '').toUpperCase(), 'Co-fondateur'].map(t => (
-                  <span key={t} style={{ padding: `${0.8 * MM}px ${2 * MM}px`, border: `1px solid ${PDF_COLORS.line}`, borderRadius: 999, fontFamily: 'Geist Mono', fontSize: 7.5, letterSpacing: '0.14em', textTransform: 'uppercase', color: PDF_COLORS.muted }}>{t}</span>
-                ))}
-              </div>
+              <div style={{ fontFamily: 'Anton', fontSize: 18, marginTop: 2 * MM, textTransform: 'uppercase', lineHeight: 1 }}>{f.name}</div>
+              <div style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic', fontSize: 11, color: PDF_COLORS.muted, marginTop: 1 * MM }}>{f.role}</div>
             </div>
           );
         })}
-      </div>
-    </Abs>
-
-    {/* Advisors */}
-    <Abs x={14} y={128}>
-      <div style={{ fontFamily: 'Geist Mono', fontSize: 9, letterSpacing: '0.16em', color: PDF_COLORS.muted, fontWeight: 600, textTransform: 'uppercase' }}>Advisors</div>
-      <div style={{ display: 'flex', gap: 5 * MM, marginTop: 2 * MM, fontFamily: 'Georgia, serif', fontStyle: 'italic', fontSize: 12, color: PDF_COLORS.ink }}>
-        {V('advisor1') && <span>— {V('advisor1')}</span>}
-        {V('advisor2') && <span>— {V('advisor2')}</span>}
       </div>
     </Abs>
 
