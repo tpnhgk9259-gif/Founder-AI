@@ -1,0 +1,1180 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<title>Pitch Deck Serie A — Preview (FounderAI)</title>
+<meta name="viewport" content="width=1500"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/pdf-tokens.css"/>
+<style>
+  body { margin: 0; background: #E5E2D8; }
+  .hdr { max-width: 1400px; margin: 0 auto 32px; padding: 56px 56px 0; }
+  .hdr h1 { font-family: 'Anton', sans-serif; font-size: 48px; line-height: 0.88; text-transform: uppercase; margin: 14px 0 0; color: #0F0E0B; }
+  .hdr p { font-family: 'Instrument Serif', Georgia, serif; font-style: italic; font-size: 20px; color: #6C6760; margin: 14px 0 0; }
+  .toolbar { position: fixed; top: 20px; right: 20px; z-index: 100; display: flex; gap: 8px; }
+  .toolbar button { padding: 12px 24px; background: #0F0E0B; color: #FBF8F0; border: none; border-radius: 999px; font-family: 'Geist', sans-serif; font-size: 14px; cursor: pointer; }
+  .toolbar button:hover { opacity: 0.9; }
+  .toolbar .back { background: transparent; border: 1px solid #D9D3C4; color: #0F0E0B; }
+  @media print {
+    .hdr, .toolbar, .pdf-sheet-caption { display: none !important; }
+    @page { size: 280mm 157.5mm landscape; margin: 0; }
+    .pdf-sheet { break-after: page; }
+  }
+</style>
+</head>
+<body class="pdf-canvas-bg">
+
+<div class="toolbar">
+  <button class="back" onclick="window.close() || history.back()">&#8592; Retour</button>
+  <button onclick="window.print()">Exporter en PDF &#8595;</button>
+</div>
+
+<div class="hdr">
+  <h1 id="hdr-title">PITCH DECK SERIE A</h1>
+  <p>Preview — 18 slides, 280 x 157,5 mm paysage. Verifiez le rendu puis exportez en PDF.</p>
+</div>
+
+<div id="pitch-root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="/pdf-shared.jsx?v=13"></script>
+
+<script type="text/babel">
+// ── Helper : lire une valeur du formulaire avec fallback ──────────────
+const V = (key, fallback = '') => (window.FORM_VALUES && window.FORM_VALUES[key]) || fallback;
+
+// Helper : decouper un titre long en lignes
+function splitTitle(text, maxChars = 35) {
+  if (!text) return [''];
+  const words = text.split(' ');
+  const lines = [];
+  let current = '';
+  for (const word of words) {
+    if (current && (current + ' ' + word).length > maxChars) {
+      lines.push(current);
+      current = word;
+    } else {
+      current = current ? current + ' ' + word : word;
+    }
+  }
+  if (current) lines.push(current);
+  return lines.length > 0 ? lines : [''];
+}
+
+// Helper : taille auto selon longueur du texte
+function autoSize(text, baseSize = 40) {
+  if (!text) return baseSize;
+  const len = text.length;
+  if (len < 30) return baseSize;
+  if (len < 50) return Math.round(baseSize * 0.9);
+  if (len < 80) return Math.round(baseSize * 0.8);
+  if (len < 120) return Math.round(baseSize * 0.7);
+  return Math.round(baseSize * 0.6);
+}
+
+const TOTAL = 18;
+
+// ── SLIDE 01 : Cover ───────────────────────────────────────────────────
+const SlideSACover = ({ s, n }) => (
+  <div className="pdf-sheet">
+    {/* Full-bleed orange right */}
+    <div style={{ position: 'absolute', right: 0, top: 0, width: 108 * MM, height: '100%', background: PDF_COLORS.orange }}/>
+    <Slab x={172} y={100} w={90} h={50} color="rgba(255,255,255,0.08)"/>
+    <div style={{ position: 'absolute', right: 20 * MM, top: 20 * MM, width: 72 * MM, height: 110 * MM, border: '1px solid rgba(255,255,255,0.28)', overflow: 'hidden' }}>
+      {V('cover_image') && <img src={V('cover_image')} style={{ width: '100%', height: '100%', objectFit: 'cover' }}/>}
+    </div>
+
+    {/* Decorative shape */}
+    <div style={{ position: 'absolute', left: -30 * MM, bottom: -40 * MM, width: 120 * MM, height: 120 * MM, borderRadius: '50%', background: PDF_COLORS.lime, opacity: 0.25 }}/>
+
+    {V('startup_logo') ? (
+      <Abs x={14} y={12.5}>
+        <img src={V('startup_logo')} style={{ height: 6 * MM, maxWidth: 20 * MM, objectFit: 'contain' }}/>
+      </Abs>
+    ) : (
+      <Abs x={14} y={13}>
+        <div style={{
+          width: 5.5 * MM, height: 5.5 * MM, borderRadius: '50%',
+          background: PDF_COLORS.orange, color: '#fff',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontFamily: 'Anton, sans-serif', fontSize: 5.5 * MM * 0.55,
+        }}>{((V('startupName') || s.name)[0] || 'S').toUpperCase()}</div>
+      </Abs>
+    )}
+    <Abs x={V('startup_logo') ? 36 : 24} y={14}>
+      <div style={{ fontFamily: 'Geist Mono, monospace', fontSize: 8.5, letterSpacing: '0.14em', textTransform: 'uppercase', color: PDF_COLORS.muted, paddingTop: 2 }}>
+        <span style={{ color: PDF_COLORS.ink, fontWeight: 700 }}>{V('startupName') || s.name}</span>
+        <span style={{ margin: '0 8px', color: PDF_COLORS.muted2 }}>&#183;</span>
+        Pitch Deck Serie A
+      </div>
+    </Abs>
+
+    <Eyebrow x={14} y={48} size={9} accent={PDF_COLORS.orange}>{V('stage', 'Serie A')}</Eyebrow>
+    <Title x={14} y={58} size={82} color={PDF_COLORS.ink}>{(V('startupName') || s.name).toUpperCase()}</Title>
+    <SerifAccent x={14} y={92} size={22} color={PDF_COLORS.muted} w={140}>{V('tagline', s.tagline)}</SerifAccent>
+
+    <Abs x={14} y={126}>
+      <div style={{
+        display: 'inline-flex', alignItems: 'center', gap: 10,
+        padding: `${2 * MM}px ${4 * MM}px`,
+        background: PDF_COLORS.ink, color: PDF_COLORS.paper,
+        borderRadius: 999, fontFamily: 'Geist Mono', fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase',
+      }}>
+        <span style={{ width: 7, height: 7, background: PDF_COLORS.lime, borderRadius: '50%' }}/>
+        Deck confidentiel
+      </div>
+    </Abs>
+
+    {V('startup_logo') ? (
+      <Abs x={130} y={110}>
+        <img src={V('startup_logo')} style={{ height: 30 * MM, maxWidth: 40 * MM, objectFit: 'contain' }}/>
+      </Abs>
+    ) : (
+      <Abs x={130} y={110}>
+        <div style={{
+          width: 30 * MM, height: 30 * MM, borderRadius: '50%',
+          background: PDF_COLORS.ink,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontFamily: 'Anton, sans-serif', fontSize: 30 * MM * 0.5, color: PDF_COLORS.paper,
+        }}>{((V('startupName') || s.name)[0] || 'S').toUpperCase()}</div>
+      </Abs>
+    )}
+
+    <Abs x={178} y={132}>
+      <div style={{ color: 'rgba(255,255,255,0.7)', fontFamily: 'Geist Mono', fontSize: 8, letterSpacing: '0.14em', textTransform: 'uppercase' }}>contact</div>
+      <div style={{ color: '#fff', fontSize: 10.5, marginTop: 3, fontWeight: 500 }}>{V('contact_email', 'email@startup.com')}{V('contact_phone') ? ` &#183; ${V('contact_phone')}` : ''}</div>
+    </Abs>
+  </div>
+);
+
+// ── SLIDE 02 : Probleme ────────────────────────────────────────────────
+const SlideSAProblem = ({ s, n }) => (
+  <div className="pdf-sheet">
+    <PDFHeader startup={V('startupName') || s.name} logo={V('startup_logo')} kind="Pitch Deck" page={n} total={TOTAL}/>
+    <Eyebrow x={14} y={22} accent={PDF_COLORS.magenta}>02 &#8212; Probleme</Eyebrow>
+    <TitleBlock x={14} y={30} size={autoSize(V('problem_title', 'LE PROBLEME'))} lines={[
+      { text: V('problem_title', 'LE PROBLEME') },
+    ]}/>
+
+    {/* 3 stats */}
+    <Abs x={14} y={62}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 4 * MM, width: 160 * MM }}>
+        {[
+          { v: V('stat1_value', '18 %'), l: V('stat1_label', 'Statistique cle 1'), c: PDF_COLORS.magenta },
+          { v: V('stat2_value', '28 h'), l: V('stat2_label', 'Statistique cle 2'), c: PDF_COLORS.teal },
+          { v: V('stat3_value', '3x'), l: V('stat3_label', 'Statistique cle 3'), c: PDF_COLORS.orange },
+        ].map((st, i) => (
+          <div key={i}>
+            <div style={{ fontFamily: 'Anton, sans-serif', fontSize: 56, color: st.c, lineHeight: 0.9 }}>{st.v}</div>
+            <div style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic', fontSize: 12, color: PDF_COLORS.muted, marginTop: 6, lineHeight: 1.35 }}>{st.l}</div>
+          </div>
+        ))}
+      </div>
+    </Abs>
+
+    {/* Quote */}
+    <div style={{ position: 'absolute', right: 14 * MM, top: 62 * MM, width: 100 * MM, padding: 5 * MM, background: PDF_COLORS.paper2, borderLeft: `4px solid ${PDF_COLORS.ink}`, borderRadius: 4 }}>
+      <div style={{ fontFamily: 'Geist Mono', fontSize: 8, letterSpacing: '0.16em', textTransform: 'uppercase', color: PDF_COLORS.muted, fontWeight: 500 }}>{V('quote_source', 'Source')}</div>
+      <div style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic', fontSize: 15, marginTop: 8, lineHeight: 1.45, color: PDF_COLORS.ink }}>
+        {V('quote_text', 'Le probleme vu par vos utilisateurs.')}
+      </div>
+    </div>
+
+    <PDFFooter startup={V('startupName') || s.name} page={n} total={TOTAL}/>
+  </div>
+);
+
+// ── SLIDE 03 : Solution ────────────────────────────────────────────────
+const SlideSASolution = ({ s, n }) => (
+  <div className="pdf-sheet">
+    <PDFHeader startup={V('startupName') || s.name} logo={V('startup_logo')} kind="Pitch Deck" page={n} total={TOTAL}/>
+    <Eyebrow x={14} y={22} accent={PDF_COLORS.teal}>03 &#8212; Solution</Eyebrow>
+    <TitleBlock x={14} y={30} size={autoSize(V('solution_title', 'NOTRE SOLUTION'))} lines={[
+      { text: V('solution_title', 'NOTRE SOLUTION') },
+    ]}/>
+
+    {/* 3-pillar flow */}
+    <div style={{ position: 'absolute', left: 14 * MM, top: 68 * MM, width: 252 * MM, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 4 * MM }}>
+      {[
+        { n: '01', color: PDF_COLORS.orange, t: V('pillar1_title', 'Pilier 1'), d: V('pillar1_desc', 'Description du premier pilier.') },
+        { n: '02', color: PDF_COLORS.teal, t: V('pillar2_title', 'Pilier 2'), d: V('pillar2_desc', 'Description du deuxieme pilier.') },
+        { n: '03', color: PDF_COLORS.violet, t: V('pillar3_title', 'Pilier 3'), d: V('pillar3_desc', 'Description du troisieme pilier.') },
+      ].map(st => (
+        <div key={st.n} style={{
+          padding: `${4 * MM}px ${4 * MM}px`, background: PDF_COLORS.card,
+          border: `1px solid ${PDF_COLORS.line}`, borderRadius: 8, position: 'relative',
+        }}>
+          <div style={{ position: 'absolute', top: 0, left: 0, width: 12 * MM, height: 0.8 * MM, background: st.color }}/>
+          <div style={{ fontFamily: 'Geist Mono', fontSize: 8.5, color: st.color, letterSpacing: '0.16em', fontWeight: 700 }}>{st.n}</div>
+          <div style={{ fontFamily: 'Anton', fontSize: 22, marginTop: 2 * MM, lineHeight: 0.95, textTransform: 'uppercase' }}>{st.t}</div>
+          <div style={{ fontSize: 10, color: PDF_COLORS.muted, marginTop: 2 * MM, lineHeight: 1.5 }}>{st.d}</div>
+        </div>
+      ))}
+    </div>
+
+    <PDFFooter startup={V('startupName') || s.name} page={n} total={TOTAL}/>
+  </div>
+);
+
+// ── SLIDE 04 : Marche ──────────────────────────────────────────────────
+const SlideSAMarket = ({ s, n }) => (
+  <div className="pdf-sheet">
+    <PDFHeader startup={V('startupName') || s.name} logo={V('startup_logo')} kind="Pitch Deck" page={n} total={TOTAL}/>
+    <Eyebrow x={14} y={22} accent={PDF_COLORS.violet}>04 &#8212; Marche</Eyebrow>
+
+    {(() => {
+      const marketTitle = V('market_title') || (V('tam_value') ? `Un marche de ${V('tam_value')} ${V('market_geo', '')}` : 'MARCHE ADRESSABLE');
+      return <TitleBlock x={14} y={30} size={autoSize(marketTitle, 36)} lines={[{ text: marketTitle }]}/>;
+    })()}
+
+    {/* TAM / SAM / SOM nested bars */}
+    <Abs x={14} y={46}>
+      <div style={{ width: 252 * MM, display: 'flex', flexDirection: 'column', gap: 2.5 * MM }}>
+        {[
+          { k: 'TAM', name: V('tam_label', 'Marche total'), big: V('tam_value', '5 Md'), unit: '', widthPct: 100, bg: '#EFEBE0', border: '#C9C2B0', ink: PDF_COLORS.ink, eyebrow: PDF_COLORS.muted, textColor: PDF_COLORS.ink },
+          { k: 'SAM', name: V('sam_label', 'Marche adressable'), big: V('sam_value', '1,2 Md'), unit: '', widthPct: 60, bg: 'rgba(122, 90, 242, 0.14)', border: PDF_COLORS.violet, ink: PDF_COLORS.violet, eyebrow: PDF_COLORS.violet, textColor: PDF_COLORS.violet },
+          { k: 'SOM', name: V('som_label', 'Objectif 3 ans'), big: V('som_value', '180 M'), unit: '', widthPct: 28, bg: PDF_COLORS.orange, border: PDF_COLORS.orange, ink: '#fff', eyebrow: '#fff', textColor: '#fff' },
+        ].map((r) => (
+          <div key={r.k} style={{ display: 'flex', alignItems: 'center', gap: 6 * MM }}>
+            <div style={{
+              width: `${r.widthPct}%`, minHeight: 14 * MM,
+              background: r.bg, border: `1px solid ${r.border}`, borderRadius: 3,
+              padding: `${2 * MM}px ${4 * MM}px`,
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 4 * MM,
+            }}>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 2.5 * MM }}>
+                  <span style={{ fontFamily: 'Geist Mono', fontSize: 9.5, letterSpacing: '0.2em', textTransform: 'uppercase', color: r.eyebrow, fontWeight: 700 }}>{r.k}</span>
+                  <span style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic', fontSize: 12, color: r.textColor, whiteSpace: 'nowrap' }}>{r.name}</span>
+                </div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 1.5 * MM, whiteSpace: 'nowrap', flexShrink: 0 }}>
+                <span style={{ fontFamily: 'Anton', fontSize: r.k === 'TAM' ? 36 : r.k === 'SAM' ? 30 : 26, color: r.ink, lineHeight: 0.85 }}>{r.big}</span>
+                <span style={{ fontFamily: 'Anton', fontSize: r.k === 'TAM' ? 20 : 16, color: r.ink }}>{r.unit}</span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </Abs>
+
+    {/* Growth + drivers */}
+    <Abs x={14} y={118}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 5 * MM, width: 252 * MM }}>
+        {[
+          [V('growth_label', 'Croissance du marche'), V('growth_value', '+18 %/an'), V('growth_note', 'Croissance annuelle composee.'), PDF_COLORS.magenta],
+          [V('driver1_label', 'Driver 1'), V('driver1_value', 'Reglementation'), V('driver1_note', 'Premier moteur de croissance.'), PDF_COLORS.teal],
+          [V('driver2_label', 'Driver 2'), V('driver2_value', 'Digitalisation'), V('driver2_note', 'Deuxieme moteur de croissance.'), PDF_COLORS.violet],
+        ].map(([kpiLabel, big, note, c]) => (
+          <div key={kpiLabel} style={{
+            padding: `${3 * MM}px ${4 * MM}px`,
+            background: PDF_COLORS.card, border: `1px solid ${PDF_COLORS.line}`, borderLeft: `3px solid ${c}`, borderRadius: 4,
+          }}>
+            <div style={{ fontFamily: 'Geist Mono', fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', color: PDF_COLORS.muted, fontWeight: 600 }}>{kpiLabel}</div>
+            <div style={{ fontFamily: 'Anton', fontSize: 24, color: c, lineHeight: 0.9, marginTop: 1 * MM, whiteSpace: 'nowrap' }}>{big}</div>
+            <div style={{ fontSize: 10, color: PDF_COLORS.muted, lineHeight: 1.45, marginTop: 1.5 * MM }}>{note}</div>
+          </div>
+        ))}
+      </div>
+    </Abs>
+
+    <PDFFooter startup={V('startupName') || s.name} page={n} total={TOTAL}/>
+  </div>
+);
+
+// ── SLIDE 05 : Produit ─────────────────────────────────────────────────
+const SlideSAProduct = ({ s, n }) => (
+  <div className="pdf-sheet">
+    <PDFHeader startup={V('startupName') || s.name} logo={V('startup_logo')} kind="Pitch Deck" page={n} total={TOTAL}/>
+    <Eyebrow x={14} y={22} accent={PDF_COLORS.orange}>05 &#8212; Produit</Eyebrow>
+    <TitleBlock x={14} y={30} size={autoSize(V('product_title', 'NOTRE PRODUIT'))} lines={[
+      { text: V('product_title', 'NOTRE PRODUIT') },
+    ]}/>
+
+    {/* Product image */}
+    <div style={{
+      position: 'absolute', left: 14 * MM, top: 56 * MM,
+      width: 100 * MM, height: 82 * MM,
+      borderRadius: 12, overflow: 'hidden',
+      border: `1px solid ${PDF_COLORS.line}`, background: PDF_COLORS.paper2,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+    }}>
+      {V('product_image') ? (
+        <img src={V('product_image')} style={{ width: '100%', height: '100%', objectFit: 'cover' }}/>
+      ) : (
+        <div style={{ textAlign: 'center', color: PDF_COLORS.muted }}>
+          <div style={{ fontSize: 28 }}>&#128444;</div>
+          <div style={{ fontFamily: 'Geist Mono', fontSize: 8, letterSpacing: '0.14em', textTransform: 'uppercase', marginTop: 2 * MM }}>Image produit</div>
+        </div>
+      )}
+    </div>
+
+    {/* 4 features */}
+    <Abs x={122} y={56}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 2 * MM }}>
+        {[
+          [V('feat1_title', 'Feature 1'), V('feat1_desc', 'Description de la feature 1.'), PDF_COLORS.orange],
+          [V('feat2_title', 'Feature 2'), V('feat2_desc', 'Description de la feature 2.'), PDF_COLORS.magenta],
+          [V('feat3_title', 'Feature 3'), V('feat3_desc', 'Description de la feature 3.'), PDF_COLORS.teal],
+          [V('feat4_title', 'Feature 4'), V('feat4_desc', 'Description de la feature 4.'), PDF_COLORS.violet],
+        ].map(([t, d, c]) => (
+          <div key={t} style={{
+            padding: `${2.5 * MM}px ${3 * MM}px`, background: PDF_COLORS.card,
+            border: `1px solid ${PDF_COLORS.line}`, borderRadius: 6,
+            display: 'grid', gridTemplateColumns: '40mm 1fr', gap: 2.5 * MM, alignItems: 'center',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 2 * MM }}>
+              <div style={{ width: 2 * MM, height: 6 * MM, background: c }}/>
+              <div style={{ fontFamily: 'Anton', fontSize: 14, textTransform: 'uppercase', lineHeight: 1 }}>{t}</div>
+            </div>
+            <div style={{ fontSize: 9.5, color: PDF_COLORS.muted, lineHeight: 1.45 }}>{d}</div>
+          </div>
+        ))}
+      </div>
+    </Abs>
+
+    <PDFFooter startup={V('startupName') || s.name} page={n} total={TOTAL}/>
+  </div>
+);
+
+// ── SLIDE 06 : Traction ────────────────────────────────────────────────
+const SlideSATraction = ({ s, n }) => {
+  const chartData = [1,2,3,4,5,6,7,8].map(i => ({
+    month: V(`chart_m${i}`, ['Q1','Q2','Q3','Q4','Q5','Q6','Q7','Q8'][i-1] || ''),
+    value: parseFloat(V(`chart_v${i}`, '0')) || 0,
+  })).filter(d => d.month);
+  const max = Math.max(...chartData.map(d => d.value), 1);
+  const chartLabel = V('chart_label', 'ARR (k&#8364;)');
+
+  return (
+    <div className="pdf-sheet">
+      <PDFHeader startup={V('startupName') || s.name} logo={V('startup_logo')} kind="Pitch Deck" page={n} total={TOTAL}/>
+      <Eyebrow x={14} y={22} accent={PDF_COLORS.lime}>06 &#8212; Traction</Eyebrow>
+      <TitleBlock x={14} y={30} size={autoSize(V('traction_title', 'TRACTION & METRIQUES CLES'))} lines={[
+        { text: V('traction_title', 'TRACTION & METRIQUES CLES') },
+      ]}/>
+
+      {/* Chart */}
+      <Abs x={14} y={50}>
+        <div style={{ width: 140 * MM, height: 72 * MM, background: PDF_COLORS.card, border: `1px solid ${PDF_COLORS.line}`, borderRadius: 6, padding: 4 * MM, position: 'relative' }}>
+          <div style={{ fontFamily: 'Geist Mono', fontSize: 8, letterSpacing: '0.16em', textTransform: 'uppercase', color: PDF_COLORS.muted, fontWeight: 600 }}>{chartLabel}</div>
+          <svg viewBox="0 0 400 180" style={{ width: '100%', height: '82%', marginTop: 2 * MM, display: 'block' }}>
+            {[0, 0.25, 0.5, 0.75, 1].map(p => (
+              <line key={p} x1="30" y1={20 + p * 140} x2="400" y2={20 + p * 140} stroke={PDF_COLORS.line} strokeWidth={0.5}/>
+            ))}
+            {chartData.map((d, i) => {
+              const bw = Math.min(40, Math.max(25, 300 / chartData.length));
+              const gap = (360 - chartData.length * bw) / Math.max(chartData.length - 1, 1);
+              const x = 40 + i * (bw + gap);
+              const h = (d.value / max) * 140;
+              const y = 160 - h;
+              return (
+                <g key={i}>
+                  <rect x={x} y={y} width={bw} height={h} fill={i === chartData.length - 1 ? PDF_COLORS.orange : PDF_COLORS.ink}/>
+                  <text x={x + bw / 2} y={175} fontFamily="Geist Mono" fontSize="8" fill={PDF_COLORS.muted} textAnchor="middle" letterSpacing="0.1em">{d.month}</text>
+                  {d.value > 0 && <text x={x + bw / 2} y={y - 4} fontFamily="Anton" fontSize="11" fill={PDF_COLORS.ink} textAnchor="middle">{d.value}</text>}
+                </g>
+              );
+            })}
+          </svg>
+        </div>
+      </Abs>
+
+      {/* KPI cards right */}
+      <Abs x={162} y={50}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 * MM, width: 104 * MM }}>
+          {[
+            [V('retention', '92 %'), V('retention_label', 'Retention'), PDF_COLORS.teal],
+            [V('growth_rate', '+25 %/mois'), V('growth_rate_label', 'Croissance MoM'), PDF_COLORS.orange],
+            [V('arr', '2,4 M'), V('arr_label', 'ARR'), PDF_COLORS.violet],
+            [V('nb_clients', '380'), V('nb_clients_label', 'Clients payants'), PDF_COLORS.magenta],
+          ].map(([big, label, c]) => (
+            <div key={label} style={{
+              padding: `${2 * MM}px ${3 * MM}px`, background: PDF_COLORS.card,
+              border: `1px solid ${PDF_COLORS.line}`, borderRadius: 6,
+              display: 'grid', gridTemplateColumns: '28mm 1fr', alignItems: 'center', gap: 2 * MM,
+            }}>
+              <div style={{ fontFamily: 'Anton', fontSize: 22, color: c, lineHeight: 0.9 }}>{big}</div>
+              <div style={{ fontSize: 9, color: PDF_COLORS.muted, lineHeight: 1.45 }}>{label}</div>
+            </div>
+          ))}
+        </div>
+      </Abs>
+
+      <PDFFooter startup={V('startupName') || s.name} page={n} total={TOTAL}/>
+    </div>
+  );
+};
+
+// ── SLIDE 07 : Unit Economics ──────────────────────────────────────────
+const SlideSAUnitEconomics = ({ s, n }) => (
+  <div className="pdf-sheet">
+    <PDFHeader startup={V('startupName') || s.name} logo={V('startup_logo')} kind="Pitch Deck" page={n} total={TOTAL}/>
+    <Eyebrow x={14} y={22} accent={PDF_COLORS.orange}>07 &#8212; Unit Economics</Eyebrow>
+    <TitleBlock x={14} y={30} size={autoSize(V('ue_title', 'UNIT ECONOMICS'))} lines={[
+      { text: V('ue_title', 'UNIT ECONOMICS') },
+    ]}/>
+
+    {/* 8 metric cards in 2x4 grid */}
+    <Abs x={14} y={56}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 3 * MM, width: 252 * MM }}>
+        {[
+          { label: 'CAC', value: V('cac', '120 &#8364;'), color: PDF_COLORS.orange, note: V('cac_note', '') },
+          { label: 'LTV', value: V('ltv', '8 400 &#8364;'), color: PDF_COLORS.teal, note: V('ltv_note', '') },
+          { label: 'LTV/CAC', value: V('ltv_cac', '70x'), color: PDF_COLORS.violet, note: V('ltv_cac_note', '') },
+          { label: 'Payback', value: V('payback', '3 mois'), color: PDF_COLORS.magenta, note: V('payback_note', '') },
+          { label: 'Marge brute', value: V('margin', '78 %'), color: PDF_COLORS.lime, note: V('margin_note', '') },
+          { label: 'ARPU', value: V('arpu', '580 &#8364;/m'), color: PDF_COLORS.yellow, note: V('arpu_note', '') },
+          { label: 'Churn', value: V('churn', '2,1 %'), color: PDF_COLORS.magenta, note: V('churn_note', '') },
+          { label: 'Expansion', value: V('expansion', '+15 %'), color: PDF_COLORS.teal, note: V('expansion_note', '') },
+        ].map((m) => (
+          <div key={m.label} style={{
+            padding: `${3 * MM}px ${3 * MM}px`, background: PDF_COLORS.card,
+            border: `1px solid ${PDF_COLORS.line}`, borderTop: `3px solid ${m.color}`, borderRadius: 6,
+          }}>
+            <div style={{ fontFamily: 'Geist Mono', fontSize: 8, letterSpacing: '0.16em', textTransform: 'uppercase', color: PDF_COLORS.muted, fontWeight: 600 }}>{m.label}</div>
+            <div style={{ fontFamily: 'Anton', fontSize: 28, color: m.color, lineHeight: 0.9, marginTop: 2 * MM }} dangerouslySetInnerHTML={{ __html: m.value }}/>
+            {m.note && <div style={{ fontSize: 8.5, color: PDF_COLORS.muted, lineHeight: 1.4, marginTop: 1.5 * MM }}>{m.note}</div>}
+          </div>
+        ))}
+      </div>
+    </Abs>
+
+    <PDFFooter startup={V('startupName') || s.name} page={n} total={TOTAL}/>
+  </div>
+);
+
+// ── SLIDE 08 : Business Model ──────────────────────────────────────────
+const SlideSABusinessModel = ({ s, n }) => (
+  <div className="pdf-sheet">
+    <PDFHeader startup={V('startupName') || s.name} logo={V('startup_logo')} kind="Pitch Deck" page={n} total={TOTAL}/>
+    <Eyebrow x={14} y={22} accent={PDF_COLORS.yellow}>08 &#8212; Business Model</Eyebrow>
+    <TitleBlock x={14} y={30} size={autoSize(V('bm_title', 'BUSINESS MODEL'))} lines={[
+      { text: V('bm_title', 'BUSINESS MODEL') },
+    ]}/>
+
+    {/* Pricing cards */}
+    <Abs x={14} y={56}>
+      {(() => {
+        const plans = [
+          { t: V('plan1_name', 'Starter'), p: V('plan1_price', '49'), bg: PDF_COLORS.card, ink: PDF_COLORS.ink, cap: V('plan1_desc', 'PME') },
+          { t: V('plan2_name', 'Pro'), p: V('plan2_price', '199'), bg: PDF_COLORS.ink, ink: PDF_COLORS.paper, cap: V('plan2_desc', 'ETI'), featured: true },
+          V('plan3_name') && { t: V('plan3_name'), p: V('plan3_price', ''), bg: PDF_COLORS.card, ink: PDF_COLORS.ink, cap: V('plan3_desc', '') },
+          V('plan4_name') && { t: V('plan4_name'), p: V('plan4_price', ''), bg: PDF_COLORS.card, ink: PDF_COLORS.ink, cap: V('plan4_desc', '') },
+        ].filter(Boolean);
+        const cols = plans.length;
+        return <div style={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: 3 * MM, width: 252 * MM }}>
+          {plans.map(plan => (
+            <div key={plan.t} style={{
+              padding: `${4 * MM}px ${4 * MM}px`,
+              background: plan.bg, color: plan.ink,
+              border: `1px solid ${plan.featured ? PDF_COLORS.ink : PDF_COLORS.line}`,
+              borderRadius: 8, height: 40 * MM, position: 'relative',
+            }}>
+              {plan.featured && (
+                <div style={{ position: 'absolute', top: -3 * MM, right: 4 * MM, padding: `${1.5 * MM}px ${3 * MM}px`, background: PDF_COLORS.lime, color: PDF_COLORS.ink, fontFamily: 'Geist Mono', fontSize: 8, letterSpacing: '0.16em', textTransform: 'uppercase', fontWeight: 700, borderRadius: 999 }}>&#9733; Le plus pris</div>
+              )}
+              <div style={{ fontFamily: 'Geist Mono', fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', fontWeight: 600, opacity: 0.7 }}>{plan.cap}</div>
+              <div style={{ fontFamily: 'Anton', fontSize: 26, marginTop: 2 * MM, textTransform: 'uppercase' }}>{plan.t}</div>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 2 * MM, marginTop: 2 * MM }}>
+                <div style={{ fontFamily: 'Anton', fontSize: 40, lineHeight: 0.9 }}>{plan.p}</div>
+                <div style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic', fontSize: 12, opacity: 0.7 }}>&#8364; / mois</div>
+              </div>
+            </div>
+          ))}
+        </div>;
+      })()}
+    </Abs>
+
+    {/* Revenue mix */}
+    <Abs x={14} y={118}>
+      <div style={{ display: 'flex', gap: 6 * MM, fontFamily: 'Geist, sans-serif' }}>
+        {[
+          [V('rev1_label', 'SaaS'), V('rev1_pct', '72 %'), PDF_COLORS.orange],
+          [V('rev2_label', 'Services'), V('rev2_pct', '18 %'), PDF_COLORS.teal],
+          [V('rev3_label', 'Marketplace'), V('rev3_pct', '10 %'), PDF_COLORS.violet],
+        ].map(([k, v, c]) => (
+          <div key={k} style={{ minWidth: 48 * MM }}>
+            <div style={{ fontFamily: 'Geist Mono', fontSize: 9, letterSpacing: '0.16em', color: PDF_COLORS.muted, fontWeight: 600, textTransform: 'uppercase' }}>{k}</div>
+            <div style={{ fontFamily: 'Anton', fontSize: 28, lineHeight: 0.9, marginTop: 1 * MM, color: c }}>{v}</div>
+          </div>
+        ))}
+      </div>
+    </Abs>
+
+    <PDFFooter startup={V('startupName') || s.name} page={n} total={TOTAL}/>
+  </div>
+);
+
+// ── SLIDE 09 : Go-to-Market ────────────────────────────────────────────
+const SlideSAGTM = ({ s, n }) => (
+  <div className="pdf-sheet">
+    <PDFHeader startup={V('startupName') || s.name} logo={V('startup_logo')} kind="Pitch Deck" page={n} total={TOTAL}/>
+    <Eyebrow x={14} y={22} accent={PDF_COLORS.teal}>09 &#8212; Go-to-Market</Eyebrow>
+    <TitleBlock x={14} y={30} size={autoSize(V('gtm_title', 'STRATEGIE GO-TO-MARKET'))} lines={[
+      { text: V('gtm_title', 'STRATEGIE GO-TO-MARKET') },
+    ]}/>
+
+    {/* 3 channel cards */}
+    <div style={{ position: 'absolute', left: 14 * MM, top: 58 * MM, width: 252 * MM, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 4 * MM }}>
+      {[
+        { color: PDF_COLORS.orange, title: V('ch1_title', 'Canal 1'), metric: V('ch1_metric', 'CAC 80 &#8364;'), desc: V('ch1_desc', 'Description du canal.'), proof: V('ch1_proof', 'Preuve : +200 leads/mois') },
+        { color: PDF_COLORS.teal, title: V('ch2_title', 'Canal 2'), metric: V('ch2_metric', 'CAC 45 &#8364;'), desc: V('ch2_desc', 'Description du canal.'), proof: V('ch2_proof', 'Preuve : 12 partenaires signes') },
+        { color: PDF_COLORS.violet, title: V('ch3_title', 'Canal 3'), metric: V('ch3_metric', 'CAC 25 &#8364;'), desc: V('ch3_desc', 'Description du canal.'), proof: V('ch3_proof', 'Preuve : NPS 72') },
+      ].map((ch) => (
+        <div key={ch.title} style={{
+          padding: `${4 * MM}px ${4 * MM}px`, background: PDF_COLORS.card,
+          border: `1px solid ${PDF_COLORS.line}`, borderRadius: 8, position: 'relative',
+        }}>
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 0.8 * MM, background: ch.color }}/>
+          <div style={{ fontFamily: 'Anton', fontSize: 20, textTransform: 'uppercase', lineHeight: 1, color: PDF_COLORS.ink }}>{ch.title}</div>
+          <div style={{ fontFamily: 'Anton', fontSize: 22, color: ch.color, marginTop: 2 * MM, lineHeight: 0.9 }} dangerouslySetInnerHTML={{ __html: ch.metric }}/>
+          <div style={{ fontSize: 10, color: PDF_COLORS.muted, marginTop: 2 * MM, lineHeight: 1.5 }}>{ch.desc}</div>
+          <div style={{ marginTop: 3 * MM, padding: `${1.5 * MM}px ${2.5 * MM}px`, background: PDF_COLORS.paper2, borderRadius: 4, fontFamily: 'Geist Mono', fontSize: 8, letterSpacing: '0.12em', color: PDF_COLORS.ink, fontWeight: 500 }}>{ch.proof}</div>
+        </div>
+      ))}
+    </div>
+
+    <PDFFooter startup={V('startupName') || s.name} page={n} total={TOTAL}/>
+  </div>
+);
+
+// ── SLIDE 10 : Cas clients ─────────────────────────────────────────────
+const SlideSAClients = ({ s, n }) => (
+  <div className="pdf-sheet">
+    <PDFHeader startup={V('startupName') || s.name} logo={V('startup_logo')} kind="Pitch Deck" page={n} total={TOTAL}/>
+    <Eyebrow x={14} y={22} accent={PDF_COLORS.magenta}>10 &#8212; Cas clients</Eyebrow>
+    <TitleBlock x={14} y={30} size={autoSize(V('clients_title', 'CE QUE DISENT NOS CLIENTS'))} lines={[
+      { text: V('clients_title', 'CE QUE DISENT NOS CLIENTS') },
+    ]}/>
+
+    {/* 3 testimonial cards */}
+    <div style={{ position: 'absolute', left: 14 * MM, top: 58 * MM, width: 252 * MM, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 4 * MM }}>
+      {[
+        { color: PDF_COLORS.orange, name: V('testi1_name', 'Client 1'), role: V('testi1_role', 'CEO, Entreprise A'), quote: V('testi1_quote', 'Temoignage du client.'), impact: V('testi1_impact', '+45 % de productivite') },
+        { color: PDF_COLORS.teal, name: V('testi2_name', 'Client 2'), role: V('testi2_role', 'CTO, Entreprise B'), quote: V('testi2_quote', 'Temoignage du client.'), impact: V('testi2_impact', '-30 % de couts') },
+        { color: PDF_COLORS.violet, name: V('testi3_name', 'Client 3'), role: V('testi3_role', 'VP, Entreprise C'), quote: V('testi3_quote', 'Temoignage du client.'), impact: V('testi3_impact', '2x plus rapide') },
+      ].map((t) => (
+        <div key={t.name} style={{
+          padding: `${4 * MM}px ${4 * MM}px`, background: PDF_COLORS.card,
+          border: `1px solid ${PDF_COLORS.line}`, borderRadius: 8, position: 'relative',
+        }}>
+          <div style={{ position: 'absolute', top: 0, left: 0, width: 12 * MM, height: 0.8 * MM, background: t.color }}/>
+          {/* Avatar circle */}
+          <div style={{
+            width: 10 * MM, height: 10 * MM, borderRadius: '50%', background: t.color, color: '#fff',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontFamily: 'Anton', fontSize: 14,
+          }}>{t.name.split(' ').map(p => p[0]).join('')}</div>
+          <div style={{ fontFamily: 'Anton', fontSize: 14, textTransform: 'uppercase', lineHeight: 1, marginTop: 2 * MM }}>{t.name}</div>
+          <div style={{ fontFamily: 'Geist Mono', fontSize: 7.5, letterSpacing: '0.14em', color: PDF_COLORS.muted, marginTop: 1 * MM }}>{t.role}</div>
+          <div style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic', fontSize: 10.5, color: PDF_COLORS.ink, marginTop: 2 * MM, lineHeight: 1.45, borderLeft: `2px solid ${t.color}`, paddingLeft: 2 * MM }}>
+            &laquo; {t.quote} &raquo;
+          </div>
+          <div style={{ marginTop: 2 * MM, padding: `${1.5 * MM}px ${2.5 * MM}px`, background: t.color, borderRadius: 4, color: '#fff', fontFamily: 'Anton', fontSize: 13, textTransform: 'uppercase', textAlign: 'center' }}>{t.impact}</div>
+        </div>
+      ))}
+    </div>
+
+    <PDFFooter startup={V('startupName') || s.name} page={n} total={TOTAL}/>
+  </div>
+);
+
+// ── SLIDE 11 : Concurrence ─────────────────────────────────────────────
+const SlideSACompetition = ({ s, n }) => {
+  const criteria = [V('crit1','Prix'), V('crit2','UX'), V('crit3','Couverture'), V('crit4','Support'), V('crit5','Scalabilite')].filter(Boolean);
+  const actors = [
+    { name: V('comp1_name', 'Concurrent 1'), scores: (V('comp1_scores','1,2,1,1,1')).split(',').map(Number), highlight: false },
+    { name: V('comp2_name', 'Concurrent 2'), scores: (V('comp2_scores','2,1,2,1,1')).split(',').map(Number), highlight: false },
+    V('comp3_name') && { name: V('comp3_name'), scores: (V('comp3_scores','1,1,1,1,1')).split(',').map(Number), highlight: false },
+    { name: V('startupName') || s.name, scores: (V('our_scores','3,3,3,3,3')).split(',').map(Number), highlight: true },
+  ].filter(Boolean);
+  const stars = (n) => { const s = Math.min(3, Math.max(0, n || 0)); return '\u2605'.repeat(s) + '\u2606'.repeat(3 - s); };
+
+  return (
+    <div className="pdf-sheet">
+      <PDFHeader startup={V('startupName') || s.name} logo={V('startup_logo')} kind="Pitch Deck" page={n} total={TOTAL}/>
+      <Eyebrow x={14} y={22} accent={PDF_COLORS.magenta}>11 &#8212; Concurrence</Eyebrow>
+      <Title x={14} y={30} size={36}>{V('comp_title', 'CONCURRENCE')}</Title>
+
+      <Abs x={14} y={50}>
+        <div style={{ width: 252 * MM }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'Geist, sans-serif', fontSize: 10 }}>
+            <thead>
+              <tr>
+                <th style={{ textAlign: 'left', padding: `${2 * MM}px ${3 * MM}px`, fontFamily: 'Geist Mono', fontSize: 8, letterSpacing: '0.14em', textTransform: 'uppercase', color: PDF_COLORS.muted, fontWeight: 600, borderBottom: `2px solid ${PDF_COLORS.ink}` }}></th>
+                {criteria.map(c => (
+                  <th key={c} style={{ textAlign: 'center', padding: `${2 * MM}px ${2 * MM}px`, fontFamily: 'Geist Mono', fontSize: 8, letterSpacing: '0.14em', textTransform: 'uppercase', color: PDF_COLORS.muted, fontWeight: 600, borderBottom: `2px solid ${PDF_COLORS.ink}` }}>{c}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {actors.map((a, i) => (
+                <tr key={a.name} style={{ background: a.highlight ? PDF_COLORS.orange : i % 2 === 0 ? PDF_COLORS.card : PDF_COLORS.paper }}>
+                  <td style={{
+                    padding: `${2.5 * MM}px ${3 * MM}px`,
+                    fontFamily: 'Anton', fontSize: a.highlight ? 16 : 13, textTransform: 'uppercase',
+                    color: a.highlight ? '#fff' : PDF_COLORS.ink,
+                    borderBottom: `1px solid ${a.highlight ? 'transparent' : PDF_COLORS.line}`,
+                    whiteSpace: 'nowrap',
+                  }}>{a.name}</td>
+                  {criteria.map((c, ci) => (
+                    <td key={c} style={{
+                      textAlign: 'center', padding: `${2.5 * MM}px ${2 * MM}px`,
+                      fontSize: 12, letterSpacing: 1,
+                      color: a.highlight ? '#fff' : (a.scores[ci] >= 3 ? PDF_COLORS.orange : a.scores[ci] >= 2 ? PDF_COLORS.ink : PDF_COLORS.muted2),
+                      borderBottom: `1px solid ${a.highlight ? 'transparent' : PDF_COLORS.line}`,
+                    }}>{stars(a.scores[ci])}</td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Abs>
+
+      <PDFFooter startup={V('startupName') || s.name} page={n} total={TOTAL}/>
+    </div>
+  );
+};
+
+// ── SLIDE 12 : Barrieres a l'entree ────────────────────────────────────
+const SlideSAMoats = ({ s, n }) => (
+  <div className="pdf-sheet">
+    <PDFHeader startup={V('startupName') || s.name} logo={V('startup_logo')} kind="Pitch Deck" page={n} total={TOTAL}/>
+    <Eyebrow x={14} y={22} accent={PDF_COLORS.violet}>12 &#8212; Barrieres a l'entree</Eyebrow>
+    <TitleBlock x={14} y={30} size={autoSize(V('moat_title', 'NOS BARRIERES A L\'ENTREE'))} lines={[
+      { text: V('moat_title', 'NOS BARRIERES A L\'ENTREE') },
+    ]}/>
+
+    {/* 3 moat cards */}
+    <div style={{ position: 'absolute', left: 14 * MM, top: 58 * MM, width: 252 * MM, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 4 * MM }}>
+      {[
+        { n: '01', color: PDF_COLORS.orange, t: V('moat1_title', 'Technologie'), d: V('moat1_desc', 'Brevets, algorithmes proprietaires, avance technologique.') },
+        { n: '02', color: PDF_COLORS.teal, t: V('moat2_title', 'Donnees'), d: V('moat2_desc', 'Effet reseau, donnees d\'entrainement uniques.') },
+        { n: '03', color: PDF_COLORS.violet, t: V('moat3_title', 'Distribution'), d: V('moat3_desc', 'Partenariats exclusifs, switching costs eleves.') },
+      ].map(moat => (
+        <div key={moat.n} style={{
+          padding: `${4 * MM}px ${4 * MM}px`, background: PDF_COLORS.card,
+          border: `1px solid ${PDF_COLORS.line}`, borderRadius: 8, position: 'relative',
+          height: 45 * MM,
+        }}>
+          <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: 0.8 * MM, background: moat.color }}/>
+          <div style={{ fontFamily: 'Geist Mono', fontSize: 8.5, color: moat.color, letterSpacing: '0.16em', fontWeight: 700 }}>{moat.n}</div>
+          <div style={{ fontFamily: 'Anton', fontSize: 22, marginTop: 2 * MM, lineHeight: 0.95, textTransform: 'uppercase' }}>{moat.t}</div>
+          <div style={{ fontSize: 10, color: PDF_COLORS.muted, marginTop: 2 * MM, lineHeight: 1.5 }}>{moat.d}</div>
+        </div>
+      ))}
+    </div>
+
+    {/* Synthesis */}
+    <Abs x={14} y={120}>
+      <div style={{
+        width: 252 * MM, padding: `${3 * MM}px ${4 * MM}px`,
+        background: PDF_COLORS.paper2, borderLeft: `4px solid ${PDF_COLORS.ink}`, borderRadius: 4,
+      }}>
+        <div style={{ fontFamily: 'Geist Mono', fontSize: 8, letterSpacing: '0.16em', textTransform: 'uppercase', color: PDF_COLORS.muted, fontWeight: 600 }}>Synthese</div>
+        <div style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic', fontSize: 13, marginTop: 4, lineHeight: 1.45, color: PDF_COLORS.ink }}>
+          {V('moat_synthesis', 'Nos barrieres combinees creent un avantage competitif durable et cumulatif.')}
+        </div>
+      </div>
+    </Abs>
+
+    <PDFFooter startup={V('startupName') || s.name} page={n} total={TOTAL}/>
+  </div>
+);
+
+// ── SLIDE 13 : Equipe ──────────────────────────────────────────────────
+const SlideSATeam = ({ s, n }) => (
+  <div className="pdf-sheet">
+    <PDFHeader startup={V('startupName') || s.name} logo={V('startup_logo')} kind="Pitch Deck" page={n} total={TOTAL}/>
+    <Eyebrow x={14} y={22} accent={PDF_COLORS.teal}>13 &#8212; Equipe</Eyebrow>
+    <Title x={14} y={30} size={36}>L'EQUIPE</Title>
+
+    {/* Founders */}
+    <Abs x={14} y={52}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 4 * MM, width: 252 * MM }}>
+        {s.founders.map((f, i) => {
+          const colors = [PDF_COLORS.magenta, PDF_COLORS.violet, PDF_COLORS.teal, PDF_COLORS.orange];
+          return (
+            <div key={f.name} style={{ padding: `${3 * MM}px ${3 * MM}px`, background: PDF_COLORS.card, border: `1px solid ${PDF_COLORS.line}`, borderRadius: 8 }}>
+              <div style={{
+                width: 14 * MM, height: 14 * MM, borderRadius: '50%',
+                background: colors[i % colors.length],
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontFamily: 'Anton', fontSize: 20, color: '#fff',
+              }}>{f.name.split(' ').map(p => p[0]).join('')}</div>
+              <div style={{ fontFamily: 'Anton', fontSize: 16, marginTop: 2 * MM, textTransform: 'uppercase', lineHeight: 1 }}>{f.name}</div>
+              <div style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic', fontSize: 10, color: PDF_COLORS.muted, marginTop: 1 * MM }}>{f.role}</div>
+            </div>
+          );
+        })}
+      </div>
+    </Abs>
+
+    {/* Hiring plan */}
+    <Abs x={14} y={112}>
+      <div style={{ fontFamily: 'Geist Mono', fontSize: 8, letterSpacing: '0.16em', textTransform: 'uppercase', color: PDF_COLORS.muted, fontWeight: 600, marginBottom: 2 * MM }}>Plan de recrutement</div>
+      <div style={{ display: 'flex', gap: 3 * MM, width: 252 * MM }}>
+        {[
+          [V('hire1_role', 'VP Sales'), V('hire1_when', 'Q1'), PDF_COLORS.orange],
+          [V('hire2_role', 'Lead Dev'), V('hire2_when', 'Q2'), PDF_COLORS.teal],
+          [V('hire3_role', 'Head of Product'), V('hire3_when', 'Q3'), PDF_COLORS.violet],
+          [V('hire4_role', 'Data Scientist'), V('hire4_when', 'Q4'), PDF_COLORS.magenta],
+        ].filter(([r]) => r).map(([role, when, c]) => (
+          <div key={role} style={{
+            flex: 1, padding: `${2 * MM}px ${3 * MM}px`,
+            background: PDF_COLORS.card, border: `1px solid ${PDF_COLORS.line}`, borderLeft: `3px solid ${c}`, borderRadius: 4,
+          }}>
+            <div style={{ fontFamily: 'Anton', fontSize: 13, textTransform: 'uppercase', color: PDF_COLORS.ink }}>{role}</div>
+            <div style={{ fontFamily: 'Geist Mono', fontSize: 8, color: c, marginTop: 1 * MM, fontWeight: 600 }}>{when}</div>
+          </div>
+        ))}
+      </div>
+    </Abs>
+
+    <PDFFooter startup={V('startupName') || s.name} page={n} total={TOTAL}/>
+  </div>
+);
+
+// ── SLIDE 14 : Usage des fonds ─────────────────────────────────────────
+const SlideSAFunds = ({ s, n }) => {
+  // Parse fund percentages for donut
+  const f1 = parseInt(V('fund1_pct', '40').replace(/\D/g, '')) || 40;
+  const f2 = parseInt(V('fund2_pct', '25').replace(/\D/g, '')) || 25;
+  const f3 = parseInt(V('fund3_pct', '20').replace(/\D/g, '')) || 20;
+  const f4 = parseInt(V('fund4_pct', '15').replace(/\D/g, '')) || 15;
+  const total = f1 + f2 + f3 + f4;
+  const p1 = (f1 / total * 100);
+  const p2 = p1 + (f2 / total * 100);
+  const p3 = p2 + (f3 / total * 100);
+
+  return (
+    <div className="pdf-sheet">
+      <PDFHeader startup={V('startupName') || s.name} logo={V('startup_logo')} kind="Pitch Deck" page={n} total={TOTAL}/>
+      <Eyebrow x={14} y={22} accent={PDF_COLORS.orange}>14 &#8212; Usage des fonds</Eyebrow>
+      <Title x={14} y={30} size={36}>{V('funds_title', 'USAGE DES FONDS')}</Title>
+
+      {/* Donut chart */}
+      <Abs x={14} y={52}>
+        <div style={{ position: 'relative', width: 60 * MM, height: 60 * MM }}>
+          <div style={{
+            width: '100%', height: '100%', borderRadius: '50%',
+            background: `conic-gradient(${PDF_COLORS.orange} 0 ${p1}%, ${PDF_COLORS.teal} ${p1}% ${p2}%, ${PDF_COLORS.violet} ${p2}% ${p3}%, ${PDF_COLORS.lime} ${p3}% 100%)`,
+          }}/>
+          <div style={{
+            position: 'absolute', inset: 10 * MM, borderRadius: '50%', background: PDF_COLORS.paper,
+            border: `1px solid ${PDF_COLORS.line}`,
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <div style={{ fontFamily: 'Anton', fontSize: 24, color: PDF_COLORS.ink, lineHeight: 1 }}>{V('raise_amount', '8 M')}</div>
+            <div style={{ fontFamily: 'Geist Mono', fontSize: 7.5, letterSpacing: '0.16em', color: PDF_COLORS.muted, textTransform: 'uppercase', marginTop: 2 }}>Serie A</div>
+          </div>
+        </div>
+      </Abs>
+
+      {/* Breakdown */}
+      <Abs x={84} y={50}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 * MM, width: 180 * MM }}>
+          {[
+            [V('fund1_pct', '40 %'), V('fund1_amount', '3,2 M'), V('fund1_label', 'Equipe & recrutement'), PDF_COLORS.orange],
+            [V('fund2_pct', '25 %'), V('fund2_amount', '2 M'), V('fund2_label', 'Produit & R&D'), PDF_COLORS.teal],
+            [V('fund3_pct', '20 %'), V('fund3_amount', '1,6 M'), V('fund3_label', 'Sales & Marketing'), PDF_COLORS.violet],
+            [V('fund4_pct', '15 %'), V('fund4_amount', '1,2 M'), V('fund4_label', 'Operations & infra'), PDF_COLORS.lime],
+          ].map(([pct, amount, label, c]) => (
+            <div key={label} style={{
+              padding: `${2.5 * MM}px ${3 * MM}px`,
+              background: PDF_COLORS.card,
+              border: `1px solid ${PDF_COLORS.line}`, borderLeft: `3px solid ${c}`, borderRadius: 4,
+              display: 'grid', gridTemplateColumns: '18mm 28mm 1fr', gap: 3 * MM, alignItems: 'center',
+            }}>
+              <div style={{ fontFamily: 'Anton', fontSize: 20, color: c, lineHeight: 0.9 }}>{pct}</div>
+              <div style={{ fontFamily: 'Anton', fontSize: 18, lineHeight: 0.9 }}>{amount}</div>
+              <div style={{ fontSize: 10, fontWeight: 500 }}>{label}</div>
+            </div>
+          ))}
+        </div>
+      </Abs>
+
+      {/* Funding need summary */}
+      <Abs x={14} y={130}>
+        <div style={{ display: 'flex', gap: 6 * MM }}>
+          <div>
+            <div style={{ fontFamily: 'Geist Mono', fontSize: 8, letterSpacing: '0.16em', color: PDF_COLORS.muted, fontWeight: 600, textTransform: 'uppercase' }}>Levee ciblee</div>
+            <div style={{ fontFamily: 'Anton', fontSize: 28, color: PDF_COLORS.orange, lineHeight: 0.9, marginTop: 1 * MM }}>{V('raise_amount', '8 M&#8364;')}</div>
+          </div>
+          <div>
+            <div style={{ fontFamily: 'Geist Mono', fontSize: 8, letterSpacing: '0.16em', color: PDF_COLORS.muted, fontWeight: 600, textTransform: 'uppercase' }}>Runway</div>
+            <div style={{ fontFamily: 'Anton', fontSize: 28, color: PDF_COLORS.ink, lineHeight: 0.9, marginTop: 1 * MM }}>{V('runway', '24 mois')}</div>
+          </div>
+          <div>
+            <div style={{ fontFamily: 'Geist Mono', fontSize: 8, letterSpacing: '0.16em', color: PDF_COLORS.muted, fontWeight: 600, textTransform: 'uppercase' }}>Valo pre-money</div>
+            <div style={{ fontFamily: 'Anton', fontSize: 28, color: PDF_COLORS.ink, lineHeight: 0.9, marginTop: 1 * MM }}>{V('valuation', '32 M&#8364;')}</div>
+          </div>
+        </div>
+      </Abs>
+
+      <PDFFooter startup={V('startupName') || s.name} page={n} total={TOTAL}/>
+    </div>
+  );
+};
+
+// ── SLIDE 15 : Roadmap ─────────────────────────────────────────────────
+const SlideSARoadmap = ({ s, n }) => (
+  <div className="pdf-sheet">
+    <PDFHeader startup={V('startupName') || s.name} logo={V('startup_logo')} kind="Pitch Deck" page={n} total={TOTAL}/>
+    <Eyebrow x={14} y={22} accent={PDF_COLORS.violet}>15 &#8212; Roadmap</Eyebrow>
+    <TitleBlock x={14} y={30} size={36} lines={[
+      { text: V('roadmap_title1', 'LES 24 PROCHAINS MOIS,') },
+      { text: V('roadmap_title2', 'TRIMESTRE PAR TRIMESTRE.'), color: PDF_COLORS.violet },
+    ]}/>
+
+    {/* Timeline */}
+    <Abs x={14} y={68}>
+      <div style={{ position: 'relative', width: 252 * MM, paddingTop: 8 * MM }}>
+        <div style={{ position: 'absolute', left: 0, top: 8 * MM, width: '100%', height: 2, background: PDF_COLORS.ink }}/>
+        {(() => {
+          const milestones = [
+            { q: V('ms1_quarter', 'Q1'), big: V('ms1_title', 'Milestone 1'), note: V('ms1_note', ''), c: PDF_COLORS.orange },
+            { q: V('ms2_quarter', 'Q2'), big: V('ms2_title', 'Milestone 2'), note: V('ms2_note', ''), c: PDF_COLORS.teal },
+            { q: V('ms3_quarter', 'Q3'), big: V('ms3_title', 'Milestone 3'), note: V('ms3_note', ''), c: PDF_COLORS.violet },
+            { q: V('ms4_quarter', 'Q4'), big: V('ms4_title', 'Milestone 4'), note: V('ms4_note', ''), c: PDF_COLORS.magenta },
+            { q: V('ms5_quarter', 'Q5'), big: V('ms5_title', 'Milestone 5'), note: V('ms5_note', ''), c: PDF_COLORS.yellow },
+            { q: V('ms6_quarter', 'Q6'), big: V('ms6_title', 'Milestone 6'), note: V('ms6_note', ''), c: PDF_COLORS.lime },
+          ].filter(ms => ms.big);
+          return <div style={{ display: 'grid', gridTemplateColumns: `repeat(${milestones.length}, 1fr)`, gap: 3 * MM }}>
+            {milestones.map((ms, i) => (
+              <div key={ms.q} style={{ position: 'relative', paddingTop: 14 * MM, textAlign: 'center' }}>
+                <div style={{ position: 'absolute', top: 4 * MM, left: '50%', transform: 'translateX(-50%)', width: 4 * MM, height: 4 * MM, borderRadius: '50%', background: ms.c, border: `2px solid ${PDF_COLORS.ink}` }}/>
+                <div style={{ fontFamily: 'Geist Mono', fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: PDF_COLORS.muted, fontWeight: 600 }}>{ms.q}</div>
+                <div style={{ fontFamily: 'Anton', fontSize: 18, marginTop: 1 * MM, color: ms.c, textTransform: 'uppercase', lineHeight: 0.95 }}>{ms.big}</div>
+                <div style={{ fontSize: 9, color: PDF_COLORS.muted, marginTop: 1 * MM, lineHeight: 1.4 }}>{ms.note}</div>
+              </div>
+            ))}
+          </div>;
+        })()}
+      </div>
+    </Abs>
+
+    <PDFFooter startup={V('startupName') || s.name} page={n} total={TOTAL}/>
+  </div>
+);
+
+// ── SLIDE 16 : Projections 7 ans ───────────────────────────────────────
+const SlideSAProjections = ({ s, n }) => {
+  const years = [1,2,3,4,5,6,7].map(i => ({
+    year: `A${i}`,
+    revenue: V(`year${i}_revenue`, ''),
+    costs: V(`year${i}_costs`, ''),
+    ebitda: V(`year${i}_ebitda`, ''),
+  }));
+  const beYear = V('breakeven_year', '');
+
+  return (
+    <div className="pdf-sheet">
+      <PDFHeader startup={V('startupName') || s.name} logo={V('startup_logo')} kind="Pitch Deck" page={n} total={TOTAL}/>
+      <Eyebrow x={14} y={22} accent={PDF_COLORS.orange}>16 &#8212; Projections 7 ans</Eyebrow>
+      <Title x={14} y={30} size={36}>{V('proj_title', 'PROJECTIONS FINANCIERES')}</Title>
+
+      <Abs x={14} y={52}>
+        <div style={{ width: 252 * MM }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'Geist, sans-serif', fontSize: 10 }}>
+            <thead>
+              <tr>
+                <th style={{ textAlign: 'left', padding: `${2 * MM}px ${3 * MM}px`, fontFamily: 'Geist Mono', fontSize: 8.5, letterSpacing: '0.14em', textTransform: 'uppercase', color: PDF_COLORS.muted, fontWeight: 600, borderBottom: `2px solid ${PDF_COLORS.ink}` }}>Annee</th>
+                {years.map(y => (
+                  <th key={y.year} style={{
+                    textAlign: 'center', padding: `${2 * MM}px ${2 * MM}px`,
+                    fontFamily: 'Anton', fontSize: 14, textTransform: 'uppercase',
+                    color: y.year === beYear ? PDF_COLORS.orange : PDF_COLORS.ink,
+                    borderBottom: `2px solid ${PDF_COLORS.ink}`,
+                    background: y.year === beYear ? 'rgba(255,106,31,0.08)' : 'transparent',
+                  }}>{y.year}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {/* Revenue row */}
+              <tr>
+                <td style={{ padding: `${2.5 * MM}px ${3 * MM}px`, fontFamily: 'Geist Mono', fontSize: 8.5, letterSpacing: '0.14em', textTransform: 'uppercase', color: PDF_COLORS.muted, fontWeight: 600, borderBottom: `1px solid ${PDF_COLORS.line}` }}>Chiffre d'affaires</td>
+                {years.map(y => (
+                  <td key={y.year + 'r'} style={{
+                    textAlign: 'center', padding: `${2.5 * MM}px ${2 * MM}px`,
+                    fontFamily: 'Anton', fontSize: 14, color: PDF_COLORS.teal,
+                    borderBottom: `1px solid ${PDF_COLORS.line}`,
+                    background: y.year === beYear ? 'rgba(255,106,31,0.08)' : 'transparent',
+                  }}>{y.revenue || '—'}</td>
+                ))}
+              </tr>
+              {/* Costs row */}
+              <tr>
+                <td style={{ padding: `${2.5 * MM}px ${3 * MM}px`, fontFamily: 'Geist Mono', fontSize: 8.5, letterSpacing: '0.14em', textTransform: 'uppercase', color: PDF_COLORS.muted, fontWeight: 600, borderBottom: `1px solid ${PDF_COLORS.line}` }}>Couts</td>
+                {years.map(y => (
+                  <td key={y.year + 'c'} style={{
+                    textAlign: 'center', padding: `${2.5 * MM}px ${2 * MM}px`,
+                    fontFamily: 'Anton', fontSize: 14, color: PDF_COLORS.magenta,
+                    borderBottom: `1px solid ${PDF_COLORS.line}`,
+                    background: y.year === beYear ? 'rgba(255,106,31,0.08)' : 'transparent',
+                  }}>{y.costs || '—'}</td>
+                ))}
+              </tr>
+              {/* EBITDA row */}
+              <tr>
+                <td style={{ padding: `${2.5 * MM}px ${3 * MM}px`, fontFamily: 'Geist Mono', fontSize: 8.5, letterSpacing: '0.14em', textTransform: 'uppercase', color: PDF_COLORS.muted, fontWeight: 600, borderBottom: `2px solid ${PDF_COLORS.ink}` }}>EBITDA</td>
+                {years.map(y => (
+                  <td key={y.year + 'e'} style={{
+                    textAlign: 'center', padding: `${2.5 * MM}px ${2 * MM}px`,
+                    fontFamily: 'Anton', fontSize: 16,
+                    color: y.year === beYear ? PDF_COLORS.orange : PDF_COLORS.ink,
+                    borderBottom: `2px solid ${PDF_COLORS.ink}`,
+                    background: y.year === beYear ? 'rgba(255,106,31,0.12)' : 'transparent',
+                    fontWeight: y.year === beYear ? 900 : 400,
+                  }}>{y.ebitda || '—'}</td>
+                ))}
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </Abs>
+
+      {/* Breakeven indicator */}
+      <Abs x={14} y={120}>
+        <div style={{ display: 'flex', gap: 6 * MM, alignItems: 'center' }}>
+          <div style={{ width: 4 * MM, height: 4 * MM, background: PDF_COLORS.orange, borderRadius: 2 }}/>
+          <div style={{ fontFamily: 'Geist Mono', fontSize: 9, letterSpacing: '0.14em', color: PDF_COLORS.muted }}>
+            = Annee de breakeven (EBITDA positif)
+          </div>
+        </div>
+      </Abs>
+
+      <PDFFooter startup={V('startupName') || s.name} page={n} total={TOTAL}/>
+    </div>
+  );
+};
+
+// ── SLIDE 17 : Strategie d'exit ────────────────────────────────────────
+const SlideSAExit = ({ s, n }) => (
+  <div className="pdf-sheet">
+    <PDFHeader startup={V('startupName') || s.name} logo={V('startup_logo')} kind="Pitch Deck" page={n} total={TOTAL}/>
+    <Eyebrow x={14} y={22} accent={PDF_COLORS.yellow}>17 &#8212; Strategie d'exit</Eyebrow>
+    <TitleBlock x={14} y={30} size={autoSize(V('exit_title', 'STRATEGIE D\'EXIT'))} lines={[
+      { text: V('exit_title', 'STRATEGIE D\'EXIT') },
+    ]}/>
+
+    {/* Acquirers */}
+    <Abs x={14} y={54}>
+      <div style={{ fontFamily: 'Geist Mono', fontSize: 8, letterSpacing: '0.16em', textTransform: 'uppercase', color: PDF_COLORS.muted, fontWeight: 600, marginBottom: 2 * MM }}>Acquereurs potentiels</div>
+      <div style={{ display: 'flex', gap: 3 * MM }}>
+        {[
+          V('acquirer1', 'Acquereur 1'),
+          V('acquirer2', 'Acquereur 2'),
+          V('acquirer3', 'Acquereur 3'),
+          V('acquirer4'),
+        ].filter(Boolean).map((a, i) => {
+          const colors = [PDF_COLORS.orange, PDF_COLORS.teal, PDF_COLORS.violet, PDF_COLORS.magenta];
+          return (
+            <div key={a} style={{
+              flex: 1, padding: `${3 * MM}px ${3 * MM}px`,
+              background: PDF_COLORS.card, border: `1px solid ${PDF_COLORS.line}`, borderTop: `3px solid ${colors[i]}`, borderRadius: 6,
+              textAlign: 'center',
+            }}>
+              <div style={{ fontFamily: 'Anton', fontSize: 16, textTransform: 'uppercase', color: PDF_COLORS.ink }}>{a}</div>
+            </div>
+          );
+        })}
+      </div>
+    </Abs>
+
+    {/* Comparables */}
+    <Abs x={14} y={86}>
+      <div style={{ fontFamily: 'Geist Mono', fontSize: 8, letterSpacing: '0.16em', textTransform: 'uppercase', color: PDF_COLORS.muted, fontWeight: 600, marginBottom: 2 * MM }}>Transactions comparables</div>
+      <div style={{ display: 'flex', gap: 3 * MM }}>
+        {[
+          { name: V('comp_deal1_name', 'Deal 1'), value: V('comp_deal1_value', '120 M'), multiple: V('comp_deal1_mult', '15x ARR') },
+          { name: V('comp_deal2_name', 'Deal 2'), value: V('comp_deal2_value', '85 M'), multiple: V('comp_deal2_mult', '12x ARR') },
+          { name: V('comp_deal3_name', 'Deal 3'), value: V('comp_deal3_value', '200 M'), multiple: V('comp_deal3_mult', '18x ARR') },
+        ].map((d, i) => {
+          const colors = [PDF_COLORS.orange, PDF_COLORS.teal, PDF_COLORS.violet];
+          return (
+            <div key={d.name} style={{
+              flex: 1, padding: `${2.5 * MM}px ${3 * MM}px`,
+              background: PDF_COLORS.card, border: `1px solid ${PDF_COLORS.line}`, borderRadius: 6,
+            }}>
+              <div style={{ fontFamily: 'Geist Mono', fontSize: 8, color: PDF_COLORS.muted, letterSpacing: '0.14em', textTransform: 'uppercase' }}>{d.name}</div>
+              <div style={{ fontFamily: 'Anton', fontSize: 24, color: colors[i], lineHeight: 0.9, marginTop: 1 * MM }}>{d.value}</div>
+              <div style={{ fontSize: 9, color: PDF_COLORS.muted, marginTop: 1 * MM }}>{d.multiple}</div>
+            </div>
+          );
+        })}
+      </div>
+    </Abs>
+
+    {/* Target valuation */}
+    <Abs x={14} y={122}>
+      <div style={{
+        width: 252 * MM, padding: `${3 * MM}px ${4 * MM}px`,
+        background: PDF_COLORS.ink, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      }}>
+        <div>
+          <div style={{ fontFamily: 'Geist Mono', fontSize: 8, letterSpacing: '0.16em', textTransform: 'uppercase', color: PDF_COLORS.muted2 }}>Valorisation cible (horizon 5-7 ans)</div>
+          <div style={{ fontFamily: 'Anton', fontSize: 32, color: PDF_COLORS.orange, lineHeight: 0.9, marginTop: 1 * MM }}>{V('target_valuation', '150-250 M&#8364;')}</div>
+        </div>
+        <div style={{ textAlign: 'right' }}>
+          <div style={{ fontFamily: 'Geist Mono', fontSize: 8, letterSpacing: '0.16em', textTransform: 'uppercase', color: PDF_COLORS.muted2 }}>Multiple vise</div>
+          <div style={{ fontFamily: 'Anton', fontSize: 28, color: '#fff', lineHeight: 0.9, marginTop: 1 * MM }}>{V('target_multiple', '15-20x ARR')}</div>
+        </div>
+      </div>
+    </Abs>
+
+    <PDFFooter startup={V('startupName') || s.name} page={n} total={TOTAL}/>
+  </div>
+);
+
+// ── SLIDE 18 : Contact ─────────────────────────────────────────────────
+const SlideSAContact = ({ s, n }) => (
+  <div className="pdf-sheet">
+    {/* Full-bleed lime block right */}
+    <div style={{ position: 'absolute', right: 0, top: 0, width: 130 * MM, height: '100%', background: PDF_COLORS.lime }}/>
+
+    <PDFHeader startup={V('startupName') || s.name} logo={V('startup_logo')} kind="Pitch Deck" page={n} total={TOTAL}/>
+    <Eyebrow x={14} y={22} accent={PDF_COLORS.ink}>18 &#8212; Contact</Eyebrow>
+
+    <TitleBlock x={14} y={34} size={56} lines={[
+      { text: 'RENCONTRONS' },
+      { text: 'NOUS.' },
+    ]}/>
+    <SerifAccent x={14} y={80} size={20} color={PDF_COLORS.muted} w={130}>
+      {V('contact_subtitle', 'Rdv par telephone ou visio, 45 min. On vient avec les chiffres.')}
+    </SerifAccent>
+
+    <Abs x={14} y={108}>
+      <div style={{ fontFamily: 'Geist Mono', fontSize: 9, letterSpacing: '0.16em', color: PDF_COLORS.muted, fontWeight: 600, textTransform: 'uppercase' }}>{V('contact_role', 'CEO')} &#183; {(V('startupName') || s.name)}</div>
+      <div style={{ fontFamily: 'Anton', fontSize: 32, marginTop: 1 * MM, textTransform: 'uppercase', lineHeight: 1 }}>{V('contact_name', s.founders[0]?.name || 'FONDATEUR').toUpperCase()}</div>
+      <div style={{ marginTop: 3 * MM, fontSize: 11.5 }}>
+        <div><b>{V('contact_email', 'email@startup.com')}</b></div>
+        {V('contact_phone') && <div>{V('contact_phone')}</div>}
+        {V('contact_location') && <div style={{ color: PDF_COLORS.muted, marginTop: 1 * MM }}>{V('contact_location')}</div>}
+      </div>
+    </Abs>
+
+    {/* Right side */}
+    <Abs x={156} y={30}>
+      <div style={{ color: PDF_COLORS.ink, width: 112 * MM }}>
+        <div style={{ fontFamily: 'Geist Mono', fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase', fontWeight: 700 }}>Ce qu'on cherche</div>
+        <div style={{ fontFamily: 'Anton', fontSize: 28, marginTop: 3 * MM, textTransform: 'uppercase', lineHeight: 0.95 }}>{V('contact_cta', 'UN LEAD INVESTOR QUI ACCELERE NOTRE CROISSANCE.')}</div>
+      </div>
+    </Abs>
+
+    <Abs x={156} y={100}>
+      <div style={{ width: 112 * MM, display: 'flex', flexDirection: 'column', gap: 1.5 * MM }}>
+        {[
+          ['CLOSING', V('closing_date', 'Date')],
+          ['MINIMUM TICKET', V('min_ticket', 'Montant')],
+          ['VALO PRE-MONEY', V('valuation', '32 M')],
+        ].map(([k, v]) => (
+          <div key={k} style={{ display: 'grid', gridTemplateColumns: '44mm 1fr', alignItems: 'baseline', gap: 3 * MM, paddingBottom: 2 * MM, borderBottom: '1px solid rgba(15,14,11,0.25)' }}>
+            <div style={{ fontFamily: 'Geist Mono', fontSize: 9, letterSpacing: '0.16em', fontWeight: 600, textTransform: 'uppercase' }}>{k}</div>
+            <div style={{ fontFamily: 'Anton', fontSize: 18, textTransform: 'uppercase', lineHeight: 0.95 }}>{v}</div>
+          </div>
+        ))}
+      </div>
+    </Abs>
+
+    <PDFFooter startup={V('startupName') || s.name} page={n} total={TOTAL}/>
+  </div>
+);
+
+// ── MAIN COMPONENT ─────────────────────────────────────────────────────
+const SLIDE_MAP_SA = [
+  { C: SlideSACover,          label: '01 &#183; Cover' },
+  { C: SlideSAProblem,        label: '02 &#183; Probleme' },
+  { C: SlideSASolution,       label: '03 &#183; Solution' },
+  { C: SlideSAMarket,         label: '04 &#183; Marche' },
+  { C: SlideSAProduct,        label: '05 &#183; Produit' },
+  { C: SlideSATraction,       label: '06 &#183; Traction' },
+  { C: SlideSAUnitEconomics,  label: '07 &#183; Unit Economics' },
+  { C: SlideSABusinessModel,  label: '08 &#183; Business Model' },
+  { C: SlideSAGTM,            label: '09 &#183; Go-to-Market' },
+  { C: SlideSAClients,        label: '10 &#183; Cas clients' },
+  { C: SlideSACompetition,    label: '11 &#183; Concurrence' },
+  { C: SlideSAMoats,          label: '12 &#183; Barrieres' },
+  { C: SlideSATeam,           label: '13 &#183; Equipe' },
+  { C: SlideSAFunds,          label: '14 &#183; Usage des fonds' },
+  { C: SlideSARoadmap,        label: '15 &#183; Roadmap' },
+  { C: SlideSAProjections,    label: '16 &#183; Projections' },
+  { C: SlideSAExit,           label: '17 &#183; Exit' },
+  { C: SlideSAContact,        label: '18 &#183; Contact' },
+];
+
+const PitchDeckSA = ({ s }) => (
+  <div>
+    {SLIDE_MAP_SA.map(({ C, label }, i) => (
+      <div key={i}>
+        <div className="pdf-sheet-caption" style={{
+          maxWidth: 1060, margin: '24px auto 8px', padding: '0 24px',
+          fontFamily: 'Geist Mono, monospace', fontSize: 11, letterSpacing: '0.14em',
+          textTransform: 'uppercase', color: '#A09A8E',
+        }} dangerouslySetInnerHTML={{ __html: label }}/>
+        <C s={s} n={i + 1}/>
+      </div>
+    ))}
+  </div>
+);
+
+// ── BOOT ───────────────────────────────────────────────────────────────
+const raw = sessionStorage.getItem('founderai_pitch_deck_sa');
+let v = {};
+if (raw) { try { v = JSON.parse(raw); } catch(e) {} }
+
+const hasData = Object.keys(v).length > 0;
+
+const LUMEN_SA = {
+  name: 'Lumen',
+  tagline: 'Le guide energetique des restaurants independants.',
+  founders: [
+    { name: 'Juliette Moreau', role: 'CEO &#183; Ex-Sowee (EDF)', photo: 'magenta' },
+    { name: 'Thomas Vidal', role: 'CTO &#183; Ex-Back Market', photo: 'violet' },
+    { name: 'Nadia Benhamou', role: 'COO &#183; Ex-Frichti', photo: 'teal' },
+  ],
+};
+
+const startupData = hasData ? {
+  name: v.startupName || 'Ma Startup',
+  tagline: v.tagline || 'Votre tagline ici.',
+  founders: [
+    v.member1_name && { name: v.member1_name, role: v.member1_role || 'CEO', photo: 'magenta' },
+    v.member2_name && { name: v.member2_name, role: v.member2_role || 'CTO', photo: 'violet' },
+    v.member3_name && { name: v.member3_name, role: v.member3_role || 'COO', photo: 'teal' },
+    v.member4_name && { name: v.member4_name, role: v.member4_role || 'CFO', photo: 'orange' },
+  ].filter(Boolean),
+} : LUMEN_SA;
+
+window.FORM_VALUES = v;
+
+if (hasData && v.startupName) {
+  document.getElementById('hdr-title').textContent = 'PITCH DECK SERIE A — ' + v.startupName.toUpperCase();
+}
+
+const renderDeck = () => {
+  ReactDOM.createRoot(document.getElementById('pitch-root')).render(
+    <PitchDeckSA s={startupData}/>
+  );
+};
+
+setTimeout(async () => {
+  if (v.brand_color) {
+    window.applyBrandColor(v.brand_color);
+  } else if (v.adapt_colors === 'true' && v.startup_logo) {
+    await window.applyLogoColors(v.startup_logo);
+  }
+  renderDeck();
+}, 50);
+</script>
+
+</body>
+</html>

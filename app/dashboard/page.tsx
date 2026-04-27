@@ -1652,6 +1652,7 @@ const TEMPLATE_ROUTES: Record<string, string> = {
   "Barrières à l'entrée": "/dashboard/modeles/barrieres",
   "Op\u00E9rations": "/dashboard/modeles/operating-system",
   "OKR Planner": "/dashboard/modeles/okr",
+  "Pitch Deck S\u00E9rie A": "/dashboard/modeles/pitch-deck-serie-a",
 };
 
 function TemplateSection({
