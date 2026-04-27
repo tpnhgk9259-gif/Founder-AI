@@ -150,15 +150,16 @@ export default function OperatingSystemPage() {
 
       // Si la reponse est un JSON d'erreur direct (401/403/400)
       if (res.headers.get("content-type")?.includes("application/json")) {
-        const errJson = JSON.parse(text);
-        setError(errJson.error ?? "Erreur serveur"); return;
+        try { const errJson = JSON.parse(text); setError(errJson.error ?? "Erreur serveur"); } catch { setError(`Erreur serveur (${res.status})`); }
+        return;
       }
 
       // Lire le flux SSE
       const lines = text.split("\n").filter(l => l.startsWith("data: "));
-      if (!lines.length) { setError("Pas de reponse des agents. Reessayez."); return; }
+      if (!lines.length) { setError(`Pas de reponse. Status: ${res.status}. Body: ${text.substring(0, 200)}`); return; }
       const lastData = lines[lines.length - 1].replace("data: ", "");
-      const json = JSON.parse(lastData);
+      let json: Record<string, unknown>;
+      try { json = JSON.parse(lastData); } catch { setError(`Parse error. Raw: ${lastData.substring(0, 200)}`); return; }
 
       if (json.error) { setError(json.error); return; }
       if (json.data) {
