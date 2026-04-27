@@ -111,7 +111,33 @@ export default function OperatingSystemPage() {
     if (sid) {
       fetch(`/api/startup?startupId=${sid}`).then(r => r.json()).then(d => { if (d?.name) setStartupName(d.name); }).catch(() => {});
       const saved = localStorage.getItem(`founderai_os_${sid}`);
-      if (saved) { try { setData(JSON.parse(saved)); } catch { /* */ } }
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          // Normaliser : merger avec emptyData() pour garantir que tous les champs existent
+          const defaults = emptyData();
+          const normalized: OSData = {
+            vision: parsed.vision ?? defaults.vision,
+            mission: parsed.mission ?? defaults.mission,
+            values: parsed.values ?? defaults.values,
+            customValues: parsed.customValues ?? defaults.customValues,
+            orgChart: parsed.orgChart ?? defaults.orgChart,
+            processes: (parsed.processes ?? defaults.processes).map((p: Partial<Process>, i: number) => ({
+              ...defaults.processes[i % defaults.processes.length],
+              ...p,
+              owner: p.owner ?? "",
+              tools: p.tools ?? "",
+              kpi: p.kpi ?? "",
+              teamHumans: p.teamHumans ?? "",
+              teamAI: p.teamAI ?? "",
+              level: p.level ?? "Manuel",
+            })),
+            metrics: parsed.metrics ?? defaults.metrics,
+            hirePlan: parsed.hirePlan ?? defaults.hirePlan,
+          };
+          setData(normalized);
+        } catch { /* */ }
+      }
     }
   }, []);
 
@@ -158,12 +184,13 @@ export default function OperatingSystemPage() {
       const lines = text.split("\n").filter(l => l.startsWith("data: "));
       if (!lines.length) { setError(`Pas de reponse. Status: ${res.status}. Body: ${text.substring(0, 200)}`); return; }
       const lastData = lines[lines.length - 1].replace("data: ", "");
-      let json: Record<string, unknown>;
+      let json: { error?: string; data?: Partial<OSData> };
       try { json = JSON.parse(lastData); } catch { setError(`Parse error. Raw: ${lastData.substring(0, 200)}`); return; }
 
       if (json.error) { setError(String(json.error)); return; }
       if (json.data) {
-        const merged = { ...json.data };
+        const defaults = emptyData();
+        const merged: OSData = { ...defaults, ...json.data };
         // Ne pas ecraser les decisions du CEO
         if ((data.vision || "").trim()) merged.vision = data.vision;
         if ((data.mission || "").trim()) merged.mission = data.mission;
@@ -183,7 +210,7 @@ export default function OperatingSystemPage() {
     window.open("/operating-system-preview.html", "_blank");
   }
 
-  const hasContent = data.vision.trim() || data.values.length > 0 || data.processes.some(p => p.owner.trim() || p.kpi.trim());
+  const hasContent = (data.vision || "").trim() || (data.values || []).length > 0 || (data.processes || []).some(p => (p.owner || "").trim() || (p.kpi || "").trim());
 
   const inp = "w-full px-3 py-2 text-sm focus:outline-none";
   const inpS = { border: "1px solid var(--uf-line)", borderRadius: "var(--uf-r-sm)", color: "var(--uf-ink)", background: "var(--uf-paper)" };
