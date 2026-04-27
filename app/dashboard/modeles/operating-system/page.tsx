@@ -33,12 +33,6 @@ const PROCESS_TEMPLATES = [
 
 const AUTOMATION_LEVELS = ["Manuel", "Semi-auto", "Automatise"];
 
-const RITUAL_TEMPLATES = [
-  { name: "Daily standup", frequency: "Quotidien", duration: "15 min", participants: "Equipe produit" },
-  { name: "Weekly team", frequency: "Hebdo", duration: "45 min", participants: "Toute l'equipe" },
-  { name: "Monthly review", frequency: "Mensuel", duration: "2h", participants: "Cofondateurs + leads" },
-  { name: "Quarterly OKR", frequency: "Trimestriel", duration: "Demi-journee", participants: "Direction" },
-];
 
 // ── Types ───────────────────────────────────────────────────────────────────
 
@@ -53,12 +47,6 @@ type Process = {
   level: string;
 };
 
-type Ritual = {
-  name: string;
-  frequency: string;
-  duration: string;
-  participants: string;
-};
 
 type Metric = {
   name: string;
@@ -81,7 +69,6 @@ type OSData = {
   customValues: string;
   orgChart: string;
   processes: Process[];
-  rituals: Ritual[];
   metrics: Metric[];
   hirePlan: HirePlan[];
 };
@@ -94,7 +81,6 @@ function emptyData(): OSData {
     customValues: "",
     orgChart: "",
     processes: PROCESS_TEMPLATES.map(p => ({ ...p, owner: "", tools: "", kpi: "", teamHumans: "", teamAI: "", level: "Manuel" })),
-    rituals: RITUAL_TEMPLATES.map(r => ({ ...r })),
     metrics: [
       { name: "", owner: "", frequency: "Hebdo", target: "" },
       { name: "", owner: "", frequency: "Hebdo", target: "" },
@@ -144,9 +130,6 @@ export default function OperatingSystemPage() {
     setData(prev => { const ps = [...prev.processes]; ps[idx] = { ...ps[idx], ...patch }; const next = { ...prev, processes: ps }; persist(next); return next; });
   }
 
-  function updateRitual(idx: number, patch: Partial<Ritual>) {
-    setData(prev => { const rs = [...prev.rituals]; rs[idx] = { ...rs[idx], ...patch }; const next = { ...prev, rituals: rs }; persist(next); return next; });
-  }
 
   function updateMetric(idx: number, patch: Partial<Metric>) {
     setData(prev => { const ms = [...prev.metrics]; ms[idx] = { ...ms[idx], ...patch }; const next = { ...prev, metrics: ms }; persist(next); return next; });
@@ -335,29 +318,10 @@ export default function OperatingSystemPage() {
           </div>
         </div>
 
-        {/* 5. Rituels */}
-        <div className="p-5" style={{ background: "var(--uf-card)", border: "1.5px solid #FFD12A30", borderLeft: "4px solid #FFD12A", borderRadius: "var(--uf-r-xl)" }}>
-          <div className="flex items-center gap-3 mb-1">
-            <span className="w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-bold" style={{ background: "#FFD12A", color: "var(--uf-ink)", fontFamily: "var(--uf-mono)" }}>05</span>
-            <h2 className="font-bold uppercase tracking-wide" style={{ color: "var(--uf-ink)", fontFamily: "var(--uf-display)", fontSize: 16 }}>Rituels & cadence</h2>
-          </div>
-          <p className="text-xs mb-4" style={{ color: "var(--uf-muted)", fontStyle: "italic" }}>Vos reunions recurrentes. Adaptez la frequence, la duree et les participants.</p>
-          <div className="space-y-2">
-            {data.rituals.map((r, i) => (
-              <div key={i} className="grid grid-cols-4 gap-2">
-                <input type="text" value={r.name} onChange={(e) => updateRitual(i, { name: e.target.value })} className="px-2 py-1.5 text-xs font-semibold focus:outline-none" style={inpS} />
-                <input type="text" value={r.frequency} onChange={(e) => updateRitual(i, { frequency: e.target.value })} className="px-2 py-1.5 text-xs focus:outline-none" style={{ ...inpS, fontFamily: "var(--uf-mono)" }} />
-                <input type="text" value={r.duration} onChange={(e) => updateRitual(i, { duration: e.target.value })} className="px-2 py-1.5 text-xs focus:outline-none" style={{ ...inpS, fontFamily: "var(--uf-mono)" }} />
-                <input type="text" value={r.participants} onChange={(e) => updateRitual(i, { participants: e.target.value })} className="px-2 py-1.5 text-xs focus:outline-none" style={inpS} />
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* 6. Metriques ops */}
+        {/* 5. Metriques ops */}
         <div className="p-5" style={{ background: "var(--uf-card)", border: "1.5px solid var(--uf-line)", borderLeft: "4px solid var(--uf-ink)", borderRadius: "var(--uf-r-xl)" }}>
           <div className="flex items-center gap-3 mb-1">
-            <span className="w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-bold text-white" style={{ background: "var(--uf-ink)", fontFamily: "var(--uf-mono)" }}>06</span>
+            <span className="w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-bold text-white" style={{ background: "var(--uf-ink)", fontFamily: "var(--uf-mono)" }}>05</span>
             <h2 className="font-bold uppercase tracking-wide" style={{ color: "var(--uf-ink)", fontFamily: "var(--uf-display)", fontSize: 16 }}>{"M\u00E9triques op\u00E9rationnelles"}</h2>
           </div>
           <p className="text-xs mb-4" style={{ color: "var(--uf-muted)", fontStyle: "italic" }}>5-8 KPIs suivis en continu avec un owner et une cible.</p>
@@ -377,10 +341,10 @@ export default function OperatingSystemPage() {
           </div>
         </div>
 
-        {/* 7. Plan de recrutement */}
+        {/* 6. Plan de recrutement */}
         <div className="p-5" style={{ background: "var(--uf-card)", border: "1.5px solid #C8E64D30", borderLeft: "4px solid #C8E64D", borderRadius: "var(--uf-r-xl)" }}>
           <div className="flex items-center gap-3 mb-1">
-            <span className="w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-bold" style={{ background: "#C8E64D", color: "var(--uf-ink)", fontFamily: "var(--uf-mono)" }}>07</span>
+            <span className="w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-bold" style={{ background: "#C8E64D", color: "var(--uf-ink)", fontFamily: "var(--uf-mono)" }}>06</span>
             <h2 className="font-bold uppercase tracking-wide" style={{ color: "var(--uf-ink)", fontFamily: "var(--uf-display)", fontSize: 16 }}>Plan de recrutement</h2>
           </div>
           <p className="text-xs mb-4" style={{ color: "var(--uf-muted)", fontStyle: "italic" }}>Postes a ouvrir sur 12-18 mois avec priorite et budget.</p>

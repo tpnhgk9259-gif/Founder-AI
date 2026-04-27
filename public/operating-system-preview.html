@@ -99,21 +99,10 @@ if(procs.length){
   html+=`</tbody></table></div>`;
 }
 
-// 5. Rituals
-const rits=(d.rituals||[]).filter(r=>r.name);
-if(rits.length){
-  html+=`<div class="sec" style="border-left-color:var(--yellow)"><div class="sec-title"><span class="num" style="background:var(--yellow);color:var(--ink)">05</span>RITUELS & CADENCE</div>`;
-  html+=`<div class="rituals">`;
-  rits.forEach(r=>{
-    html+=`<div class="ritual-card"><div class="r-name">${r.name}</div><div class="r-meta">${r.frequency} &middot; ${r.duration} &middot; ${r.participants}</div></div>`;
-  });
-  html+=`</div></div>`;
-}
-
-// 6. Metrics
+// 5. Metrics
 const mets=(d.metrics||[]).filter(m=>m.name);
 if(mets.length){
-  html+=`<div class="sec" style="border-left-color:var(--ink)"><div class="sec-title"><span class="num" style="background:var(--ink)">06</span>METRIQUES OPERATIONNELLES</div>`;
+  html+=`<div class="sec" style="border-left-color:var(--ink)"><div class="sec-title"><span class="num" style="background:var(--ink)">05</span>METRIQUES OPERATIONNELLES</div>`;
   html+=`<table class="proc"><thead><tr><th>KPI</th><th>Owner</th><th>Frequence</th><th>Cible</th></tr></thead><tbody>`;
   mets.forEach(m=>{html+=`<tr><td><strong>${m.name}</strong></td><td>${m.owner}</td><td style="font-family:'Geist Mono',monospace">${m.frequency}</td><td style="font-weight:700">${m.target}</td></tr>`});
   html+=`</tbody></table></div>`;
@@ -122,7 +111,7 @@ if(mets.length){
 // 7. Hire plan
 const hires=(d.hirePlan||[]).filter(h=>h.role);
 if(hires.length){
-  html+=`<div class="sec" style="border-left-color:var(--lime)"><div class="sec-title"><span class="num" style="background:var(--lime);color:var(--ink)">07</span>PLAN DE RECRUTEMENT</div>`;
+  html+=`<div class="sec" style="border-left-color:var(--lime)"><div class="sec-title"><span class="num" style="background:var(--lime);color:var(--ink)">06</span>PLAN DE RECRUTEMENT</div>`;
   html+=`<table class="hire-table"><thead><tr><th>Poste</th><th>Priorite</th><th>Trimestre</th><th>Budget</th></tr></thead><tbody>`;
   hires.forEach(h=>{
     const pColor=h.priority==='Haute'?'var(--orange)':h.priority==='Moyenne'?'var(--yellow)':'var(--muted)';
