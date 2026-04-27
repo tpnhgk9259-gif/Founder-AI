@@ -1625,8 +1625,8 @@ const ALL_TEMPLATES: DocumentTemplate[] = [
   { emoji: "📈", name: "BP Seed",                        description: "Business plan simplifié pour votre première levée.",            requiredPlan: "starter" },
   { emoji: "🎯", name: "Positionnement et compétition",  description: "Analyse concurrentielle et différenciation marché.",            requiredPlan: "growth"  },
   { emoji: "🗺️", name: "Roadmap Produit",                 description: "Template de roadmap trimestrielle orientée impact.",            requiredPlan: "growth"  },
-  { emoji: "💼", name: "Sales Strategy",                 description: "Stratégie commerciale, pipeline et canaux d'acquisition.",      requiredPlan: "growth"  },
-  { emoji: "🔒", name: "IP Strategy",                    description: "Stratégie de propriété intellectuelle et brevets.",             requiredPlan: "growth"  },
+  { emoji: "💼", name: "Stratégie commerciale",           description: "Pipeline, canaux d'acquisition et objectifs de vente.",         requiredPlan: "growth"  },
+  { emoji: "🔒", name: "Barrières à l'entrée",           description: "Avantages défensifs, IP, effets réseau, switching costs.",       requiredPlan: "growth"  },
   { emoji: "🏗️", name: "Operating System Canvas",        description: "Modèle opérationnel pour scaler votre organisation.",          requiredPlan: "scale"   },
   { emoji: "🎯", name: "OKR Planner",                     description: "Définissez vos Objectives & Key Results par trimestre.",        requiredPlan: "scale"   },
   { emoji: "📊", name: "Pitch Deck Série A",             description: "Structure investisseurs pour une levée Série A.",               requiredPlan: "scale"   },
@@ -1648,7 +1648,7 @@ const TEMPLATE_ROUTES: Record<string, string> = {
   "BP Seed": "/dashboard/modeles/bp-seed",
   "Positionnement et compétition": "/dashboard/modeles/positionnement",
   "Roadmap Produit": "/dashboard/modeles/roadmap-produit",
-  "Sales Strategy": "/dashboard/modeles/sales-strategy",
+  "Stratégie commerciale": "/dashboard/modeles/sales-strategy",
 };
 
 function TemplateSection({
