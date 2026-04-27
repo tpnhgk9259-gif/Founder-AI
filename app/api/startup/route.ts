@@ -67,6 +67,7 @@ export async function PUT(req: NextRequest) {
       key_kpis?: StartupKpi[];
       recent_decisions?: StartupDecision[];
       current_issues?: StartupIssue[];
+      collaborators?: { id: string; name: string; role: string; department: string }[];
       description?: string;
       logo?: string;
     } = await req.json();

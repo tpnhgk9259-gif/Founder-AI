@@ -28,6 +28,13 @@ interface Action {
   description: string;
 }
 
+interface Collaborator {
+  id: string;
+  name: string;
+  role: string;
+  department: string;
+}
+
 interface StartupData {
   name: string;
   sector: string;
@@ -39,6 +46,7 @@ interface StartupData {
   key_kpis: Kpi[];
   recent_decisions: Decision[];
   current_issues: Action[];
+  collaborators: Collaborator[];
 }
 
 // ─── Constantes visuelles ─────────────────────────────────────────────────────
@@ -855,11 +863,114 @@ function ActionPlanSection({
 
 // ─── Composant principal ──────────────────────────────────────────────────────
 
+// ─── Section Collaborateurs ──────────────────────────────────────────────────
+
+const DEPARTMENTS = ["Direction", "Produit", "Tech", "Commercial", "Marketing", "Finance", "Ops", "RH", "Support", "Autre"];
+
+function CollaboratorsSection({
+  collaborators,
+  onChange,
+}: {
+  collaborators: Collaborator[];
+  onChange: (collaborators: Collaborator[]) => void;
+}) {
+  const [editing, setEditing] = useState<string | null>(null);
+  const [form, setForm] = useState({ name: "", role: "", department: "Produit" });
+
+  function startAdd() {
+    setForm({ name: "", role: "", department: "Produit" });
+    setEditing("new");
+  }
+
+  function startEdit(c: Collaborator) {
+    setForm({ name: c.name, role: c.role, department: c.department });
+    setEditing(c.id);
+  }
+
+  function saveEdit() {
+    if (!form.name.trim()) return;
+    if (editing === "new") {
+      onChange([...collaborators, { id: crypto.randomUUID(), ...form }]);
+    } else {
+      onChange(collaborators.map((c) => (c.id === editing ? { ...c, ...form } : c)));
+    }
+    setEditing(null);
+  }
+
+  function remove(id: string) {
+    onChange(collaborators.filter((c) => c.id !== id));
+  }
+
+  return (
+    <div className="p-7" style={{ background: "var(--uf-card)", border: "1px solid var(--uf-line)", borderRadius: "var(--uf-r-xl)" }}>
+      <SectionHeader
+        title="Collaborateurs"
+        action={
+          <button onClick={startAdd} className="text-xs font-medium px-3 py-1.5 rounded-full" style={{ background: "var(--uf-orange)", color: "#fff" }}>
+            + Ajouter
+          </button>
+        }
+      />
+      <p className="text-xs mb-4" style={{ color: "var(--uf-muted)" }}>
+        {"Listez vos collaborateurs pour pouvoir les affecter aux initiatives dans les OKR et plans d'action."}
+      </p>
+
+      {editing && (
+        <div className="mb-4 p-4 flex items-end gap-3 flex-wrap" style={{ background: "var(--uf-paper)", border: "1px solid var(--uf-line)", borderRadius: "var(--uf-r-lg)" }}>
+          <div className="flex-1 min-w-[140px]">
+            <label className="text-[10px] font-medium tracking-[0.1em] uppercase block mb-1" style={{ fontFamily: "var(--uf-mono)", color: "var(--uf-muted)" }}>Nom</label>
+            <input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Jean Dupont"
+              className="w-full px-3 py-2 text-sm focus:outline-none" style={{ border: "1px solid var(--uf-line)", borderRadius: "var(--uf-r-sm)", color: "var(--uf-ink)", background: "var(--uf-card)" }} />
+          </div>
+          <div className="flex-1 min-w-[140px]">
+            <label className="text-[10px] font-medium tracking-[0.1em] uppercase block mb-1" style={{ fontFamily: "var(--uf-mono)", color: "var(--uf-muted)" }}>Poste</label>
+            <input type="text" value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} placeholder="Lead Developer"
+              className="w-full px-3 py-2 text-sm focus:outline-none" style={{ border: "1px solid var(--uf-line)", borderRadius: "var(--uf-r-sm)", color: "var(--uf-ink)", background: "var(--uf-card)" }} />
+          </div>
+          <div>
+            <label className="text-[10px] font-medium tracking-[0.1em] uppercase block mb-1" style={{ fontFamily: "var(--uf-mono)", color: "var(--uf-muted)" }}>{"D\u00E9partement"}</label>
+            <select value={form.department} onChange={(e) => setForm({ ...form, department: e.target.value })}
+              className="px-3 py-2 text-sm focus:outline-none cursor-pointer" style={{ border: "1px solid var(--uf-line)", borderRadius: "var(--uf-r-sm)", color: "var(--uf-ink)", background: "var(--uf-card)" }}>
+              {DEPARTMENTS.map((d) => <option key={d} value={d}>{d}</option>)}
+            </select>
+          </div>
+          <div className="flex gap-2">
+            <button onClick={saveEdit} className="text-xs font-medium px-3 py-2 rounded-lg" style={{ background: "var(--uf-ink)", color: "var(--uf-paper)" }}>Enregistrer</button>
+            <button onClick={() => setEditing(null)} className="text-xs" style={{ color: "var(--uf-muted)" }}>Annuler</button>
+          </div>
+        </div>
+      )}
+
+      {collaborators.length === 0 && !editing ? (
+        <p className="text-sm text-center py-8" style={{ color: "var(--uf-muted)" }}>Aucun collaborateur. Ajoutez votre {"équipe"} pour les affecter aux OKR.</p>
+      ) : (
+        <div className="space-y-1">
+          {collaborators.map((c) => (
+            <div key={c.id} className="flex items-center gap-3 px-4 py-2.5" style={{ borderBottom: "1px solid var(--uf-line)" }}>
+              <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style={{ background: "var(--uf-orange)", color: "#fff", fontFamily: "var(--uf-display)" }}>
+                {c.name.charAt(0).toUpperCase()}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-semibold truncate" style={{ color: "var(--uf-ink)" }}>{c.name}</div>
+                <div className="text-xs truncate" style={{ color: "var(--uf-muted)" }}>{c.role}</div>
+              </div>
+              <span className="text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: "var(--uf-paper-2)", color: "var(--uf-muted)", fontFamily: "var(--uf-mono)" }}>{c.department}</span>
+              <button onClick={() => startEdit(c)} className="text-xs" style={{ color: "var(--uf-muted)" }}>Modifier</button>
+              <button onClick={() => remove(c.id)} className="text-xs" style={{ color: "var(--uf-muted)" }}>Retirer</button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function TableauDeBord({ startupId }: { startupId: string | null }) {
   const [data, setData] = useState<Partial<StartupData>>({
     key_kpis: [],
     recent_decisions: [],
     current_issues: [],
+    collaborators: [],
   });
   const [loading, setLoading] = useState(true);
 
@@ -880,6 +991,10 @@ export default function TableauDeBord({ startupId }: { startupId: string | null 
             ...dec,
             id: dec.id ?? crypto.randomUUID(),
             agentKey: dec.agentKey ?? "",
+          })),
+          collaborators: (d.collaborators ?? []).map((c: Collaborator) => ({
+            ...c,
+            id: c.id ?? crypto.randomUUID(),
           })),
           current_issues: (d.current_issues ?? []).map((a: Action) => ({
             ...a,
@@ -932,6 +1047,10 @@ export default function TableauDeBord({ startupId }: { startupId: string | null 
       <ActionPlanSection
         actions={data.current_issues ?? []}
         onChange={(current_issues) => save({ current_issues })}
+      />
+      <CollaboratorsSection
+        collaborators={data.collaborators ?? []}
+        onChange={(collaborators) => save({ collaborators })}
       />
     </div>
   );
