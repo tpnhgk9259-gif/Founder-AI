@@ -146,10 +146,17 @@ export default function OperatingSystemPage() {
       const userContext = { vision: data.vision, mission: data.mission, values: data.values, orgChart: data.orgChart };
       const res = await fetch("/api/ai/fill-operating-system", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ startupId, userContext }) });
 
-      // Lire le flux SSE
       const text = await res.text();
+
+      // Si la reponse est un JSON d'erreur direct (401/403/400)
+      if (res.headers.get("content-type")?.includes("application/json")) {
+        const errJson = JSON.parse(text);
+        setError(errJson.error ?? "Erreur serveur"); return;
+      }
+
+      // Lire le flux SSE
       const lines = text.split("\n").filter(l => l.startsWith("data: "));
-      if (!lines.length) { setError("Pas de reponse des agents."); return; }
+      if (!lines.length) { setError("Pas de reponse des agents. Reessayez."); return; }
       const lastData = lines[lines.length - 1].replace("data: ", "");
       const json = JSON.parse(lastData);
 
@@ -167,7 +174,7 @@ export default function OperatingSystemPage() {
         if (data.hirePlan.some(h => h.role.trim())) merged.hirePlan = data.hirePlan;
         setData(merged); persist(merged);
       }
-    } catch { setError("Erreur inattendue."); } finally { setFilling(false); }
+    } catch (err) { setError(`Erreur : ${err instanceof Error ? err.message : String(err)}`); } finally { setFilling(false); }
   }
 
   function openPreview() {
