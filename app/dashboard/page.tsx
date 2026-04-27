@@ -1651,6 +1651,7 @@ const TEMPLATE_ROUTES: Record<string, string> = {
   "Stratégie commerciale": "/dashboard/modeles/sales-strategy",
   "Barrières à l'entrée": "/dashboard/modeles/barrieres",
   "Op\u00E9rations": "/dashboard/modeles/operating-system",
+  "OKR Planner": "/dashboard/modeles/okr",
 };
 
 function TemplateSection({

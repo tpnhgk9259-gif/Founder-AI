@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<title>OKR Planner — Preview (FounderAI)</title>
+<meta name="viewport" content="width=1100"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"/>
+<style>
+  :root{--paper:#FBF8F0;--card:#FFF;--ink:#0F0E0B;--muted:#6C6760;--line:#E0D9C7;--orange:#FF6A1F;--magenta:#E8358E;--violet:#6E4BE8;--teal:#0DB4A0;--yellow:#FFD12A}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#E5E2D8;font-family:'Geist',sans-serif;color:var(--ink)}
+  .toolbar{position:fixed;top:20px;right:20px;z-index:100;display:flex;gap:8px}
+  .toolbar button{padding:12px 24px;background:var(--ink);color:var(--paper);border:none;border-radius:999px;font-size:14px;cursor:pointer}
+  .toolbar .back{background:transparent;border:1px solid #D9D3C4;color:var(--ink)}
+  .page{width:210mm;min-height:297mm;margin:40px auto;padding:14mm;background:var(--paper);box-shadow:0 4px 40px rgba(0,0,0,.08)}
+  .header{display:flex;align-items:center;gap:10px;padding-bottom:10px;border-bottom:1px solid var(--line);margin-bottom:16px}
+  .header .logo{width:24px;height:24px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Anton',sans-serif;font-size:14px}
+  .header .name{font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:500}
+  .header .name strong{color:var(--ink);font-weight:700}
+  .header .date{margin-left:auto;font-family:'Geist Mono',monospace;font-size:9px;color:var(--muted)}
+  h1.title{font-family:'Anton',sans-serif;font-size:36px;text-transform:uppercase;line-height:.88;margin-bottom:4px}
+  .subtitle{font-family:'Instrument Serif',serif;font-style:italic;font-size:16px;color:var(--muted);margin-bottom:6px}
+  .priority{font-size:12px;padding:8px 14px;background:var(--card);border:1.5px solid var(--orange);border-radius:6px;margin-bottom:20px;font-weight:600}
+  .dept{margin-bottom:16px;padding:14px 16px;background:var(--card);border-radius:8px;border-left:4px solid var(--orange)}
+  .dept-hdr{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+  .dept-badge{font-family:'Geist Mono',monospace;font-size:9px;font-weight:700;padding:3px 8px;border-radius:4px;color:#fff}
+  .dept-obj{font-family:'Anton',sans-serif;font-size:14px;text-transform:uppercase}
+  .kr{margin-left:8px;margin-bottom:10px;padding:10px 12px;background:var(--paper);border:1px solid var(--line);border-radius:6px}
+  .kr-hdr{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+  .kr-title{font-size:11px;font-weight:700}
+  .kr-meta{font-family:'Geist Mono',monospace;font-size:9px;color:var(--muted);display:flex;gap:12px}
+  .init{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid var(--line);font-size:10px}
+  .init:last-child{border-bottom:none}
+  .init-title{flex:1}
+  .effort-dots{display:flex;gap:2px}
+  .effort-dot{width:8px;height:8px;border-radius:50%}
+  .assignees{font-family:'Geist Mono',monospace;font-size:8px;color:var(--muted)}
+  .footer{margin-top:24px;padding-top:10px;border-top:1px solid var(--line);display:flex;justify-content:space-between;font-family:'Geist Mono',monospace;font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  @media print{.toolbar{display:none!important}body{background:#fff}.page{box-shadow:none;margin:0;width:100%}@page{size:A4 portrait;margin:0}.page{print-color-adjust:exact;-webkit-print-color-adjust:exact}}
+</style>
+</head>
+<body>
+<div class="toolbar"><button class="back" onclick="window.close()||history.back()">← Retour</button><button onclick="window.print()">Exporter en PDF ↓</button></div>
+<div class="page" id="root"></div>
+<script>
+const raw=sessionStorage.getItem('founderai_okr');
+let d={};if(raw){try{d=JSON.parse(raw)}catch(e){}}
+const startupName=d.startupName||'Startup';
+const today=new Date().toLocaleDateString('fr-FR');
+const COLORS={Produit:'#FF6A1F',Commercial:'#E8358E',Tech:'#6E4BE8',Ops:'#0DB4A0',Finance:'#FFD12A'};
+let html='';
+
+html+=`<div class="header"><div class="logo">f</div><div class="name"><strong>${startupName.toUpperCase()}</strong> &middot; OKR Planner</div><div class="date">${today}</div></div>`;
+html+=`<h1 class="title">PLAN D'ACTION ${(d.quarter||'').toUpperCase()}</h1>`;
+html+=`<div class="subtitle">${startupName}</div>`;
+if(d.priority)html+=`<div class="priority">${d.priority}</div>`;
+
+(d.okrs||[]).forEach(okr=>{
+  if(!(okr.objective||'').trim())return;
+  const color=COLORS[okr.department]||'#6C6760';
+  const isDark=color!=='#FFD12A';
+  html+=`<div class="dept" style="border-left-color:${color}">`;
+  html+=`<div class="dept-hdr"><span class="dept-badge" style="background:${color};${isDark?'':'color:var(--ink)'}">${okr.department}</span><span class="dept-obj">${okr.objective}</span></div>`;
+
+  (okr.keyResults||[]).forEach(kr=>{
+    if(!(kr.title||'').trim())return;
+    html+=`<div class="kr">`;
+    html+=`<div class="kr-hdr"><span class="kr-title">${kr.title}</span><div class="kr-meta"><span>Cible : ${kr.target||'—'}</span><span>Owner : ${kr.owner||'—'}</span>${kr.score>0?`<span>Score : ${kr.score}</span>`:''}</div></div>`;
+
+    (kr.initiatives||[]).forEach(init=>{
+      if(!(init.title||'').trim())return;
+      const dots=Array.from({length:5},(_,i)=>`<div class="effort-dot" style="background:${i<(init.effort||0)?color:'var(--line)'}"></div>`).join('');
+      const assignStr=(init.assignees||[]).join(', ');
+      html+=`<div class="init"><span class="init-title">${init.title}</span><div class="effort-dots">${dots}</div>${assignStr?`<span class="assignees">${assignStr}</span>`:''}</div>`;
+    });
+
+    html+=`</div>`;
+  });
+
+  html+=`</div>`;
+});
+
+html+=`<div class="footer"><span>${startupName.toUpperCase()} &middot; OKR ${d.quarter||''} &middot; ${today}</span><span>Confidentiel</span></div>`;
+document.getElementById('root').innerHTML=html;
+</script>
+</body>
+</html>
