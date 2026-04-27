@@ -1,0 +1,87 @@
+import { NextRequest } from "next/server";
+import { claude, MODELS } from "@/lib/claude";
+import { getAuthenticatedUserId, userOwnsStartup } from "@/lib/auth";
+import { getStartupDescription } from "@/lib/orchestrator";
+import { buildCodirAgentPrompt } from "@/lib/prompts";
+import { retrieveRelevantChunks } from "@/lib/rag";
+import { logUsage } from "@/lib/usage";
+import { jsonrepair } from "jsonrepair";
+import type { AgentKey } from "@/lib/supabase";
+import type Anthropic from "@anthropic-ai/sdk";
+
+const AGENT_TIMEOUT_MS = 30_000;
+
+const PROMPT = `Tu es un expert en operations et scaling de startup. A partir du contexte, genere un Operating System Canvas complet.
+
+Reponds UNIQUEMENT avec un objet JSON valide (sans markdown, sans backticks) :
+
+{
+  "vision": "Vision a 3 ans, concrete et ambitieuse",
+  "mission": "Raison d'exister en 1 phrase",
+  "values": ["Valeur1", "Valeur2", "Valeur3", "Valeur4", "Valeur5"],
+  "customValues": "",
+  "orgChart": "CEO : ...\nCTO : ...\nHead of Growth : ...",
+  "processes": [
+    { "name": "Acquisition clients", "category": "Commercial", "level": "Semi-auto", "currentTool": "LinkedIn + Lemlist", "recommendedTool": "HubSpot Sales Hub", "needsHire": true, "hireProfile": "SDR junior" },
+    { "name": "Onboarding clients", "category": "Produit", "level": "Manuel", "currentTool": "Notion + calls", "recommendedTool": "Intercom Product Tours", "needsHire": false, "hireProfile": "" }
+  ],
+  "rituals": [
+    { "name": "Daily standup", "frequency": "Quotidien", "duration": "15 min", "participants": "Equipe produit" },
+    { "name": "Weekly team", "frequency": "Hebdo", "duration": "45 min", "participants": "Toute l'equipe" },
+    { "name": "Monthly review", "frequency": "Mensuel", "duration": "2h", "participants": "Cofondateurs + leads" },
+    { "name": "Quarterly OKR", "frequency": "Trimestriel", "duration": "Demi-journee", "participants": "Direction" }
+  ],
+  "metrics": [
+    { "name": "MRR", "owner": "CEO", "frequency": "Hebdo", "target": "> 50k" },
+    { "name": "Churn", "owner": "CSM", "frequency": "Mensuel", "target": "< 5%" }
+  ],
+  "hirePlan": [
+    { "role": "Dev senior fullstack", "priority": "Haute", "quarter": "T2 26", "budget": "55-65k" },
+    { "role": "Head of Sales", "priority": "Haute", "quarter": "T3 26", "budget": "60-75k + variable" }
+  ]
+}
+
+Regles :
+- 5 valeurs max parmi : Transparence, Vitesse d'execution, Obsession client, Frugalite, Autonomie, Data-driven, Impact mesurable, Excellence technique, Bienveillance, Audace, Simplicite, Apprentissage continu, Responsabilite individuelle, Collaboration, Innovation, Integrite, Resilience, Focus, Diversite, Fun
+- 6-8 processus avec niveau realiste (Manuel/Semi-auto/Automatise) et outils concrets
+- Pour chaque processus Manuel ou Semi-auto, recommande un outil d'automatisation
+- needsHire = true si le processus ne peut pas etre automatise sans une personne dediee
+- 5-6 metriques ops avec owner et cible chiffree
+- 3-5 recrutements priorises avec budget realiste pour le stade
+- Tout doit etre specifique au contexte de la startup`;
+
+export async function POST(req: NextRequest) {
+  const userId = await getAuthenticatedUserId();
+  if (!userId) return Response.json({ error: "Non authentifie" }, { status: 401 });
+
+  const { startupId } = await req.json();
+  if (!startupId) return Response.json({ error: "startupId requis" }, { status: 400 });
+
+  const allowed = await userOwnsStartup(userId, startupId);
+  if (!allowed) return Response.json({ error: "Acces refuse" }, { status: 403 });
+
+  const context = await getStartupDescription(startupId).catch(() => null);
+  const chunks = await retrieveRelevantChunks("operations", "organisation processus recrutement outils scaling").catch(() => null);
+  const extraKnowledge = chunks?.join("\n\n") ?? null;
+  const systemPrompt = buildCodirAgentPrompt("operations" as AgentKey, context, extraKnowledge);
+
+  try {
+    const timeout = new Promise<never>((_, reject) => setTimeout(() => reject(new Error("Timeout")), AGENT_TIMEOUT_MS));
+    const call = claude.messages.create({ model: MODELS.CHAT, max_tokens: 3500, system: systemPrompt, messages: [{ role: "user", content: PROMPT }] });
+    const response = await Promise.race([call, timeout]);
+    const rawText = response.content.filter((b): b is Anthropic.TextBlock => b.type === "text").map((b) => b.text).join("");
+
+    logUsage({ startupId, userId, model: response.model, endpoint: "fill-operating-system", inputTokens: response.usage?.input_tokens ?? 0, outputTokens: response.usage?.output_tokens ?? 0 });
+
+    const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) return Response.json({ error: "Reponse IA invalide" }, { status: 500 });
+
+    let parsed: Record<string, unknown>;
+    try { parsed = JSON.parse(jsonrepair(jsonMatch[0])); }
+    catch { try { parsed = JSON.parse(jsonMatch[0]); } catch { return Response.json({ error: "Parse error" }, { status: 500 }); } }
+
+    return Response.json({ data: parsed });
+  } catch (err) {
+    return Response.json({ error: String(err) }, { status: 500 });
+  }
+}

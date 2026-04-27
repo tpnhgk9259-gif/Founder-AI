@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<title>Operating System Canvas — Preview (FounderAI)</title>
+<meta name="viewport" content="width=1100"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"/>
+<style>
+  :root{--paper:#FBF8F0;--card:#FFF;--ink:#0F0E0B;--muted:#6C6760;--line:#E0D9C7;--orange:#FF6A1F;--magenta:#E8358E;--violet:#6E4BE8;--teal:#0DB4A0;--yellow:#FFD12A;--lime:#C8E64D}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#E5E2D8;font-family:'Geist',sans-serif;color:var(--ink)}
+  .toolbar{position:fixed;top:20px;right:20px;z-index:100;display:flex;gap:8px}
+  .toolbar button{padding:12px 24px;background:var(--ink);color:var(--paper);border:none;border-radius:999px;font-size:14px;cursor:pointer}
+  .toolbar .back{background:transparent;border:1px solid #D9D3C4;color:var(--ink)}
+  .page{width:210mm;min-height:297mm;margin:40px auto;padding:14mm;background:var(--paper);box-shadow:0 4px 40px rgba(0,0,0,.08)}
+  .header{display:flex;align-items:center;gap:10px;padding-bottom:10px;border-bottom:1px solid var(--line);margin-bottom:20px}
+  .header .logo{width:24px;height:24px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Anton',sans-serif;font-size:14px}
+  .header .name{font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:500}
+  .header .name strong{color:var(--ink);font-weight:700}
+  .header .date{margin-left:auto;font-family:'Geist Mono',monospace;font-size:9px;color:var(--muted)}
+  h1.title{font-family:'Anton',sans-serif;font-size:36px;text-transform:uppercase;line-height:.88;margin-bottom:20px}
+  .sec{margin-bottom:18px;padding:14px 16px;background:var(--card);border-radius:8px;border-left:4px solid var(--orange)}
+  .sec-title{font-family:'Anton',sans-serif;font-size:13px;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+  .sec-title .num{width:18px;height:18px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-family:'Geist Mono',monospace;font-size:8px;font-weight:700}
+  .vision-box{font-size:14px;font-weight:700;margin-bottom:4px}
+  .mission-box{font-size:11px;color:var(--muted);font-style:italic}
+  .values{display:flex;flex-wrap:wrap;gap:6px}
+  .value-chip{font-size:10px;padding:4px 10px;border-radius:999px;background:#E8358E;color:#fff;font-weight:600}
+  .org-text{font-size:11px;line-height:1.7;white-space:pre-wrap}
+  table.proc{width:100%;border-collapse:collapse;font-size:10px}
+  table.proc th{font-family:'Geist Mono',monospace;font-size:8px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;padding:5px 8px;border-bottom:2px solid var(--ink);text-align:left;color:var(--muted)}
+  table.proc td{padding:6px 8px;border-bottom:1px solid var(--line)}
+  .level-badge{font-size:9px;padding:2px 6px;border-radius:4px;font-weight:700;display:inline-block}
+  .rituals{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+  .ritual-card{padding:10px;background:var(--paper);border:1px solid var(--line);border-radius:6px}
+  .ritual-card .r-name{font-size:11px;font-weight:700;margin-bottom:2px}
+  .ritual-card .r-meta{font-family:'Geist Mono',monospace;font-size:9px;color:var(--muted)}
+  .hire-table{width:100%;border-collapse:collapse;font-size:10px}
+  .hire-table th{font-family:'Geist Mono',monospace;font-size:8px;letter-spacing:.1em;text-transform:uppercase;padding:5px 8px;border-bottom:2px solid var(--ink);text-align:left;color:var(--muted)}
+  .hire-table td{padding:6px 8px;border-bottom:1px solid var(--line)}
+  .footer{margin-top:24px;padding-top:10px;border-top:1px solid var(--line);display:flex;justify-content:space-between;font-family:'Geist Mono',monospace;font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  @media print{.toolbar{display:none!important}body{background:#fff}.page{box-shadow:none;margin:0;width:100%}@page{size:A4 portrait;margin:0}.page{print-color-adjust:exact;-webkit-print-color-adjust:exact}}
+</style>
+</head>
+<body>
+<div class="toolbar"><button class="back" onclick="window.close()||history.back()">← Retour</button><button onclick="window.print()">Exporter en PDF ↓</button></div>
+<div class="page" id="root"></div>
+<script>
+const raw=sessionStorage.getItem('founderai_os');
+let d={};if(raw){try{d=JSON.parse(raw)}catch(e){}}
+const startupName=d.startupName||'Startup';
+const today=new Date().toLocaleDateString('fr-FR');
+const esc=s=>(s||'').replace(/</g,'&lt;').replace(/\n/g,'<br>');
+let html='';
+
+html+=`<div class="header"><div class="logo">f</div><div class="name"><strong>${startupName.toUpperCase()}</strong> &middot; Operating System</div><div class="date">${today}</div></div>`;
+html+=`<h1 class="title">OPERATING SYSTEM CANVAS</h1>`;
+
+// 1. Vision
+if(d.vision||d.mission){
+  html+=`<div class="sec" style="border-left-color:var(--orange)"><div class="sec-title"><span class="num" style="background:var(--orange)">01</span>VISION & MISSION</div>`;
+  if(d.vision)html+=`<div class="vision-box">${d.vision}</div>`;
+  if(d.mission)html+=`<div class="mission-box">${d.mission}</div>`;
+  html+=`</div>`;
+}
+
+// 2. Values
+const vals=[...(d.values||[]),...(d.customValues?d.customValues.split(',').map(v=>v.trim()).filter(Boolean):[])];
+if(vals.length){
+  html+=`<div class="sec" style="border-left-color:var(--magenta)"><div class="sec-title"><span class="num" style="background:var(--magenta)">02</span>VALEURS FONDAMENTALES</div>`;
+  html+=`<div class="values">${vals.map(v=>`<span class="value-chip">${v}</span>`).join('')}</div></div>`;
+}
+
+// 3. Org
+if(d.orgChart){
+  html+=`<div class="sec" style="border-left-color:var(--violet)"><div class="sec-title"><span class="num" style="background:var(--violet)">03</span>STRUCTURE ORGANISATIONNELLE</div>`;
+  html+=`<div class="org-text">${esc(d.orgChart)}</div></div>`;
+}
+
+// 4. Processes
+const procs=(d.processes||[]).filter(p=>p.currentTool||p.level!=='Manuel');
+if(procs.length){
+  const lvColor=l=>l==='Automatise'?'var(--teal)':l==='Semi-auto'?'var(--yellow)':'var(--magenta)';
+  html+=`<div class="sec" style="border-left-color:var(--teal)"><div class="sec-title"><span class="num" style="background:var(--teal)">04</span>PROCESSUS CLES</div>`;
+  html+=`<table class="proc"><thead><tr><th>Processus</th><th>Niveau</th><th>Outil actuel</th><th>Recommande</th><th>Recrutement</th></tr></thead><tbody>`;
+  (d.processes||[]).forEach(p=>{
+    html+=`<tr><td><strong>${p.name}</strong></td>
+      <td><span class="level-badge" style="background:${lvColor(p.level)}20;color:${lvColor(p.level)}">${p.level}</span></td>
+      <td>${p.currentTool||'—'}</td><td style="font-weight:600">${p.recommendedTool||'—'}</td>
+      <td>${p.needsHire?`<span style="color:var(--violet);font-weight:700">${p.hireProfile||'Oui'}</span>`:'—'}</td></tr>`;
+  });
+  html+=`</tbody></table></div>`;
+}
+
+// 5. Rituals
+const rits=(d.rituals||[]).filter(r=>r.name);
+if(rits.length){
+  html+=`<div class="sec" style="border-left-color:var(--yellow)"><div class="sec-title"><span class="num" style="background:var(--yellow);color:var(--ink)">05</span>RITUELS & CADENCE</div>`;
+  html+=`<div class="rituals">`;
+  rits.forEach(r=>{
+    html+=`<div class="ritual-card"><div class="r-name">${r.name}</div><div class="r-meta">${r.frequency} &middot; ${r.duration} &middot; ${r.participants}</div></div>`;
+  });
+  html+=`</div></div>`;
+}
+
+// 6. Metrics
+const mets=(d.metrics||[]).filter(m=>m.name);
+if(mets.length){
+  html+=`<div class="sec" style="border-left-color:var(--ink)"><div class="sec-title"><span class="num" style="background:var(--ink)">06</span>METRIQUES OPERATIONNELLES</div>`;
+  html+=`<table class="proc"><thead><tr><th>KPI</th><th>Owner</th><th>Frequence</th><th>Cible</th></tr></thead><tbody>`;
+  mets.forEach(m=>{html+=`<tr><td><strong>${m.name}</strong></td><td>${m.owner}</td><td style="font-family:'Geist Mono',monospace">${m.frequency}</td><td style="font-weight:700">${m.target}</td></tr>`});
+  html+=`</tbody></table></div>`;
+}
+
+// 7. Hire plan
+const hires=(d.hirePlan||[]).filter(h=>h.role);
+if(hires.length){
+  html+=`<div class="sec" style="border-left-color:var(--lime)"><div class="sec-title"><span class="num" style="background:var(--lime);color:var(--ink)">07</span>PLAN DE RECRUTEMENT</div>`;
+  html+=`<table class="hire-table"><thead><tr><th>Poste</th><th>Priorite</th><th>Trimestre</th><th>Budget</th></tr></thead><tbody>`;
+  hires.forEach(h=>{
+    const pColor=h.priority==='Haute'?'var(--orange)':h.priority==='Moyenne'?'var(--yellow)':'var(--muted)';
+    html+=`<tr><td><strong>${h.role}</strong></td><td><span style="color:${pColor};font-weight:700">${h.priority}</span></td><td style="font-family:'Geist Mono',monospace">${h.quarter}</td><td style="font-family:'Geist Mono',monospace">${h.budget}</td></tr>`;
+  });
+  html+=`</tbody></table></div>`;
+}
+
+html+=`<div class="footer"><span>${startupName.toUpperCase()} &middot; Operating System &middot; ${today}</span><span>Confidentiel</span></div>`;
+document.getElementById('root').innerHTML=html;
+</script>
+</body>
+</html>

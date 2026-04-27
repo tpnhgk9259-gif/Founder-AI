@@ -1650,6 +1650,7 @@ const TEMPLATE_ROUTES: Record<string, string> = {
   "Roadmap Produit": "/dashboard/modeles/roadmap-produit",
   "Stratégie commerciale": "/dashboard/modeles/sales-strategy",
   "Barrières à l'entrée": "/dashboard/modeles/barrieres",
+  "Operating System Canvas": "/dashboard/modeles/operating-system",
 };
 
 function TemplateSection({
