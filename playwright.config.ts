@@ -17,6 +17,26 @@ export default defineConfig({
     timeout: 30_000,
   },
   projects: [
-    { name: "chromium", use: { browserName: "chromium" } },
+    // Setup : login une seule fois et sauvegarder le state
+    {
+      name: "setup",
+      testMatch: /auth\.setup\.ts/,
+    },
+    // Tests publics (pas besoin d'auth)
+    {
+      name: "public",
+      testMatch: /\/(landing|guide|inscription|connexion)\.spec\.ts/,
+      use: { browserName: "chromium" },
+    },
+    // Tests authentifies (dashboard, modeles)
+    {
+      name: "authenticated",
+      testMatch: /\/(dashboard|modeles)\.spec\.ts/,
+      dependencies: ["setup"],
+      use: {
+        browserName: "chromium",
+        storageState: "e2e/.auth/user.json",
+      },
+    },
   ],
 });
