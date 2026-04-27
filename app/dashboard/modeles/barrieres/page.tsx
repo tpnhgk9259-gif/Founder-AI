@@ -120,13 +120,22 @@ export default function BarrieresPage() {
     if (!startupId || filling) return;
     setFilling(true); setError("");
     try {
+      const filledSections = Object.fromEntries(Object.entries(data.sections).filter(([, v]) => v.trim()));
       const res = await fetch("/api/ai/fill-barrieres", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ startupId }),
+        body: JSON.stringify({ startupId, userContext: filledSections }),
       });
       const json = await res.json();
       if (!res.ok) { setError(json.error ?? "Erreur"); return; }
-      if (json.data) { setData(json.data); persist(json.data); }
+      if (json.data) {
+        const merged = { ...json.data };
+        // Ne pas ecraser les sections remplies par l'utilisateur
+        merged.sections = { ...(merged.sections || {}), ...filledSections };
+        // Ne pas ecraser les scores deja definis
+        if (Object.values(data.scores).some(s => s.current > 0)) merged.scores = data.scores;
+        if (data.synthesis.trim()) merged.synthesis = data.synthesis;
+        setData(merged); persist(merged);
+      }
     } catch { setError("Erreur inattendue."); }
     finally { setFilling(false); }
   }

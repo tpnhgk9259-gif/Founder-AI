@@ -117,10 +117,11 @@ export default function LeanCanvasPage() {
     setFilling(true);
     setError("");
     try {
+      const filledByUser = Object.fromEntries(Object.entries(values).filter(([, v]) => v.trim()));
       const res = await fetch("/api/ai/fill-lean-canvas", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ startupId }),
+        body: JSON.stringify({ startupId, userContext: filledByUser }),
       });
       const json = await res.json();
       if (!res.ok) {
@@ -128,9 +129,13 @@ export default function LeanCanvasPage() {
         return;
       }
       setValues((prev) => {
-        const next = { ...prev, ...json.sections };
-        if (startupId) localStorage.setItem(`founderai_lean_canvas_${startupId}`, JSON.stringify(next));
-        return next;
+        // Ne pas ecraser les champs remplis par l'utilisateur
+        const merged = { ...json.sections };
+        for (const [k, v] of Object.entries(prev)) {
+          if (v.trim()) merged[k] = v;
+        }
+        if (startupId) localStorage.setItem(`founderai_lean_canvas_${startupId}`, JSON.stringify(merged));
+        return merged;
       });
     } catch {
       setError("Une erreur inattendue s'est produite.");

@@ -103,11 +103,23 @@ export default function SalesStrategyPage() {
     try {
       const res = await fetch("/api/ai/fill-sales-strategy", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ startupId }),
+        body: JSON.stringify({ startupId, userContext: data }),
       });
       const json = await res.json();
       if (!res.ok) { setError(json.error ?? "Erreur"); return; }
-      if (json.data) { setData(json.data); persist(json.data); }
+      if (json.data) {
+        // Ne pas ecraser les champs remplis par l'utilisateur
+        const merged = { ...json.data };
+        if (data.value_props.some(v => v.segment.trim())) merged.value_props = data.value_props;
+        if (data.channels.some(c => c.name.trim())) merged.channels = data.channels;
+        if (data.funnel.some(f => f.conversion.trim())) merged.funnel = data.funnel;
+        if (data.cycle_duration.trim()) merged.cycle_duration = data.cycle_duration;
+        if (data.pricing_model.trim()) merged.pricing_model = data.pricing_model;
+        if (data.pricing_detail.trim()) merged.pricing_detail = data.pricing_detail;
+        if (data.targets.some(t => t.deals.trim() || t.mrr.trim())) merged.targets = data.targets;
+        if (data.stack.trim()) merged.stack = data.stack;
+        setData(merged); persist(merged);
+      }
     } catch { setError("Erreur inattendue."); }
     finally { setFilling(false); }
   }

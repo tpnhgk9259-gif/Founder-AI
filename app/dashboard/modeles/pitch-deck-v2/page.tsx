@@ -738,15 +738,24 @@ export default function PitchDeckV2Page() {
     if (!startupId || filling) return;
     setFilling(true);
     try {
+      // Envoyer les champs deja remplis comme contexte CEO
+      const filledByUser = Object.fromEntries(Object.entries(values).filter(([, v]) => v.trim()));
       const res = await fetch("/api/ai/fill-pitch-deck", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ startupId, template }),
+        body: JSON.stringify({ startupId, template, userContext: filledByUser }),
       });
       if (res.ok) {
         const data = await res.json();
         if (data.values) {
-          setValues((prev) => ({ ...prev, ...data.values }));
+          // Ne pas ecraser les champs deja remplis par l'utilisateur
+          setValues((prev) => {
+            const merged = { ...data.values };
+            for (const [k, v] of Object.entries(prev)) {
+              if (typeof v === "string" && v.trim()) merged[k] = v;
+            }
+            return merged;
+          });
         }
       }
     } catch { /* silencieux */ }

@@ -159,10 +159,23 @@ export default function OperatingSystemPage() {
     if (!startupId || filling) return;
     setFilling(true); setError("");
     try {
-      const res = await fetch("/api/ai/fill-operating-system", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ startupId }) });
+      const userContext = { vision: data.vision, mission: data.mission, values: data.values, orgChart: data.orgChart };
+      const res = await fetch("/api/ai/fill-operating-system", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ startupId, userContext }) });
       const json = await res.json();
       if (!res.ok) { setError(json.error ?? "Erreur"); return; }
-      if (json.data) { setData(json.data); persist(json.data); }
+      if (json.data) {
+        const merged = { ...json.data };
+        // Ne pas ecraser les decisions du CEO
+        if (data.vision.trim()) merged.vision = data.vision;
+        if (data.mission.trim()) merged.mission = data.mission;
+        if (data.values.length > 0) merged.values = data.values;
+        if (data.customValues.trim()) merged.customValues = data.customValues;
+        if (data.orgChart.trim()) merged.orgChart = data.orgChart;
+        if (data.processes.some(p => p.currentTool.trim())) merged.processes = data.processes;
+        if (data.metrics.some(m => m.name.trim())) merged.metrics = data.metrics;
+        if (data.hirePlan.some(h => h.role.trim())) merged.hirePlan = data.hirePlan;
+        setData(merged); persist(merged);
+      }
     } catch { setError("Erreur inattendue."); } finally { setFilling(false); }
   }
 

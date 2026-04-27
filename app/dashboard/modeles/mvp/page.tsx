@@ -123,17 +123,21 @@ export default function MvpPage() {
     setFilling(true);
     setError("");
     try {
+      const filledByUser = Object.fromEntries(Object.entries(values).filter(([, v]) => v.trim()));
       const res = await fetch("/api/ai/fill-mvp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ startupId }),
+        body: JSON.stringify({ startupId, userContext: filledByUser }),
       });
       const json = await res.json();
       if (!res.ok) { setError(json.error ?? "Erreur lors de la generation."); return; }
       setValues((prev) => {
-        const next = { ...prev, ...json.sections };
-        if (startupId) localStorage.setItem(`founderai_mvp_${startupId}`, JSON.stringify(next));
-        return next;
+        const merged = { ...json.sections };
+        for (const [k, v] of Object.entries(prev)) {
+          if (v.trim()) merged[k] = v;
+        }
+        if (startupId) localStorage.setItem(`founderai_mvp_${startupId}`, JSON.stringify(merged));
+        return merged;
       });
     } catch {
       setError("Une erreur inattendue s'est produite.");

@@ -154,19 +154,23 @@ export default function PositionnementPage() {
     setFilling(true);
     setError("");
     try {
+      const filledByUser = Object.fromEntries(Object.entries(values).filter(([, v]) => typeof v === "string" && v.trim()));
       const res = await fetch("/api/ai/fill-positioning", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ startupId }),
+        body: JSON.stringify({ startupId, userContext: filledByUser }),
       });
       const json = await res.json();
       if (!res.ok) { setError(json.error ?? "Erreur lors de la génération."); return; }
-      const newSegments = json.segments ?? segments;
-      if (json.segments) setSegments(newSegments);
+      const newSegments = json.segments && !segments.some(s => s.name.trim()) ? json.segments : segments;
+      if (json.segments && !segments.some(s => s.name.trim())) setSegments(newSegments);
       setValues((prev) => {
-        const next = { ...prev, ...json.values };
-        persist(next, newSegments);
-        return next;
+        const merged = { ...json.values };
+        for (const [k, v] of Object.entries(prev)) {
+          if (typeof v === "string" && v.trim()) merged[k] = v;
+        }
+        persist(merged, newSegments);
+        return merged;
       });
     } catch {
       setError("Une erreur inattendue s'est produite.");

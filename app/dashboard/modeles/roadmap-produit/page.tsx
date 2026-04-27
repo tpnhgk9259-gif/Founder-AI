@@ -98,17 +98,22 @@ export default function RoadmapProduitPage() {
     setFilling(true);
     setError("");
     try {
+      const userContext = { objectives: objectives.filter(o => o.title.trim()), actors: actors.filter(a => a.name.trim()), features: features.filter(f => f.title.trim()) };
       const res = await fetch("/api/ai/fill-roadmap", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ startupId }),
+        body: JSON.stringify({ startupId, userContext }),
       });
       const json = await res.json();
       if (!res.ok) { setError(json.error ?? "Erreur lors de la generation."); return; }
-      if (json.objectives) setObjectives(json.objectives);
-      if (json.actors) setActors(json.actors);
-      if (json.features) setFeatures(json.features);
-      persist(json.objectives ?? objectives, json.actors ?? actors, json.features ?? features);
+      // Ne pas ecraser les elements deja remplis
+      const newObj = objectives.some(o => o.title.trim()) ? objectives : (json.objectives ?? objectives);
+      const newAct = actors.some(a => a.name.trim()) ? actors : (json.actors ?? actors);
+      const newFeat = features.some(f => f.title.trim()) ? features : (json.features ?? features);
+      setObjectives(newObj);
+      setActors(newAct);
+      setFeatures(newFeat);
+      persist(newObj, newAct, newFeat);
     } catch {
       setError("Une erreur inattendue s'est produite.");
     } finally {
