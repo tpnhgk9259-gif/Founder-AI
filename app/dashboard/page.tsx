@@ -1649,6 +1649,7 @@ const TEMPLATE_ROUTES: Record<string, string> = {
   "Positionnement et compétition": "/dashboard/modeles/positionnement",
   "Roadmap Produit": "/dashboard/modeles/roadmap-produit",
   "Stratégie commerciale": "/dashboard/modeles/sales-strategy",
+  "Barrières à l'entrée": "/dashboard/modeles/barrieres",
 };
 
 function TemplateSection({
