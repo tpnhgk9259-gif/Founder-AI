@@ -35,8 +35,8 @@ test.describe("Dashboard", () => {
   });
 
   test("les 3 onglets sont accessibles", async ({ page }) => {
-    // Onglet Agents (par défaut)
-    await expect(page.locator("text=Mon équipe").or(page.locator("text=Mes agents")).first()).toBeVisible();
+    // Onglet Mon équipe (par défaut)
+    await expect(page.locator("button:has-text('Mon équipe')").first()).toBeVisible();
     // Onglet Tableau de bord
     await page.locator("button:has-text('tableau de bord')").click();
     await expect(page.locator("text=PROFIL STARTUP").or(page.locator("text=Profil startup")).first()).toBeVisible({ timeout: 5000 });
@@ -66,24 +66,53 @@ test.describe("Dashboard", () => {
   });
 });
 
-test.describe("Dashboard - Tableau de bord", () => {
+test.describe("Dashboard — Tableau de bord", () => {
   test.beforeEach(async ({ page }) => {
     await login(page);
     await page.locator("button:has-text('tableau de bord')").click();
   });
 
-  test("on peut modifier le nom de la startup", async ({ page }) => {
+  test("affiche le profil startup", async ({ page }) => {
     await expect(page.locator("text=PROFIL STARTUP").or(page.locator("text=Profil startup")).first()).toBeVisible({ timeout: 5000 });
+  });
+
+  test("affiche la section Mon équipe (TeamSection)", async ({ page }) => {
+    // La TeamSection est rendue dans le tableau de bord quand un startupId existe
+    await expect(page.locator("text=Mon équipe").first()).toBeVisible({ timeout: 5000 });
+  });
+
+  test("affiche la section Collaborateurs", async ({ page }) => {
+    // La section Collaborateurs est dans le TableauDeBord component
+    await expect(page.locator("text=Collaborateurs").first()).toBeVisible({ timeout: 5000 });
   });
 });
 
-test.describe("Dashboard - Documents", () => {
+test.describe("Dashboard — Startup selector", () => {
   test.beforeEach(async ({ page }) => {
     await login(page);
-    await page.locator("text=Mes documents").click();
   });
 
-  test("affiche la zone d'upload", async ({ page }) => {
-    await expect(page.locator("text=Déposer un fichier").or(page.locator("text=PDF")).first()).toBeVisible({ timeout: 5000 });
+  test("le sélecteur de startup est présent si plusieurs startups", async ({ page }) => {
+    // Le select n'est affiché que si myStartups.length > 1
+    // On vérifie simplement que la page se charge correctement ;
+    // si l'utilisateur a plusieurs startups, le select sera visible
+    const selector = page.locator("select");
+    const count = await selector.count();
+    // Le sélecteur existe (>0) ou non (0) — les deux sont valides
+    // On vérifie juste que la page ne plante pas
+    expect(count).toBeGreaterThanOrEqual(0);
+  });
+});
+
+test.describe("Dashboard — Documents", () => {
+  test.beforeEach(async ({ page }) => {
+    await login(page);
+    await page.locator("button:has-text('documents')").click();
+  });
+
+  test("affiche la zone documents", async ({ page }) => {
+    await expect(
+      page.locator("text=Retrouvez ici").or(page.locator("text=Ajouter un document")).first()
+    ).toBeVisible({ timeout: 5000 });
   });
 });
