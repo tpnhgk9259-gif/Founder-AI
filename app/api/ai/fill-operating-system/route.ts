@@ -22,8 +22,8 @@ Reponds UNIQUEMENT avec un objet JSON valide (sans markdown, sans backticks) :
   "customValues": "",
   "orgChart": "CEO : ...\nCTO : ...\nHead of Growth : ...",
   "processes": [
-    { "name": "Acquisition clients", "category": "Commercial", "level": "Semi-auto", "currentTool": "LinkedIn + Lemlist", "recommendedTool": "HubSpot Sales Hub", "needsHire": true, "hireProfile": "SDR junior" },
-    { "name": "Onboarding clients", "category": "Produit", "level": "Manuel", "currentTool": "Notion + calls", "recommendedTool": "Intercom Product Tours", "needsHire": false, "hireProfile": "" }
+    { "name": "Acquisition clients", "category": "Commercial", "owner": "Head of Growth", "tools": "HubSpot, Lemlist, LinkedIn Sales Nav", "kpi": "100 leads qualifies/mois", "teamHumans": "1 SDR + 1 AE", "teamAI": "Lemlist sequences auto + ChatGPT emails", "level": "Semi-auto" },
+    { "name": "Onboarding clients", "category": "Produit", "owner": "CSM Lead", "tools": "Intercom, Notion, Loom", "kpi": "Time-to-value < 48h", "teamHumans": "1 CSM", "teamAI": "Intercom bot + Loom auto-guides", "level": "Manuel" }
   ],
   "rituals": [
     { "name": "Daily standup", "frequency": "Quotidien", "duration": "15 min", "participants": "Equipe produit" },
@@ -43,9 +43,14 @@ Reponds UNIQUEMENT avec un objet JSON valide (sans markdown, sans backticks) :
 
 Regles :
 - 5 valeurs max parmi : Transparence, Vitesse d'execution, Obsession client, Frugalite, Autonomie, Data-driven, Impact mesurable, Excellence technique, Bienveillance, Audace, Simplicite, Apprentissage continu, Responsabilite individuelle, Collaboration, Innovation, Integrite, Resilience, Focus, Diversite, Fun
-- 6-8 processus avec niveau realiste (Manuel/Semi-auto/Automatise) et outils concrets
-- Pour chaque processus Manuel ou Semi-auto, recommande un outil d'automatisation
-- needsHire = true si le processus ne peut pas etre automatise sans une personne dediee
+- 6-8 processus avec pour chacun :
+  - owner : qui pilote le processus (role, pas nom)
+  - tools : outils que le responsable doit maitriser pour piloter
+  - kpi : resultat mesurable cible (chiffre concret)
+  - teamHumans : dimensionnement humain pour atteindre le KPI (ex: "2 devs fullstack", "1 SDR + 1 AE")
+  - teamAI : outils IA/automatisation qui augmentent l'equipe (ex: "Claude Code pair programming", "Lemlist sequences auto")
+  - level : Manuel/Semi-auto/Automatise
+- Fais le calcul inverse : pour atteindre le KPI avec le niveau d'automatisation donne, combien faut-il de personnes + quels outils IA
 - 5-6 metriques ops avec owner et cible chiffree
 - 3-5 recrutements priorises avec budget realiste pour le stade
 - Tout doit etre specifique au contexte de la startup`;

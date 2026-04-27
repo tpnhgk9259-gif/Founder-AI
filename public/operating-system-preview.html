@@ -84,12 +84,17 @@ const procs=(d.processes||[]).filter(p=>p.currentTool||p.level!=='Manuel');
 if(procs.length){
   const lvColor=l=>l==='Automatise'?'var(--teal)':l==='Semi-auto'?'var(--yellow)':'var(--magenta)';
   html+=`<div class="sec" style="border-left-color:var(--teal)"><div class="sec-title"><span class="num" style="background:var(--teal)">04</span>PROCESSUS CLES</div>`;
-  html+=`<table class="proc"><thead><tr><th>Processus</th><th>Niveau</th><th>Outil actuel</th><th>Recommande</th><th>Recrutement</th></tr></thead><tbody>`;
+  html+=`<table class="proc"><thead><tr><th>Processus</th><th>Responsable</th><th>Niveau</th><th>KPI cible</th><th>Outils</th><th>Equipe</th><th>IA & auto</th></tr></thead><tbody>`;
   (d.processes||[]).forEach(p=>{
-    html+=`<tr><td><strong>${p.name}</strong></td>
+    html+=`<tr>
+      <td><strong>${p.name}</strong><br><span style="font-size:8px;color:var(--muted)">${p.category}</span></td>
+      <td style="color:var(--orange);font-weight:600">${p.owner||'—'}</td>
       <td><span class="level-badge" style="background:${lvColor(p.level)}20;color:${lvColor(p.level)}">${p.level}</span></td>
-      <td>${p.currentTool||'—'}</td><td style="font-weight:600">${p.recommendedTool||'—'}</td>
-      <td>${p.needsHire?`<span style="color:var(--violet);font-weight:700">${p.hireProfile||'Oui'}</span>`:'—'}</td></tr>`;
+      <td style="font-family:'Geist Mono',monospace;font-size:9px;font-weight:600">${p.kpi||'—'}</td>
+      <td style="font-size:9px">${p.tools||'—'}</td>
+      <td style="font-size:9px;color:var(--magenta)">${p.teamHumans||'—'}</td>
+      <td style="font-size:9px;color:var(--yellow)">${p.teamAI||'—'}</td>
+    </tr>`;
   });
   html+=`</tbody></table></div>`;
 }

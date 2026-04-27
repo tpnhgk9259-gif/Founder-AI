@@ -45,11 +45,12 @@ const RITUAL_TEMPLATES = [
 type Process = {
   name: string;
   category: string;
+  owner: string;
+  tools: string;
+  kpi: string;
+  teamHumans: string;
+  teamAI: string;
   level: string;
-  currentTool: string;
-  recommendedTool: string;
-  needsHire: boolean;
-  hireProfile: string;
 };
 
 type Ritual = {
@@ -92,7 +93,7 @@ function emptyData(): OSData {
     values: [],
     customValues: "",
     orgChart: "",
-    processes: PROCESS_TEMPLATES.map(p => ({ ...p, level: "Manuel", currentTool: "", recommendedTool: "", needsHire: false, hireProfile: "" })),
+    processes: PROCESS_TEMPLATES.map(p => ({ ...p, owner: "", tools: "", kpi: "", teamHumans: "", teamAI: "", level: "Manuel" })),
     rituals: RITUAL_TEMPLATES.map(r => ({ ...r })),
     metrics: [
       { name: "", owner: "", frequency: "Hebdo", target: "" },
@@ -171,7 +172,7 @@ export default function OperatingSystemPage() {
         if (data.values.length > 0) merged.values = data.values;
         if (data.customValues.trim()) merged.customValues = data.customValues;
         if (data.orgChart.trim()) merged.orgChart = data.orgChart;
-        if (data.processes.some(p => p.currentTool.trim())) merged.processes = data.processes;
+        if (data.processes.some(p => p.owner.trim() || p.kpi.trim())) merged.processes = data.processes;
         if (data.metrics.some(m => m.name.trim())) merged.metrics = data.metrics;
         if (data.hirePlan.some(h => h.role.trim())) merged.hirePlan = data.hirePlan;
         setData(merged); persist(merged);
@@ -184,7 +185,7 @@ export default function OperatingSystemPage() {
     window.open("/operating-system-preview.html", "_blank");
   }
 
-  const hasContent = data.vision.trim() || data.values.length > 0 || data.processes.some(p => p.currentTool);
+  const hasContent = data.vision.trim() || data.values.length > 0 || data.processes.some(p => p.owner.trim() || p.kpi.trim());
 
   const inp = "w-full px-3 py-2 text-sm focus:outline-none";
   const inpS = { border: "1px solid var(--uf-line)", borderRadius: "var(--uf-r-sm)", color: "var(--uf-ink)", background: "var(--uf-paper)" };
@@ -271,12 +272,13 @@ export default function OperatingSystemPage() {
             <span className="w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-bold text-white" style={{ background: "#0DB4A0", fontFamily: "var(--uf-mono)" }}>04</span>
             <h2 className="font-bold uppercase tracking-wide" style={{ color: "var(--uf-ink)", fontFamily: "var(--uf-display)", fontSize: 16 }}>Processus cles</h2>
           </div>
-          <p className="text-xs mb-4" style={{ color: "var(--uf-muted)", fontStyle: "italic" }}>Pour chaque processus, indiquez le niveau d'automatisation, l'outil actuel et le besoin de recrutement.</p>
-          <div className="space-y-3">
+          <p className="text-xs mb-4" style={{ color: "var(--uf-muted)", fontStyle: "italic" }}>Pour chaque processus : qui pilote, quels outils, quel KPI cible, et quelle equipe (humains + IA) pour l'atteindre.</p>
+          <div className="space-y-4">
             {data.processes.map((p, i) => (
-              <div key={i} className="p-3" style={{ background: "var(--uf-paper)", border: "1px solid var(--uf-line)", borderRadius: "var(--uf-r-lg)" }}>
-                <div className="flex items-center gap-3 mb-2">
-                  <span className="text-xs font-bold" style={{ color: "var(--uf-ink)" }}>{p.name}</span>
+              <div key={i} className="p-4" style={{ background: "var(--uf-paper)", border: "1px solid var(--uf-line)", borderRadius: "var(--uf-r-lg)" }}>
+                {/* Header : nom + categorie + niveau */}
+                <div className="flex items-center gap-3 mb-3">
+                  <span className="text-sm font-bold" style={{ color: "var(--uf-ink)" }}>{p.name}</span>
                   <span className="text-[9px] px-2 py-0.5 rounded-full" style={{ background: "var(--uf-paper-2)", color: "var(--uf-muted)", fontFamily: "var(--uf-mono)" }}>{p.category}</span>
                   <div className="ml-auto flex gap-1">
                     {AUTOMATION_LEVELS.map(lv => (
@@ -288,18 +290,44 @@ export default function OperatingSystemPage() {
                     ))}
                   </div>
                 </div>
-                <div className="grid grid-cols-3 gap-2">
-                  <input type="text" value={p.currentTool} onChange={(e) => updateProcess(i, { currentTool: e.target.value })} placeholder="Outil actuel (ou aucun)" className="px-2 py-1.5 text-xs focus:outline-none" style={inpS} />
-                  <input type="text" value={p.recommendedTool} onChange={(e) => updateProcess(i, { recommendedTool: e.target.value })} placeholder="Outil recommande" className="px-2 py-1.5 text-xs focus:outline-none" style={inpS} />
-                  <div className="flex items-center gap-2">
-                    <button type="button" onClick={() => updateProcess(i, { needsHire: !p.needsHire })}
-                      className="text-[9px] px-2 py-1 rounded font-medium"
-                      style={{ background: p.needsHire ? "#6E4BE8" : "var(--uf-paper-2)", color: p.needsHire ? "#fff" : "var(--uf-muted)", border: "none", cursor: "pointer" }}>
-                      {p.needsHire ? "Recrutement oui" : "Recrutement non"}
-                    </button>
-                    {p.needsHire && (
-                      <input type="text" value={p.hireProfile} onChange={(e) => updateProcess(i, { hireProfile: e.target.value })} placeholder="Profil" className="flex-1 px-2 py-1 text-xs focus:outline-none" style={inpS} />
-                    )}
+
+                {/* Responsable + Outils de pilotage */}
+                <div className="grid grid-cols-2 gap-3 mb-3">
+                  <div>
+                    <label className="text-[9px] font-medium tracking-[0.1em] uppercase block mb-1" style={{ fontFamily: "var(--uf-mono)", color: "#FF6A1F" }}>Responsable</label>
+                    <input type="text" value={p.owner} onChange={(e) => updateProcess(i, { owner: e.target.value })}
+                      placeholder={["Head of Growth", "CTO", "CEO", "CSM Lead", "DRH", "CFO", "CEO", "CTO"][i] ?? "Qui pilote ?"}
+                      className="w-full px-2 py-1.5 text-xs focus:outline-none" style={inpS} />
+                  </div>
+                  <div>
+                    <label className="text-[9px] font-medium tracking-[0.1em] uppercase block mb-1" style={{ fontFamily: "var(--uf-mono)", color: "#6E4BE8" }}>Outils de pilotage</label>
+                    <input type="text" value={p.tools} onChange={(e) => updateProcess(i, { tools: e.target.value })}
+                      placeholder={["HubSpot, Lemlist, LinkedIn Sales Nav", "Intercom, Notion, Loom", "GitHub, Linear, Datadog", "Intercom, Notion", "Welcome to the Jungle, Notion", "Pennylane, Stripe Dashboard", "Metabase, Notion, Google Sheets", "Vercel, GitHub Actions, Sentry"][i] ?? "Outils utilises"}
+                      className="w-full px-2 py-1.5 text-xs focus:outline-none" style={inpS} />
+                  </div>
+                </div>
+
+                {/* KPI cible */}
+                <div className="mb-3">
+                  <label className="text-[9px] font-medium tracking-[0.1em] uppercase block mb-1" style={{ fontFamily: "var(--uf-mono)", color: "#0DB4A0" }}>KPI cible</label>
+                  <input type="text" value={p.kpi} onChange={(e) => updateProcess(i, { kpi: e.target.value })}
+                    placeholder={["100 leads qualifies/mois", "Time-to-value < 48h", "2 releases/semaine, 0 incident P1", "NPS > 50, temps reponse < 2h", "3 recrutements/trimestre, < 45 jours", "Closing J+5, recouvrement < 30 jours", "Dashboard mis a jour chaque lundi 9h", "Uptime 99.9%, deploy < 15min"][i] ?? "Resultat mesurable"}
+                    className="w-full px-2 py-1.5 text-xs focus:outline-none" style={{ ...inpS, fontFamily: "var(--uf-mono)" }} />
+                </div>
+
+                {/* Equipe : Humains + Agents/IA */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[9px] font-medium tracking-[0.1em] uppercase block mb-1" style={{ fontFamily: "var(--uf-mono)", color: "#E8358E" }}>{"Equipe humaine"}</label>
+                    <input type="text" value={p.teamHumans} onChange={(e) => updateProcess(i, { teamHumans: e.target.value })}
+                      placeholder={["1 SDR + 1 AE", "1 CSM (partage)", "3 devs fullstack", "1 CSM", "0.5 ETP (CEO)", "0.5 ETP (Office manager)", "CEO (15 min/semaine)", "1 DevOps + 2 devs"][i] ?? "Nombre et profils"}
+                      className="w-full px-2 py-1.5 text-xs focus:outline-none" style={inpS} />
+                  </div>
+                  <div>
+                    <label className="text-[9px] font-medium tracking-[0.1em] uppercase block mb-1" style={{ fontFamily: "var(--uf-mono)", color: "#FFD12A" }}>{"Agents & IA"}</label>
+                    <input type="text" value={p.teamAI} onChange={(e) => updateProcess(i, { teamAI: e.target.value })}
+                      placeholder={["Lemlist (sequences auto) + ChatGPT (emails)", "Intercom bot + Loom auto", "Claude Code (pair programming), Copilot", "Intercom AI, FAQ auto-generee", "LinkedIn Recruiter AI", "Pennylane (rapprochement auto)", "Metabase alertes auto", "GitHub Actions CI/CD, Sentry alertes"][i] ?? "Outils IA et automatisation"}
+                      className="w-full px-2 py-1.5 text-xs focus:outline-none" style={inpS} />
                   </div>
                 </div>
               </div>
