@@ -161,18 +161,18 @@ export default function OperatingSystemPage() {
       let json: Record<string, unknown>;
       try { json = JSON.parse(lastData); } catch { setError(`Parse error. Raw: ${lastData.substring(0, 200)}`); return; }
 
-      if (json.error) { setError(json.error); return; }
+      if (json.error) { setError(String(json.error)); return; }
       if (json.data) {
         const merged = { ...json.data };
         // Ne pas ecraser les decisions du CEO
-        if (data.vision.trim()) merged.vision = data.vision;
-        if (data.mission.trim()) merged.mission = data.mission;
-        if (data.values.length > 0) merged.values = data.values;
-        if (data.customValues.trim()) merged.customValues = data.customValues;
-        if (data.orgChart.trim()) merged.orgChart = data.orgChart;
-        if (data.processes.some(p => p.owner.trim() || p.kpi.trim())) merged.processes = data.processes;
-        if (data.metrics.some(m => m.name.trim())) merged.metrics = data.metrics;
-        if (data.hirePlan.some(h => h.role.trim())) merged.hirePlan = data.hirePlan;
+        if ((data.vision || "").trim()) merged.vision = data.vision;
+        if ((data.mission || "").trim()) merged.mission = data.mission;
+        if (data.values && data.values.length > 0) merged.values = data.values;
+        if ((data.customValues || "").trim()) merged.customValues = data.customValues;
+        if ((data.orgChart || "").trim()) merged.orgChart = data.orgChart;
+        if (data.processes?.some(p => (p.owner || "").trim() || (p.kpi || "").trim())) merged.processes = data.processes;
+        if (data.metrics?.some(m => (m.name || "").trim())) merged.metrics = data.metrics;
+        if (data.hirePlan?.some(h => (h.role || "").trim())) merged.hirePlan = data.hirePlan;
         setData(merged); persist(merged);
       }
     } catch (err) { setError(`Erreur : ${err instanceof Error ? err.message : String(err)}`); } finally { setFilling(false); }
