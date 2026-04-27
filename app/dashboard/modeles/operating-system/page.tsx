@@ -279,13 +279,13 @@ export default function OperatingSystemPage() {
                   <div>
                     <label className="text-[9px] font-medium tracking-[0.1em] uppercase block mb-1" style={{ fontFamily: "var(--uf-mono)", color: "#FF6A1F" }}>Responsable</label>
                     <input type="text" value={p.owner} onChange={(e) => updateProcess(i, { owner: e.target.value })}
-                      placeholder={["Head of Growth", "CTO", "CEO", "CSM Lead", "DRH", "CFO", "CEO", "CTO"][i] ?? "Qui pilote ?"}
+                      placeholder={["Head of Growth", "Head of Product", "CTO / Lead Dev", "CSM Lead", "CEO / DRH", "CFO / Office Manager", "CEO", "CTO"][i] ?? "Qui pilote ?"}
                       className="w-full px-2 py-1.5 text-xs focus:outline-none" style={inpS} />
                   </div>
                   <div>
                     <label className="text-[9px] font-medium tracking-[0.1em] uppercase block mb-1" style={{ fontFamily: "var(--uf-mono)", color: "#6E4BE8" }}>Outils de pilotage</label>
                     <input type="text" value={p.tools} onChange={(e) => updateProcess(i, { tools: e.target.value })}
-                      placeholder={["HubSpot, Lemlist, LinkedIn Sales Nav", "Intercom, Notion, Loom", "GitHub, Linear, Datadog", "Intercom, Notion", "Welcome to the Jungle, Notion", "Pennylane, Stripe Dashboard", "Metabase, Notion, Google Sheets", "Vercel, GitHub Actions, Sentry"][i] ?? "Outils utilises"}
+                      placeholder={["HubSpot, Lemlist, LinkedIn Sales Nav", "Intercom, Notion, Loom", "Linear, GitHub, Datadog", "Intercom, Zendesk", "Welcome to the Jungle, Notion", "Pennylane, Stripe Dashboard", "Metabase, Notion, Google Sheets", "Vercel, GitHub Actions, Sentry"][i] ?? "Outils utilises"}
                       className="w-full px-2 py-1.5 text-xs focus:outline-none" style={inpS} />
                   </div>
                 </div>
@@ -303,7 +303,7 @@ export default function OperatingSystemPage() {
                   <div>
                     <label className="text-[9px] font-medium tracking-[0.1em] uppercase block mb-1" style={{ fontFamily: "var(--uf-mono)", color: "#E8358E" }}>{"Equipe humaine"}</label>
                     <input type="text" value={p.teamHumans} onChange={(e) => updateProcess(i, { teamHumans: e.target.value })}
-                      placeholder={["1 SDR + 1 AE", "1 CSM (partage)", "3 devs fullstack", "1 CSM", "0.5 ETP (CEO)", "0.5 ETP (Office manager)", "CEO (15 min/semaine)", "1 DevOps + 2 devs"][i] ?? "Nombre et profils"}
+                      placeholder={["1 SDR + 1 AE", "1 CSM (partage avec support)", "3 devs fullstack + 1 lead", "1 CSM dedie", "CEO (0.5 ETP) ou 1 recruteur", "1 office manager (partage)", "CEO (30 min/semaine)", "1 DevOps + 2 devs"][i] ?? "Nombre et profils"}
                       className="w-full px-2 py-1.5 text-xs focus:outline-none" style={inpS} />
                   </div>
                   <div>
