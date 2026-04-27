@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<title>Sales Strategy — Preview (FounderAI)</title>
+<meta name="viewport" content="width=1100"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"/>
+<style>
+  :root { --paper:#FBF8F0;--card:#FFF;--ink:#0F0E0B;--muted:#6C6760;--line:#E0D9C7;--orange:#FF6A1F;--magenta:#E8358E;--violet:#6E4BE8;--teal:#0DB4A0;--yellow:#FFD12A; }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#E5E2D8;font-family:'Geist',sans-serif;color:var(--ink)}
+  .toolbar{position:fixed;top:20px;right:20px;z-index:100;display:flex;gap:8px}
+  .toolbar button{padding:12px 24px;background:var(--ink);color:var(--paper);border:none;border-radius:999px;font-size:14px;cursor:pointer}
+  .toolbar .back{background:transparent;border:1px solid #D9D3C4;color:var(--ink)}
+  .page{width:210mm;min-height:297mm;margin:40px auto;padding:14mm;background:var(--paper);box-shadow:0 4px 40px rgba(0,0,0,.08);position:relative}
+  .header{display:flex;align-items:center;gap:10px;padding-bottom:10px;border-bottom:1px solid var(--line);margin-bottom:20px}
+  .header .logo{width:24px;height:24px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Anton',sans-serif;font-size:14px}
+  .header .name{font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:500}
+  .header .name strong{color:var(--ink);font-weight:700}
+  .header .date{margin-left:auto;font-family:'Geist Mono',monospace;font-size:9px;color:var(--muted)}
+  h1.title{font-family:'Anton',sans-serif;font-size:42px;text-transform:uppercase;line-height:.88;letter-spacing:-.012em;margin-bottom:24px}
+  .sec{margin-bottom:22px;padding:16px 18px;background:var(--card);border-radius:8px;border-left:4px solid var(--orange)}
+  .sec-title{font-family:'Anton',sans-serif;font-size:14px;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+  .sec-title .num{width:20px;height:20px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-family:'Geist Mono',monospace;font-size:9px;font-weight:700}
+  table.data{width:100%;border-collapse:collapse;font-size:11px}
+  table.data th{font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;padding:6px 10px;border-bottom:2px solid var(--ink);text-align:left;color:var(--muted)}
+  table.data td{padding:8px 10px;border-bottom:1px solid var(--line)}
+  .funnel{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+  .funnel .step{padding:6px 12px;background:var(--paper);border:1px solid var(--line);border-radius:6px;font-size:11px;font-weight:600}
+  .funnel .conv{font-family:'Geist Mono',monospace;font-size:10px;color:var(--violet);font-weight:700}
+  .funnel .arrow{color:var(--muted);font-size:14px}
+  .pricing-box{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:12px 16px;font-size:12px;line-height:1.7;white-space:pre-wrap}
+  .footer{margin-top:30px;padding-top:10px;border-top:1px solid var(--line);display:flex;justify-content:space-between;font-family:'Geist Mono',monospace;font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  @media print{.toolbar{display:none!important}body{background:#fff}.page{box-shadow:none;margin:0;width:100%}@page{size:A4 portrait;margin:0}.page{print-color-adjust:exact;-webkit-print-color-adjust:exact}}
+</style>
+</head>
+<body>
+<div class="toolbar">
+  <button class="back" onclick="window.close()||history.back()">← Retour</button>
+  <button onclick="window.print()">Exporter en PDF ↓</button>
+</div>
+<div class="page" id="root"></div>
+<script>
+const raw=sessionStorage.getItem('founderai_sales');
+let d={};if(raw){try{d=JSON.parse(raw)}catch(e){}}
+const startupName=d.startupName||'Startup';
+const today=new Date().toLocaleDateString('fr-FR');
+const esc=s=>(s||'').replace(/</g,'&lt;').replace(/\n/g,'<br>');
+let html='';
+
+// Header
+html+=`<div class="header"><div class="logo">f</div><div class="name"><strong>${startupName.toUpperCase()}</strong> &middot; Sales Strategy</div><div class="date">${today}</div></div>`;
+html+=`<h1 class="title">SALES STRATEGY</h1>`;
+
+// 1. Value props
+const vps=(d.value_props||[]).filter(v=>v.segment);
+if(vps.length){
+  html+=`<div class="sec" style="border-left-color:var(--orange)"><div class="sec-title"><span class="num" style="background:var(--orange)">01</span>PROPOSITION DE VALEUR PAR SEGMENT</div>`;
+  html+=`<table class="data"><thead><tr><th>Segment</th><th>Message commercial</th></tr></thead><tbody>`;
+  vps.forEach(v=>{html+=`<tr><td><strong>${v.segment}</strong></td><td>${v.message}</td></tr>`});
+  html+=`</tbody></table></div>`;
+}
+
+// 2. Channels
+const chs=(d.channels||[]).filter(c=>c.name);
+if(chs.length){
+  html+=`<div class="sec" style="border-left-color:var(--magenta)"><div class="sec-title"><span class="num" style="background:var(--magenta)">02</span>CANAUX D'ACQUISITION</div>`;
+  html+=`<table class="data"><thead><tr><th>Canal</th><th>Description</th><th>Cout</th><th>Volume</th></tr></thead><tbody>`;
+  chs.forEach(c=>{html+=`<tr><td><strong>${c.name}</strong></td><td>${c.description}</td><td style="font-family:'Geist Mono',monospace;font-size:10px">${c.cost}</td><td style="font-family:'Geist Mono',monospace;font-size:10px">${c.volume}</td></tr>`});
+  html+=`</tbody></table></div>`;
+}
+
+// 3. Funnel
+const fn=(d.funnel||[]).filter(f=>f.name);
+if(fn.length){
+  html+=`<div class="sec" style="border-left-color:var(--violet)"><div class="sec-title"><span class="num" style="background:var(--violet)">03</span>CYCLE DE VENTE</div>`;
+  html+=`<div class="funnel">`;
+  fn.forEach((f,i)=>{
+    html+=`<span class="step">${f.name}</span>`;
+    if(i<fn.length-1){
+      html+=`<span class="conv">${f.conversion||'?'}</span><span class="arrow">&rarr;</span>`;
+    }
+  });
+  html+=`</div>`;
+  if(d.cycle_duration)html+=`<div style="font-size:11px;color:var(--muted)">Duree moyenne : <strong style="color:var(--ink)">${d.cycle_duration}</strong></div>`;
+  html+=`</div>`;
+}
+
+// 4. Pricing
+if(d.pricing_model||d.pricing_detail){
+  html+=`<div class="sec" style="border-left-color:var(--teal)"><div class="sec-title"><span class="num" style="background:var(--teal)">04</span>PRICING & PACKAGING</div>`;
+  if(d.pricing_model)html+=`<div style="font-size:12px;margin-bottom:8px"><strong>Modele :</strong> ${d.pricing_model}</div>`;
+  if(d.pricing_detail)html+=`<div class="pricing-box">${esc(d.pricing_detail)}</div>`;
+  html+=`</div>`;
+}
+
+// 5. Targets
+const tgs=(d.targets||[]).filter(t=>t.deals||t.mrr);
+if(tgs.length){
+  html+=`<div class="sec" style="border-left-color:var(--yellow)"><div class="sec-title"><span class="num" style="background:var(--yellow);color:var(--ink)">05</span>OBJECTIFS COMMERCIAUX</div>`;
+  html+=`<table class="data"><thead><tr><th>Trimestre</th><th>Deals</th><th>MRR</th><th>Panier moyen</th></tr></thead><tbody>`;
+  tgs.forEach(t=>{html+=`<tr><td style="font-family:'Geist Mono',monospace;font-weight:700">${t.quarter}</td><td>${t.deals}</td><td style="font-weight:700">${t.mrr}</td><td>${t.avgDeal}</td></tr>`});
+  html+=`</tbody></table></div>`;
+}
+
+// 6. Stack
+if(d.stack){
+  html+=`<div class="sec" style="border-left-color:var(--ink)"><div class="sec-title"><span class="num" style="background:var(--ink)">06</span>STACK & OUTILS</div>`;
+  html+=`<div style="font-size:12px;line-height:1.7;white-space:pre-wrap">${esc(d.stack)}</div></div>`;
+}
+
+// Footer
+html+=`<div class="footer"><span>${startupName.toUpperCase()} &middot; Sales Strategy &middot; ${today}</span><span>Confidentiel</span></div>`;
+document.getElementById('root').innerHTML=html;
+</script>
+</body>
+</html>

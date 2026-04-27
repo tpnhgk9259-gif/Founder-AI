@@ -1648,6 +1648,7 @@ const TEMPLATE_ROUTES: Record<string, string> = {
   "BP Seed": "/dashboard/modeles/bp-seed",
   "Positionnement et compétition": "/dashboard/modeles/positionnement",
   "Roadmap Produit": "/dashboard/modeles/roadmap-produit",
+  "Sales Strategy": "/dashboard/modeles/sales-strategy",
 };
 
 function TemplateSection({
