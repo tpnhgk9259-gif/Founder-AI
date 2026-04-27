@@ -9,7 +9,8 @@ import { jsonrepair } from "jsonrepair";
 import type { AgentKey } from "@/lib/supabase";
 import type Anthropic from "@anthropic-ai/sdk";
 
-const AGENT_TIMEOUT_MS = 30_000;
+export const maxDuration = 60;
+const AGENT_TIMEOUT_MS = 55_000;
 
 const PROMPT = `Tu es un expert en operations et scaling de startup. A partir du contexte, genere un Operating System Canvas complet.
 

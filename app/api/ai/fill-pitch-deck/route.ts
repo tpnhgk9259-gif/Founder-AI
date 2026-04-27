@@ -217,7 +217,8 @@ async function getCustomAgentOverrides(startupId: string): Promise<CustomAgentOv
 
 // ── Agent call ──────────────────────────────────────────────────────────
 
-const AGENT_TIMEOUT_MS = 30_000;
+export const maxDuration = 60;
+const AGENT_TIMEOUT_MS = 50_000;
 
 async function runAgentFill(
   agentKey: AgentKey | string,

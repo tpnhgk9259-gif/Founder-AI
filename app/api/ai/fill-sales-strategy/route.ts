@@ -9,7 +9,8 @@ import { jsonrepair } from "jsonrepair";
 import type { AgentKey } from "@/lib/supabase";
 import type Anthropic from "@anthropic-ai/sdk";
 
-const AGENT_TIMEOUT_MS = 30_000;
+export const maxDuration = 60;
+const AGENT_TIMEOUT_MS = 50_000;
 
 const PROMPT = `Tu es un expert commercial B2B. A partir du contexte de la startup, genere une strategie de vente complete.
 
