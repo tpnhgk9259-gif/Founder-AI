@@ -401,7 +401,7 @@ export default function OperatingSystemPage() {
                 <input type="text" value={h.budget} onChange={(e) => updateHire(i, { budget: e.target.value })} placeholder="55-65k" className="px-2 py-1.5 text-xs focus:outline-none" style={{ ...inpS, fontFamily: "var(--uf-mono)" }} />
               </div>
             ))}
-            {data.hirePlan.length < 8 && (
+            {data.hirePlan.length < 15 && (
               <button type="button" onClick={() => update({ hirePlan: [...data.hirePlan, { role: "", priority: "Moyenne", quarter: "T3 26", budget: "" }] })}
                 className="text-xs font-medium px-3 py-1.5 rounded-full" style={{ border: "1.5px solid var(--uf-line)", color: "var(--uf-muted)" }}>+ Ajouter</button>
             )}

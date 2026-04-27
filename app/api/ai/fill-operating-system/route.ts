@@ -51,7 +51,7 @@ Regles :
   - level : Manuel/Semi-auto/Automatise
 - Fais le calcul inverse : pour atteindre le KPI avec le niveau d'automatisation donne, combien faut-il de personnes + quels outils IA
 - 5-6 metriques ops avec owner et cible chiffree
-- 3-5 recrutements priorises avec budget realiste pour le stade
+- 5-15 recrutements priorises avec budget realiste pour le stade (liste tous les postes necessaires pour scaler sur 18 mois)
 - Tout doit etre specifique au contexte de la startup`;
 
 export async function POST(req: NextRequest) {
