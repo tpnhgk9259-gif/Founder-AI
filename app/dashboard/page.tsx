@@ -1627,7 +1627,7 @@ const ALL_TEMPLATES: DocumentTemplate[] = [
   { emoji: "🗺️", name: "Roadmap Produit",                 description: "Template de roadmap trimestrielle orientée impact.",            requiredPlan: "growth"  },
   { emoji: "💼", name: "Stratégie commerciale",           description: "Pipeline, canaux d'acquisition et objectifs de vente.",         requiredPlan: "growth"  },
   { emoji: "🔒", name: "Barrières à l'entrée",           description: "Avantages défensifs, IP, effets réseau, switching costs.",       requiredPlan: "growth"  },
-  { emoji: "🏗️", name: "Operating System Canvas",        description: "Modèle opérationnel pour scaler votre organisation.",          requiredPlan: "scale"   },
+  { emoji: "🏗️", name: "Op\u00E9rations",        description: "Modèle opérationnel pour scaler votre organisation.",          requiredPlan: "scale"   },
   { emoji: "🎯", name: "OKR Planner",                     description: "Définissez vos Objectives & Key Results par trimestre.",        requiredPlan: "scale"   },
   { emoji: "📊", name: "Pitch Deck Série A",             description: "Structure investisseurs pour une levée Série A.",               requiredPlan: "scale"   },
   { emoji: "📋", name: "BP Série A",                     description: "Business plan complet pour une levée Série A.",                 requiredPlan: "scale"   },
@@ -1650,7 +1650,7 @@ const TEMPLATE_ROUTES: Record<string, string> = {
   "Roadmap Produit": "/dashboard/modeles/roadmap-produit",
   "Stratégie commerciale": "/dashboard/modeles/sales-strategy",
   "Barrières à l'entrée": "/dashboard/modeles/barrieres",
-  "Operating System Canvas": "/dashboard/modeles/operating-system",
+  "Op\u00E9rations": "/dashboard/modeles/operating-system",
 };
 
 function TemplateSection({
