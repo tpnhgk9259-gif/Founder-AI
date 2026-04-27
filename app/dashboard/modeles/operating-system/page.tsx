@@ -145,8 +145,15 @@ export default function OperatingSystemPage() {
     try {
       const userContext = { vision: data.vision, mission: data.mission, values: data.values, orgChart: data.orgChart };
       const res = await fetch("/api/ai/fill-operating-system", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ startupId, userContext }) });
-      const json = await res.json();
-      if (!res.ok) { setError(json.error ?? "Erreur"); return; }
+
+      // Lire le flux SSE
+      const text = await res.text();
+      const lines = text.split("\n").filter(l => l.startsWith("data: "));
+      if (!lines.length) { setError("Pas de reponse des agents."); return; }
+      const lastData = lines[lines.length - 1].replace("data: ", "");
+      const json = JSON.parse(lastData);
+
+      if (json.error) { setError(json.error); return; }
       if (json.data) {
         const merged = { ...json.data };
         // Ne pas ecraser les decisions du CEO

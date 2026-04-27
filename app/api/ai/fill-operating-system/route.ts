@@ -6,11 +6,9 @@ import { buildCodirAgentPrompt } from "@/lib/prompts";
 import { retrieveRelevantChunks } from "@/lib/rag";
 import { logUsage } from "@/lib/usage";
 import { jsonrepair } from "jsonrepair";
+import { streamWithHeartbeat } from "@/lib/stream-helper";
 import type { AgentKey } from "@/lib/supabase";
 import type Anthropic from "@anthropic-ai/sdk";
-
-export const maxDuration = 60;
-const AGENT_TIMEOUT_MS = 55_000;
 
 const PROMPT = `Tu es un expert en operations et scaling de startup. A partir du contexte, genere un Operating System Canvas complet.
 
@@ -66,28 +64,24 @@ export async function POST(req: NextRequest) {
   const allowed = await userOwnsStartup(userId, startupId);
   if (!allowed) return Response.json({ error: "Acces refuse" }, { status: 403 });
 
-  const context = await getStartupDescription(startupId).catch(() => null);
-  const chunks = await retrieveRelevantChunks("operations", "organisation processus recrutement outils scaling").catch(() => null);
-  const extraKnowledge = chunks?.join("\n\n") ?? null;
-  const systemPrompt = buildCodirAgentPrompt("operations" as AgentKey, context, extraKnowledge);
+  return streamWithHeartbeat(async (send) => {
+    const context = await getStartupDescription(startupId).catch(() => null);
+    const chunks = await retrieveRelevantChunks("operations", "organisation processus recrutement outils scaling").catch(() => null);
+    const extraKnowledge = chunks?.join("\n\n") ?? null;
+    const systemPrompt = buildCodirAgentPrompt("operations" as AgentKey, context, extraKnowledge);
 
-  try {
-    const timeout = new Promise<never>((_, reject) => setTimeout(() => reject(new Error("Timeout")), AGENT_TIMEOUT_MS));
-    const call = claude.messages.create({ model: MODELS.CHAT, max_tokens: 3500, system: systemPrompt, messages: [{ role: "user", content: PROMPT }] });
-    const response = await Promise.race([call, timeout]);
+    const response = await claude.messages.create({ model: MODELS.CHAT, max_tokens: 3500, system: systemPrompt, messages: [{ role: "user", content: PROMPT }] });
     const rawText = response.content.filter((b): b is Anthropic.TextBlock => b.type === "text").map((b) => b.text).join("");
 
     logUsage({ startupId, userId, model: response.model, endpoint: "fill-operating-system", inputTokens: response.usage?.input_tokens ?? 0, outputTokens: response.usage?.output_tokens ?? 0 });
 
     const jsonMatch = rawText.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) return Response.json({ error: "Reponse IA invalide" }, { status: 500 });
+    if (!jsonMatch) { send(JSON.stringify({ error: "Reponse IA invalide" })); return; }
 
     let parsed: Record<string, unknown>;
     try { parsed = JSON.parse(jsonrepair(jsonMatch[0])); }
-    catch { try { parsed = JSON.parse(jsonMatch[0]); } catch { return Response.json({ error: "Parse error" }, { status: 500 }); } }
+    catch { try { parsed = JSON.parse(jsonMatch[0]); } catch { send(JSON.stringify({ error: "Parse error" })); return; } }
 
-    return Response.json({ data: parsed });
-  } catch (err) {
-    return Response.json({ error: String(err) }, { status: 500 });
-  }
+    send(JSON.stringify({ data: parsed }));
+  });
 }
